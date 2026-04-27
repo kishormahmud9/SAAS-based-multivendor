@@ -1,0 +1,125 @@
+// =============================================================================
+// STORE — Vendor store with KYC, wallet, approval lifecycle
+// =============================================================================
+model Store {
+  id               String      @id @default(cuid())
+  vendorId         String      @unique
+  vendor           User        @relation(fields: [vendorId], references: [id])
+
+  // ── Identity ──────────────────────────────────────────────────────────────
+  name             String
+  slug             String      @unique
+  description      String?
+  logo             String?
+  banner           String?
+  email            String?
+  phone            String?
+  website          String?
+  address          String?
+  country          String?     @default("BD")
+
+  // ── Status & Approval ─────────────────────────────────────────────────────
+  status           StoreStatus @default(PENDING_REVIEW)
+  isActive         Boolean     @default(false)
+  approvedAt       DateTime?
+  approvedBy       String?
+  rejectionReason  String?
+
+  // ── Finance ───────────────────────────────────────────────────────────────
+  commissionRate   Decimal     @default(10.00) @db.Decimal(5, 2)
+  walletBalance    Decimal     @default(0.00)  @db.Decimal(12, 2)
+  totalEarned      Decimal     @default(0.00)  @db.Decimal(12, 2)
+  totalWithdrawn   Decimal     @default(0.00)  @db.Decimal(12, 2)
+
+  // ── SEO ───────────────────────────────────────────────────────────────────
+  metaTitle        String?
+  metaDescription  String?
+
+  // ── Soft Delete ───────────────────────────────────────────────────────────
+  isDeleted        Boolean     @default(false)
+  deletedAt        DateTime?
+  deletedBy        String?
+
+  // ── Timestamps ────────────────────────────────────────────────────────────
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  // ── Relations ─────────────────────────────────────────────────────────────
+  products         Product[]
+  withdrawals      Withdrawal[]
+  subscriptions    Subscription[]
+  staff            StoreStaff[]
+  kyc              VendorKyc?
+  vendorOrders     VendorOrder[]
+  walletTxns       WalletTransaction[]
+  refundRequests   RefundRequest[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([isDeleted])
+  @@map("stores")
+}
+
+// =============================================================================
+// VENDOR KYC — Identity verification documents
+// =============================================================================
+model VendorKyc {
+  id               String    @id @default(cuid())
+  storeId          String    @unique
+  store            Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  // ── Business Info ─────────────────────────────────────────────────────────
+  businessName     String?
+  businessType     String?   // sole_proprietor, llc, corporation, etc.
+  registrationNo   String?
+  taxId            String?
+
+  // ── Documents ─────────────────────────────────────────────────────────────
+  nidFront         String?
+  nidBack          String?
+  tradeLicense     String?
+  bankStatement    String?
+  otherDocs        String[]
+
+  // ── Bank / Payment Info ───────────────────────────────────────────────────
+  bankName         String?
+  bankAccountNo    String?
+  bankRoutingNo    String?
+  bankBranch       String?
+  bkashNumber      String?
+  nagadNumber      String?
+
+  // ── Review ────────────────────────────────────────────────────────────────
+  status           KycStatus @default(NOT_SUBMITTED)
+  reviewedBy       String?
+  reviewedAt       DateTime?
+  reviewNote       String?
+
+  submittedAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@map("vendor_kyc")
+}
+
+// =============================================================================
+// STORE STAFF — Vendor team members with role-based access
+// =============================================================================
+model StoreStaff {
+  id         String   @id @default(cuid())
+  storeId    String
+  userId     String
+  roleId     String
+  isActive   Boolean  @default(true)
+  invitedBy  String?
+  joinedAt   DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  store      Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [roleId], references: [id])
+
+  @@unique([storeId, userId])
+  @@index([storeId])
+  @@map("store_staff")
+}

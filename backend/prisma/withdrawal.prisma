@@ -1,0 +1,50 @@
+// =============================================================================
+// WALLET TRANSACTION — Immutable ledger for vendor wallet
+// =============================================================================
+model WalletTransaction {
+  id          String                  @id @default(cuid())
+  storeId     String
+  type        WalletTransactionType   // CREDIT | DEBIT
+  reason      WalletTransactionReason
+  amount      Decimal                 @db.Decimal(12, 2)
+  balanceAfter Decimal                @db.Decimal(12, 2) // snapshot after tx
+  referenceId String?                 // orderId, withdrawalId, etc.
+  description String?
+  createdAt   DateTime                @default(now())
+
+  store       Store                   @relation(fields: [storeId], references: [id])
+
+  @@index([storeId])
+  @@index([type])
+  @@index([reason])
+  @@index([createdAt])
+  @@map("wallet_transactions")
+}
+
+// =============================================================================
+// WITHDRAWAL — Vendor payout request
+// =============================================================================
+model Withdrawal {
+  id            String           @id @default(cuid())
+  storeId       String
+  amount        Decimal          @db.Decimal(12, 2)
+  currency      String           @default("BDT")
+  method        PaymentMethod
+  accountDetails Json            // { bankAccount, bkash, etc. }
+  status        WithdrawalStatus @default(PENDING)
+  requestedBy   String           // userId of vendor/staff
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  processedAt   DateTime?
+  gatewayRef    String?
+  note          String?
+  adminNote     String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  store         Store            @relation(fields: [storeId], references: [id])
+
+  @@index([storeId])
+  @@index([status])
+  @@map("withdrawals")
+}

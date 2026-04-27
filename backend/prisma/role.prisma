@@ -1,0 +1,59 @@
+// =============================================================================
+// RBAC — Role, Permission, and Assignment tables
+// =============================================================================
+
+// Custom roles (e.g. "Store Manager", "Order Picker")
+model Role {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  isSystem    Boolean          @default(false) // system roles cannot be deleted
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  permissions RoleByPermission[]
+  userRoles   RoleByUser[]
+  storeStaff  StoreStaff[]
+
+  @@map("roles")
+}
+
+// Granular permissions (e.g. "products:create", "orders:view")
+model Permission {
+  id          String           @id @default(cuid())
+  name        String           @unique  // e.g. "products:create"
+  module      String                    // e.g. "products"
+  action      String                    // e.g. "create"
+  description String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  roles       RoleByPermission[]
+
+  @@index([module])
+  @@map("permissions")
+}
+
+// Role ↔ Permission pivot
+model RoleByPermission {
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+// User ↔ Role pivot (supports multi-role assignment)
+model RoleByUser {
+  userId    String
+  roleId    String
+  grantedAt DateTime @default(now())
+  grantedBy String?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}

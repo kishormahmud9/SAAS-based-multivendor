@@ -1,0 +1,302 @@
+// =============================================================================
+// ENUMS — All platform-wide enumerations
+// =============================================================================
+
+// ── User & Access ─────────────────────────────────────────────────────────────
+enum SystemRole {
+  SUPER_ADMIN
+  ADMIN
+  VENDOR
+  CUSTOMER
+  VENDOR_STAFF
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+// ── Store / KYC ───────────────────────────────────────────────────────────────
+enum StoreStatus {
+  PENDING_REVIEW
+  ACTIVE
+  SUSPENDED
+  REJECTED
+  CLOSED
+}
+
+enum KycStatus {
+  NOT_SUBMITTED
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ── Subscription / Billing ────────────────────────────────────────────────────
+enum BillingCycle {
+  MONTHLY
+  QUARTERLY
+  SEMI_ANNUAL
+  ANNUAL
+  LIFETIME
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+}
+
+// ── Product ───────────────────────────────────────────────────────────────────
+enum ProductStatus {
+  DRAFT
+  PENDING_REVIEW
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+  OUT_OF_STOCK
+}
+
+enum ProductType {
+  SIMPLE
+  VARIABLE
+  DIGITAL
+  BUNDLED
+}
+
+// ── Order ─────────────────────────────────────────────────────────────────────
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+  RETURN_REQUESTED
+  RETURNED
+  REFUNDED
+}
+
+enum VendorOrderStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  PROCESSING
+  READY_TO_SHIP
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+// ── Payment ───────────────────────────────────────────────────────────────────
+enum PaymentStatus {
+  PENDING
+  PAID
+  PARTIALLY_PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+  VOIDED
+}
+
+enum PaymentMethod {
+  CARD
+  BKASH
+  NAGAD
+  ROCKET
+  BANK_TRANSFER
+  CASH_ON_DELIVERY
+  WALLET
+  STRIPE
+  PAYPAL
+}
+
+// ── Refund ────────────────────────────────────────────────────────────────────
+enum RefundStatus {
+  REQUESTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  PROCESSED
+  PARTIALLY_PROCESSED
+}
+
+enum RefundReason {
+  DEFECTIVE_PRODUCT
+  WRONG_ITEM
+  NOT_AS_DESCRIBED
+  LATE_DELIVERY
+  MISSING_ITEM
+  CHANGED_MIND
+  OTHER
+}
+
+// ── Shipment ──────────────────────────────────────────────────────────────────
+enum ShipmentStatus {
+  PENDING
+  LABEL_CREATED
+  PICKED_UP
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERED
+  RETURNED
+  FAILED
+  LOST
+}
+
+// ── Wallet / Finance ──────────────────────────────────────────────────────────
+enum WalletTransactionType {
+  CREDIT
+  DEBIT
+}
+
+enum WalletTransactionReason {
+  ORDER_COMMISSION
+  WITHDRAWAL
+  WITHDRAWAL_REVERSAL
+  REFUND_DEDUCTION
+  BONUS
+  ADJUSTMENT
+  SUBSCRIPTION_FEE
+}
+
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  PROCESSING
+  COMPLETED
+  REJECTED
+  CANCELLED
+}
+
+// ── Coupon ────────────────────────────────────────────────────────────────────
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+  FREE_SHIPPING
+}
+
+enum CouponScope {
+  GLOBAL
+  STORE
+  PRODUCT
+  CATEGORY
+}
+
+// ── Support Ticket ────────────────────────────────────────────────────────────
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_CUSTOMER
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketCategory {
+  ORDER_ISSUE
+  PAYMENT_ISSUE
+  PRODUCT_ISSUE
+  ACCOUNT_ISSUE
+  VENDOR_ISSUE
+  TECHNICAL
+  OTHER
+}
+
+// ── Notification ─────────────────────────────────────────────────────────────
+enum NotificationType {
+  ORDER_PLACED
+  ORDER_STATUS_CHANGED
+  PAYMENT_RECEIVED
+  PAYMENT_FAILED
+  REVIEW_POSTED
+  REFUND_REQUESTED
+  REFUND_PROCESSED
+  WITHDRAWAL_PROCESSED
+  KYC_STATUS_CHANGED
+  SUBSCRIPTION_RENEWED
+  SUBSCRIPTION_EXPIRING
+  LOW_STOCK_ALERT
+  NEW_VENDOR_REGISTERED
+  TICKET_REPLY
+  SYSTEM
+}
+
+// ── Activity / Audit ──────────────────────────────────────────────────────────
+enum ActivityAction {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  APPROVE
+  REJECT
+  SUSPEND
+  RESTORE
+  EXPORT
+  IMPORT
+}
+
+// ── Address ───────────────────────────────────────────────────────────────────
+enum AddressType {
+  HOME
+  OFFICE
+  WAREHOUSE
+  OTHER
+}
+
+// ── Banner ────────────────────────────────────────────────────────────────────
+enum BannerType {
+  CAROUSEL
+  OFFER
+  POPUP
+  HERO
+}
+
+enum BannerBackground {
+  SOLID
+  IMAGE
+  GRADIENT
+}
+
+// ── Verification ──────────────────────────────────────────────────────────────
+enum VerificationType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+  PHONE_VERIFICATION
+}
+
+enum OtpPurpose {
+  EMAIL_VERIFY
+  PHONE_VERIFY
+  PASSWORD_RESET
+  TWO_FACTOR
+}
+
+// ── Tax ───────────────────────────────────────────────────────────────────────
+enum TaxType {
+  VAT
+  GST
+  SALES_TAX
+  CUSTOMS
+}

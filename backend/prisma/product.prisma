@@ -1,0 +1,132 @@
+// =============================================================================
+// PRODUCT — Full SaaS e-commerce product model
+// =============================================================================
+model Product {
+  id               String        @id @default(cuid())
+  storeId          String
+  categoryId       String
+  brandId          String?
+
+  // ── Identity ──────────────────────────────────────────────────────────────
+  name             String
+  slug             String        @unique
+  description      String
+  shortDescription String?
+  sku              String?       @unique
+  barcode          String?       @unique
+  productType      ProductType   @default(SIMPLE)
+
+  // ── Pricing ───────────────────────────────────────────────────────────────
+  price            Decimal       @db.Decimal(12, 2)
+  salePrice        Decimal?      @db.Decimal(12, 2)
+  costPrice        Decimal?      @db.Decimal(12, 2)
+  taxRate          Decimal?      @db.Decimal(5, 2)
+  taxInclusive     Boolean       @default(false)
+
+  // ── Stock / Inventory ─────────────────────────────────────────────────────
+  stock            Int           @default(0)
+  lowStockThreshold Int          @default(5)
+  trackInventory   Boolean       @default(true)
+  allowBackorder   Boolean       @default(false)
+
+  // ── Physical Dimensions ───────────────────────────────────────────────────
+  weight           Decimal?      @db.Decimal(8, 3)
+  weightUnit       String?       @default("kg")
+  length           Decimal?      @db.Decimal(8, 2)
+  width            Decimal?      @db.Decimal(8, 2)
+  height           Decimal?      @db.Decimal(8, 2)
+  dimensionUnit    String?       @default("cm")
+
+  // ── Media ────────────────────────────────────────────────────────────────
+  images           String[]
+  thumbnail        String?
+
+  // ── SEO ───────────────────────────────────────────────────────────────────
+  metaTitle        String?
+  metaDescription  String?
+  metaKeywords     String[]
+
+  // ── Status & Visibility ───────────────────────────────────────────────────
+  status           ProductStatus @default(DRAFT)
+  isFeatured       Boolean       @default(false)
+  isDigital        Boolean       @default(false)
+  digitalFileUrl   String?
+
+  // ── Soft Delete ───────────────────────────────────────────────────────────
+  isDeleted        Boolean       @default(false)
+  deletedAt        DateTime?
+  deletedBy        String?
+
+  // ── Timestamps ────────────────────────────────────────────────────────────
+  publishedAt      DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  // ── Relations ─────────────────────────────────────────────────────────────
+  store            Store         @relation(fields: [storeId], references: [id])
+  category         Category      @relation(fields: [categoryId], references: [id])
+  brand            Brand?        @relation(fields: [brandId], references: [id])
+  attributes       ProductAttribute[]
+  variants         ProductVariant[]
+  cartItems        CartItem[]
+  orderItems       OrderItem[]
+  reviews          Review[]
+  wishlistItems    Wishlist[]
+  inventoryLedger  InventoryLedger[]
+  refundItems      RefundItem[]
+
+  @@index([storeId])
+  @@index([categoryId])
+  @@index([brandId])
+  @@index([slug])
+  @@index([sku])
+  @@index([status])
+  @@index([isFeatured])
+  @@index([isDeleted])
+  @@map("products")
+}
+
+// =============================================================================
+// PRODUCT ATTRIBUTE — Flat key-value (Color: Red, Size: XL)
+// =============================================================================
+model ProductAttribute {
+  id        String  @id @default(cuid())
+  productId String
+  name      String  // e.g. "Color"
+  value     String  // e.g. "Red"
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_attributes")
+}
+
+// =============================================================================
+// PRODUCT VARIANT — SKU-level variants (Size M + Blue = specific SKU)
+// =============================================================================
+model ProductVariant {
+  id               String   @id @default(cuid())
+  productId        String
+  sku              String   @unique
+  barcode          String?
+  name             String   // e.g. "Blue / XL"
+  options          Json     // { color: "Blue", size: "XL" }
+  price            Decimal  @db.Decimal(12, 2)
+  salePrice        Decimal? @db.Decimal(12, 2)
+  costPrice        Decimal? @db.Decimal(12, 2)
+  stock            Int      @default(0)
+  weight           Decimal? @db.Decimal(8, 3)
+  images           String[]
+  isActive         Boolean  @default(true)
+  sortOrder        Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  product          Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems        CartItem[]
+  orderItems       OrderItem[]
+  inventoryLedger  InventoryLedger[]
+
+  @@index([productId])
+  @@index([sku])
+  @@map("product_variants")
+}

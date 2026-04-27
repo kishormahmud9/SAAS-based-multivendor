@@ -1,0 +1,45 @@
+// =============================================================================
+// ACTIVITY LOG — Tracks user actions (AI-ready, audit trail)
+// =============================================================================
+model ActivityLog {
+  id          String         @id @default(cuid())
+  userId      String?
+  action      ActivityAction
+  entity      String         // e.g. "Product", "Order"
+  entityId    String?
+  description String?
+  metadata    Json?          // extra context for AI analysis
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime       @default(now())
+
+  user        User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+// =============================================================================
+// AUDIT LOG — System-level immutable audit trail (admin actions)
+// =============================================================================
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorId     String?  // admin userId
+  actorRole   String?
+  action      String   // e.g. "store.approve", "user.suspend"
+  entity      String
+  entityId    String?
+  oldValue    Json?
+  newValue    Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([actorId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

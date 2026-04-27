@@ -1,0 +1,95 @@
+// =============================================================================
+// BANNER — Promotional banners / sliders
+// =============================================================================
+model Banner {
+  id              String           @id @default(cuid())
+  title           String
+  subtitle        String?
+  image           String?
+  link            String?
+  type            BannerType       @default(CAROUSEL)
+  background      BannerBackground @default(SOLID)
+  backgroundColor String?
+  position        Int              @default(0)
+  storeId         String?          // null = platform banner
+  targetDate      DateTime?
+  startsAt        DateTime?
+  endsAt          DateTime?
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([isActive])
+  @@index([type])
+  @@map("banners")
+}
+
+// =============================================================================
+// WISHLIST — User product wishlist
+// =============================================================================
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@map("wishlists")
+}
+
+// =============================================================================
+// UI SETTINGS — Key-value store for admin-configurable UI
+// =============================================================================
+model UiSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("ui_settings")
+}
+
+// =============================================================================
+// TAX RULE — Country/region tax configuration
+// =============================================================================
+model TaxRule {
+  id        String  @id @default(cuid())
+  name      String
+  country   String
+  state     String? // null = country-wide
+  taxType   TaxType @default(VAT)
+  rate      Decimal @db.Decimal(5, 2)
+  isActive  Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([country, state, taxType])
+  @@index([country])
+  @@map("tax_rules")
+}
+
+// =============================================================================
+// SEO META — Reusable SEO for any entity (AI can enrich this)
+// =============================================================================
+model SeoMeta {
+  id          String   @id @default(cuid())
+  entity      String   // "Product", "Category", "Store"
+  entityId    String
+  title       String?
+  description String?
+  keywords    String[]
+  ogImage     String?
+  canonical   String?
+  schema      Json?    // JSON-LD structured data
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([entity, entityId])
+  @@index([entity, entityId])
+  @@map("seo_meta")
+}

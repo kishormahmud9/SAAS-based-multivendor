@@ -1,0 +1,66 @@
+// =============================================================================
+// PLAN — SaaS subscription plans
+// =============================================================================
+model Plan {
+  id               String       @id @default(cuid())
+  name             String
+  slug             String       @unique
+  description      String?
+  price            Decimal      @db.Decimal(10, 2)
+  billingCycle     BillingCycle @default(MONTHLY)
+  trialDays        Int          @default(0)
+  features         Json         // structured features object
+  limits           Json?        // { products: 100, staff: 5, ... }
+  isActive         Boolean      @default(true)
+  isPopular        Boolean      @default(false)
+  sortOrder        Int          @default(0)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  subscriptions    Subscription[]
+
+  @@map("plans")
+}
+
+// =============================================================================
+// SUBSCRIPTION — Vendor subscription with full billing lifecycle
+// =============================================================================
+model Subscription {
+  id                String             @id @default(cuid())
+  storeId           String
+  planId            String
+
+  status            SubscriptionStatus @default(TRIAL)
+  billingCycle      BillingCycle
+
+  // ── Trial ────────────────────────────────────────────────────────────────
+  trialStartsAt     DateTime?
+  trialEndsAt       DateTime?
+
+  // ── Active Period ─────────────────────────────────────────────────────────
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+
+  // ── Cancellation ──────────────────────────────────────────────────────────
+  cancelledAt        DateTime?
+  cancelReason       String?
+  cancelledBy        String?
+
+  // ── Billing ───────────────────────────────────────────────────────────────
+  autoRenew          Boolean   @default(true)
+  lastBilledAt       DateTime?
+  nextBillingAt      DateTime?
+  amount             Decimal   @db.Decimal(10, 2)
+  currency           String    @default("BDT")
+
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  store              Store     @relation(fields: [storeId], references: [id])
+  plan               Plan      @relation(fields: [planId], references: [id])
+
+  @@index([storeId])
+  @@index([status])
+  @@index([currentPeriodEnd])
+  @@map("subscriptions")
+}

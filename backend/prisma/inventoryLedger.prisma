@@ -1,0 +1,23 @@
+// =============================================================================
+// INVENTORY LEDGER — Stock movement audit trail
+// =============================================================================
+model InventoryLedger {
+  id          String          @id @default(cuid())
+  productId   String
+  variantId   String?
+  changeQty   Int             // positive = in, negative = out
+  stockAfter  Int             // snapshot after change
+  reason      String          // e.g. "sale", "return", "manual_adjust", "restock"
+  referenceId String?         // orderId or adjustmentId
+  note        String?
+  createdBy   String?
+  createdAt   DateTime        @default(now())
+
+  product     Product         @relation(fields: [productId], references: [id])
+  variant     ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@index([productId])
+  @@index([variantId])
+  @@index([createdAt])
+  @@map("inventory_ledger")
+}

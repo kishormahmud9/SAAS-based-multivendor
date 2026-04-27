@@ -1,0 +1,33 @@
+// =============================================================================
+// VERIFICATION TOKEN — Email/password reset tokens
+// =============================================================================
+model VerificationToken {
+  id        String           @id @default(cuid())
+  email     String
+  token     String           @unique
+  type      VerificationType
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@index([email])
+  @@index([token])
+  @@map("verification_tokens")
+}
+
+// =============================================================================
+// OTP VERIFICATION — Phone / email OTP
+// =============================================================================
+model OTPVerification {
+  id        String     @id @default(cuid())
+  target    String     // email or phone number
+  otp       String
+  purpose   OtpPurpose
+  expiresAt DateTime
+  verified  Boolean    @default(false)
+  attempts  Int        @default(0)
+  createdAt DateTime   @default(now())
+
+  @@index([target, purpose])
+  @@map("otp_verifications")
+}

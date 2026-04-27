@@ -1,0 +1,55 @@
+// =============================================================================
+// USER — Core identity, auth & profile
+// =============================================================================
+model User {
+  id                   String     @id @default(cuid())
+  name                 String
+  email                String     @unique
+  phone                String?    @unique
+  password             String?
+  avatar               String?
+  gender               Gender?
+  dateOfBirth          DateTime?
+
+  // ── Auth / Security ──────────────────────────────────────────────────────
+  systemRole           SystemRole @default(CUSTOMER)
+  status               UserStatus @default(PENDING_VERIFICATION)
+  emailVerified        DateTime?
+  phoneVerified        DateTime?
+  twoFactorEnabled     Boolean    @default(false)
+  twoFactorSecret      String?
+  lastLoginAt          DateTime?
+  lastLoginIp          String?
+  failedLoginAttempts  Int        @default(0)
+  lockedUntil          DateTime?
+  passwordChangedAt    DateTime?
+  refreshToken         String?
+
+  // ── Soft Delete ──────────────────────────────────────────────────────────
+  isDeleted            Boolean    @default(false)
+  deletedAt            DateTime?
+  deletedBy            String?
+
+  // ── Timestamps ───────────────────────────────────────────────────────────
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+
+  // ── Relations ────────────────────────────────────────────────────────────
+  addresses            Address[]
+  cart                 Cart?
+  orders               Order[]
+  reviews              Review[]
+  wishlist             Wishlist[]
+  store                Store?
+  tickets              Ticket[]
+  notifications        Notification[]
+  activityLogs         ActivityLog[]
+  roleAssignments      RoleByUser[]
+
+  @@index([email])
+  @@index([phone])
+  @@index([systemRole])
+  @@index([status])
+  @@index([isDeleted])
+  @@map("users")
+}

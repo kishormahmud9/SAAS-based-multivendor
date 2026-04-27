@@ -1,0 +1,103 @@
+// =============================================================================
+// PAYMENT — Full payment lifecycle per order
+// =============================================================================
+model Payment {
+  id              String        @id @default(cuid())
+  orderId         String
+  amount          Decimal       @db.Decimal(12, 2)
+  currency        String        @default("BDT")
+  method          PaymentMethod
+  status          PaymentStatus @default(PENDING)
+  gatewayName     String?       // e.g. "SSLCommerz", "Stripe", "bKash"
+  gatewayTxId     String?       // gateway transaction ID
+  gatewayResponse Json?         // raw gateway response
+  paidAt          DateTime?
+  failedAt        DateTime?
+  refundedAmount  Decimal?      @db.Decimal(12, 2)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  order           Order         @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+  @@index([gatewayTxId])
+  @@index([status])
+  @@map("payments")
+}
+
+// =============================================================================
+// REFUND REQUEST — Customer refund with item-level tracking
+// =============================================================================
+model RefundRequest {
+  id             String       @id @default(cuid())
+  orderId        String
+  storeId        String?
+  requestedBy    String       // userId
+
+  reason         RefundReason
+  description    String?
+  evidenceImages String[]
+  refundAmount   Decimal      @db.Decimal(12, 2)
+
+  status         RefundStatus @default(REQUESTED)
+  resolvedBy     String?
+  resolvedAt     DateTime?
+  adminNote      String?
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  order          Order        @relation(fields: [orderId], references: [id])
+  store          Store?       @relation(fields: [storeId], references: [id])
+  items          RefundItem[]
+
+  @@index([orderId])
+  @@index([storeId])
+  @@index([status])
+  @@map("refund_requests")
+}
+
+// =============================================================================
+// REFUND ITEM — Which order items are being refunded
+// =============================================================================
+model RefundItem {
+  id              String        @id @default(cuid())
+  refundRequestId String
+  orderItemId     String
+  productId       String
+  quantity        Int
+  refundAmount    Decimal       @db.Decimal(12, 2)
+
+  refundRequest   RefundRequest @relation(fields: [refundRequestId], references: [id], onDelete: Cascade)
+  orderItem       OrderItem     @relation(fields: [orderItemId], references: [id])
+  product         Product       @relation(fields: [productId], references: [id])
+
+  @@index([refundRequestId])
+  @@map("refund_items")
+}
+
+// =============================================================================
+// SHIPMENT — Shipment / tracking per order or vendor order
+// =============================================================================
+model Shipment {
+  id              String         @id @default(cuid())
+  orderId         String
+  vendorOrderId   String?
+  carrier         String?        // e.g. "Pathao", "Steadfast", "DHL"
+  trackingNumber  String?
+  trackingUrl     String?
+  status          ShipmentStatus @default(PENDING)
+  estimatedAt     DateTime?
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+  weight          Decimal?       @db.Decimal(8, 3)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  order           Order          @relation(fields: [orderId], references: [id])
+  vendorOrder     VendorOrder?   @relation(fields: [vendorOrderId], references: [id])
+
+  @@index([orderId])
+  @@index([trackingNumber])
+  @@map("shipments")
+}

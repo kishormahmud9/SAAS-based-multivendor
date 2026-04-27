@@ -1,0 +1,29 @@
+// =============================================================================
+// COUPON — Multi-scope discount coupons
+// =============================================================================
+model Coupon {
+  id              String       @id @default(cuid())
+  code            String       @unique
+  description     String?
+  discountType    DiscountType @default(PERCENTAGE)
+  discountValue   Decimal      @db.Decimal(10, 2)
+  scope           CouponScope  @default(GLOBAL)
+  storeId         String?      // if scope = STORE
+  minOrderAmount  Decimal?     @db.Decimal(10, 2)
+  maxDiscount     Decimal?     @db.Decimal(10, 2)
+  usageLimit      Int?         // total uses allowed
+  perUserLimit    Int?         @default(1)
+  usedCount       Int          @default(0)
+  startsAt        DateTime?
+  expiresAt       DateTime
+  isActive        Boolean      @default(true)
+  createdBy       String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  orders          Order[]
+
+  @@index([code])
+  @@index([isActive])
+  @@map("coupons")
+}

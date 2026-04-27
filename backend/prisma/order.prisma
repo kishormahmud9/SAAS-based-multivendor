@@ -1,0 +1,124 @@
+// =============================================================================
+// ORDER — Master order (customer-level) split-ready
+// =============================================================================
+model Order {
+  id                String        @id @default(cuid())
+  orderNumber       String        @unique
+  userId            String
+
+  // ── Pricing Breakdown ─────────────────────────────────────────────────────
+  subtotal          Decimal       @db.Decimal(12, 2)
+  shippingCost      Decimal       @default(0.00) @db.Decimal(10, 2)
+  discountAmount    Decimal       @default(0.00) @db.Decimal(10, 2)
+  taxAmount         Decimal       @default(0.00) @db.Decimal(10, 2)
+  totalAmount       Decimal       @db.Decimal(12, 2)
+
+  // ── Status ────────────────────────────────────────────────────────────────
+  status            OrderStatus   @default(PENDING)
+  paymentStatus     PaymentStatus @default(PENDING)
+  paymentMethod     PaymentMethod?
+
+  // ── Coupon ────────────────────────────────────────────────────────────────
+  couponId          String?
+  couponCode        String?
+  couponDiscount    Decimal?      @db.Decimal(10, 2)
+
+  // ── Shipping Address (snapshot at order time) ─────────────────────────────
+  shippingAddressId String?
+  shippingSnapshot  Json?         // frozen copy of address fields
+
+  // ── Notes ─────────────────────────────────────────────────────────────────
+  customerNote      String?
+  adminNote         String?
+
+  // ── Timestamps ────────────────────────────────────────────────────────────
+  confirmedAt       DateTime?
+  shippedAt         DateTime?
+  deliveredAt       DateTime?
+  cancelledAt       DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // ── Relations ─────────────────────────────────────────────────────────────
+  user              User          @relation(fields: [userId], references: [id])
+  coupon            Coupon?       @relation(fields: [couponId], references: [id])
+  shippingAddress   Address?      @relation(fields: [shippingAddressId], references: [id])
+  items             OrderItem[]
+  vendorOrders      VendorOrder[]
+  payments          Payment[]
+  refundRequests    RefundRequest[]
+  shipments         Shipment[]
+
+  @@index([orderNumber])
+  @@index([userId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+// =============================================================================
+// VENDOR ORDER — Per-vendor sub-order (split order system)
+// =============================================================================
+model VendorOrder {
+  id          String            @id @default(cuid())
+  orderId     String
+  storeId     String
+  status      VendorOrderStatus @default(PENDING)
+
+  subtotal    Decimal           @db.Decimal(12, 2)
+  commission  Decimal           @db.Decimal(10, 2) // platform fee taken
+  vendorEarns Decimal           @db.Decimal(12, 2) // subtotal - commission
+
+  vendorNote  String?
+  adminNote   String?
+
+  confirmedAt DateTime?
+  shippedAt   DateTime?
+  deliveredAt DateTime?
+  cancelledAt DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  order       Order             @relation(fields: [orderId], references: [id])
+  store       Store             @relation(fields: [storeId], references: [id])
+  items       OrderItem[]
+  shipments   Shipment[]
+
+  @@index([orderId])
+  @@index([storeId])
+  @@index([status])
+  @@map("vendor_orders")
+}
+
+// =============================================================================
+// ORDER ITEM — Line item with variant & snapshot pricing
+// =============================================================================
+model OrderItem {
+  id              String         @id @default(cuid())
+  orderId         String
+  vendorOrderId   String?
+  productId       String
+  variantId       String?
+
+  // Snapshot data (price may change, we freeze order-time values)
+  productName     String
+  variantName     String?
+  sku             String?
+  quantity        Int
+  unitPrice       Decimal        @db.Decimal(12, 2)
+  totalPrice      Decimal        @db.Decimal(12, 2)
+  taxAmount       Decimal        @default(0.00) @db.Decimal(10, 2)
+  discountAmount  Decimal        @default(0.00) @db.Decimal(10, 2)
+
+  order           Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  vendorOrder     VendorOrder?   @relation(fields: [vendorOrderId], references: [id])
+  product         Product        @relation(fields: [productId], references: [id])
+  variant         ProductVariant? @relation(fields: [variantId], references: [id])
+  refundItems     RefundItem[]
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([vendorOrderId])
+  @@map("order_items")
+}
