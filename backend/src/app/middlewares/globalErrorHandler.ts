@@ -41,7 +41,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   }
 
   // Log error
-  if (config.NODE_ENV === 'development') {
+  if (config.env === 'development') {
     console.error('💥 Error:', err);
   } else {
     errorLogger.error(err);
@@ -51,7 +51,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     success: false,
     message,
     errorMessages,
-    stack: config.NODE_ENV === 'development' ? err?.stack : undefined,
+    stack: config.env === 'development' ? err?.stack : undefined,
   });
 };
 

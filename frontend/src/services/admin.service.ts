@@ -73,6 +73,83 @@ export const adminService = {
     return apiClient(`/admin/refunds${params ? `?${params}` : ''}`, { method: 'GET' });
   },
 
+  // ── Categories ─────────────────────────────────────────────────────────────
+  getCategories: async (params: string = ''): Promise<any> => {
+    return apiClient(`/categories${params ? `?${params}` : ''}`, { method: 'GET' });
+  },
+
+  getCategoryTree: async (): Promise<any> => {
+    return apiClient('/categories/tree', { method: 'GET' });
+  },
+
+  getCategoryFlat: async (): Promise<any> => {
+    return apiClient('/categories/flat', { method: 'GET' });
+  },
+
+  getCategoryById: async (id: string): Promise<any> => {
+    return apiClient(`/categories/${id}`, { method: 'GET' });
+  },
+
+  createCategory: async (data: any): Promise<any> => {
+    const isFormData = data instanceof FormData;
+    return apiClient('/categories', { 
+      method: 'POST', 
+      body: data,
+      headers: isFormData ? {} : { 'Content-Type': 'application/json' }
+    });
+  },
+
+  updateCategory: async (id: string, data: any): Promise<any> => {
+    const isFormData = data instanceof FormData;
+    return apiClient(`/categories/${id}`, { 
+      method: 'PATCH', 
+      body: data,
+      headers: isFormData ? {} : { 'Content-Type': 'application/json' }
+    });
+  },
+
+  deleteCategory: async (id: string): Promise<any> => {
+    return apiClient(`/categories/${id}`, { method: 'DELETE' });
+  },
+
+  bulkUpdateCategoryStatus: async (ids: string[], isActive: boolean): Promise<any> => {
+    return apiClient('/categories/bulk-status', { 
+      method: 'PATCH', 
+      body: { ids, isActive } 
+    });
+  },
+
+  bulkDeleteCategories: async (ids: string[]): Promise<any> => {
+    return apiClient('/categories/bulk-delete', { 
+      method: 'POST', 
+      body: { ids } 
+    });
+  },
+
+  updateCategorySortOrder: async (items: { id: string, sortOrder: number }[]): Promise<any> => {
+    return apiClient('/categories/sort-order', { 
+      method: 'PATCH', 
+      body: { items } 
+    });
+  },
+
+  // ── Brands ─────────────────────────────────────────────────────────────────
+  getBrands: async (): Promise<any> => {
+    return apiClient('/admin/brands', { method: 'GET' });
+  },
+
+  createBrand: async (data: any): Promise<any> => {
+    return apiClient('/admin/brands', { method: 'POST', body: data });
+  },
+
+  updateBrand: async (id: string, data: any): Promise<any> => {
+    return apiClient(`/admin/brands/${id}`, { method: 'PATCH', body: data });
+  },
+
+  deleteBrand: async (id: string): Promise<any> => {
+    return apiClient(`/admin/brands/${id}`, { method: 'DELETE' });
+  },
+
   updateRefundStatus: async (id: string, status: string, note?: string): Promise<any> => {
     return apiClient(`/admin/refunds/${id}/status`, {
       method: 'PATCH',

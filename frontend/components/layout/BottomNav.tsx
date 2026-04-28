@@ -4,24 +4,27 @@ import { Home, Compass, ShoppingCart, Heart, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/lib/contexts/CartContext";
+import { useAuth } from "@/lib/contexts/AuthContext";
+import { getRedirectPath } from "@/lib/auth/authRedirect";
 
 export default function BottomNav() {
     const pathname = usePathname();
     const { itemCount } = useCart();
-    const isMenuPage = pathname === "/menu";
+    const { user } = useAuth();
+    const isMenuPage = pathname === "/user/menu";
 
     const navItems = [
         { href: "/", icon: Home, label: "Home" },
         { href: "/shop", icon: Compass, label: "Explore" },
         { href: "/cart", icon: ShoppingCart, label: "Cart", badge: itemCount },
-        { href: "/wishlist", icon: Heart, label: "Favorites" },
-        { href: "/menu", icon: User, label: "Account" },
+        { href: "/user/wishlist", icon: Heart, label: "Favorites" },
+        { href: getRedirectPath(user), icon: User, label: "Account" },
     ];
 
     return (
         <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl border-t border-gray-100 dark:border-gray-800 px-6 py-3 flex items-center justify-between md:hidden z-50 transition-all duration-300">
             {navItems.map((item) => {
-                const isActive = pathname === item.href || (item.href === "/menu" && isMenuPage);
+                const isActive = pathname === item.href || (item.href === "/user/menu" && isMenuPage);
                 const Icon = item.icon;
                 
                 return (

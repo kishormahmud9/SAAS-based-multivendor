@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../../../generated/prisma';
 import { prisma } from '../../db_connection';
 import { IPaginationOptions } from '../../interfaces/pagination';
 import { paginationHelpers } from '../../utils/paginationHelper';
@@ -47,11 +47,17 @@ const findAll = async (filters: any, options: IPaginationOptions) => {
 
   if (Object.keys(filterData).length > 0) {
     andConditions.push({
-      AND: Object.keys(filterData).map((key) => ({
-        [key]: {
-          equals: (filterData as any)[key],
-        },
-      })),
+      AND: Object.keys(filterData).map((key) => {
+        let value = (filterData as any)[key];
+        if (key === 'isFeatured') {
+          value = value === 'true';
+        }
+        return {
+          [key]: {
+            equals: value,
+          },
+        };
+      }),
     });
   }
 

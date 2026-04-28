@@ -4,8 +4,8 @@ import config from './app/config';
 import { errorLogger, logger } from './shared/logger';
 
 async function main() {
-  const server: Server = app.listen(config.PORT, () => {
-    logger.info(`🚀 Server is running on http://localhost:${config.PORT}`);
+  const server: Server = app.listen(config.port, () => {
+    logger.info(`🚀 Server is running on http://localhost:${config.port}`);
   });
 
   const exitHandler = () => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import { authService } from '@/src/services/auth.service';
 
 interface User {
@@ -25,6 +26,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+    const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -35,8 +37,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const checkAuth = async () => {
         try {
             const result = await authService.getMe();
-            if (result.success && result.data.user) {
-                setUser(result.data.user);
+            // In the backend response, 'data' itself is the user object for /me
+            if (result.success && result.data) {
+                setUser(result.data);
             } else {
                 setUser(null);
             }
@@ -67,14 +70,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const logout = async () => {
-        await authService.logout();
-        setUser(null);
+        try {
+            await authService.logout();
+        } finally {
+            localStorage.clear();
+            setUser(null);
+            router.push('/login');
+        }
     };
 
     const refreshUser = async () => {
         const result = await authService.getMe();
-        if (result.success && result.data.user) {
-            setUser(result.data.user);
+        if (result.success && result.data) {
+            setUser(result.data);
         }
     };
 
@@ -83,9 +91,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const hasPermission = (permission: string): boolean => {
         if (!user) return false;
         const role = user.role?.toUpperCase();
+        
+        // Super Admins and Admins have full access
         if (role === 'SUPER_ADMIN' || role === 'ADMIN') return true;
-        // Vendor-level permissions
-        if (role === 'VENDOR' && permission.startsWith('vendor')) return true;
+        
+        // Vendor and Vendor Staff have access to their portal features
+        if (role === 'VENDOR' || role === 'VENDOR_STAFF') return true;
+
+        // Fallback for customer/user roles (limited features)
         return false;
     };
 

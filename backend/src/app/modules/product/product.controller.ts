@@ -5,7 +5,7 @@ import sendResponse from '../../utils/sendResponse';
 import { productServices } from './product.service';
 
 const getAllProducts = catchAsync(async (req, res) => {
-  const filters = pick(req.query, ['searchTerm', 'category', 'brand', 'minPrice', 'maxPrice']);
+  const filters = pick(req.query, ['searchTerm', 'category', 'brand', 'minPrice', 'maxPrice', 'isFeatured', 'status']);
   const options = pick(req.query, ['page', 'limit', 'sortBy', 'sortOrder']);
 
   const result = await productServices.getAllProducts(filters, options);

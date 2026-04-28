@@ -15,13 +15,13 @@ export default function UserLayout({
 }) {
     const pathname = usePathname();
     const router = useRouter();
-    const isMenuPage = pathname === "/menu";
+    const isMenuPage = pathname === "/user/menu";
 
     const getPageTitle = (path: string) => {
-        if (path === "/wishlist") return "Favorites";
-        if (path === "/dashboard") return "Overview";
-        if (path === "/billing") return "Billing Info";
-        if (path === "/addresses") return "My Addresses";
+        if (path === "/user/wishlist") return "Favorites";
+        if (path === "/user/dashboard") return "Overview";
+        if (path === "/user/billing") return "Billing Info";
+        if (path === "/user/addresses") return "My Addresses";
         const lastPart = path.split("/").pop();
         if (!lastPart) return "Dashboard";
         return lastPart.charAt(0).toUpperCase() + lastPart.slice(1).replace("-", " ");
@@ -36,7 +36,7 @@ export default function UserLayout({
                 {!isMenuPage && (
                     <div className="flex items-center gap-4 mb-6 md:hidden">
                         <button 
-                            onClick={() => router.push("/menu")}
+                            onClick={() => router.push("/user/menu")}
                             className="p-2.5 bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 text-gray-900 dark:text-white active:scale-95 transition-all"
                         >
                             <ChevronLeft size={24} />

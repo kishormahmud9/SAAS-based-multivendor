@@ -14,7 +14,7 @@ const MOCK_NOTIFICATIONS = [
 ]
 
 export default function VendorHeader() {
-    const { user } = useAuth()
+    const { user, logout } = useAuth()
     const { isOpen, toggle } = useSidebar()
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
@@ -171,6 +171,7 @@ export default function VendorHeader() {
 
                                 <div className="p-2 border-t border-gray-50 dark:border-gray-900 bg-gray-50/30 dark:bg-gray-900/10">
                                     <button 
+                                        onClick={() => logout()}
                                         className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-black text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all group"
                                     >
                                         <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-950 flex items-center justify-center shadow-sm border border-gray-100 dark:border-gray-800 group-hover:bg-red-500 group-hover:text-white transition-all">

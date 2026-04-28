@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Timer } from "lucide-react";
+import { marketingService } from "@/src/services/marketing.service";
 
 export default function OfferSection() {
     const [offer, setOffer] = useState<any>(null)
@@ -15,10 +16,9 @@ export default function OfferSection() {
 
     const fetchOffer = async () => {
         try {
-            const res = await fetch("/api/banners")
-            const data = await res.json()
-            if (data.success) {
-                const offerItem = data.data.find((b: any) => b.type === "OFFER")
+            const res = await marketingService.getBanners()
+            if (res.success) {
+                const offerItem = res.data.find((b: any) => b.type === "OFFER")
                 if (offerItem) setOffer(offerItem)
             }
         } catch (error) {

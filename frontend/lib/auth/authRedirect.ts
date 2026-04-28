@@ -1,11 +1,17 @@
 export function getRedirectPath(user?: { role?: string } | null) {
   if (!user) return "/login";
 
-  switch (user.role) {
+  const role = user.role?.toUpperCase();
+
+  switch (role) {
+    case "SUPER_ADMIN":
     case "ADMIN":
       return "/admin/dashboard";
+    case "VENDOR":
+      return "/vendor/dashboard";
+    case "CUSTOMER":
     case "USER":
-      return "/profile";
+      return "/user/dashboard";
     default:
       return "/";
   }

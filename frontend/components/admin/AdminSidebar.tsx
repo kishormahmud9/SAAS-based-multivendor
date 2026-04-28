@@ -97,6 +97,21 @@ const navGroups = [
         ]
     },
     {
+        id: "catalog",
+        name: "Catalog Hub",
+        icon: Package,
+        items: [
+            { name: "Manage Products", href: "/admin/products", icon: Package },
+            { name: "Create Product", href: "/admin/products/create", icon: PlusCircle },
+            { name: "Categories", href: "/admin/categories", icon: FolderTree },
+            { name: "Brands Manager", href: "/admin/brands", icon: Award },
+            { name: "Inventory Control", href: "/admin/inventory", icon: Boxes },
+            { name: "Product Reviews", href: "/admin/product-reviews", icon: MessageSquare },
+            { name: "Attributes", href: "/admin/product-attributes", icon: Sliders },
+            { name: "Tags & SEO", href: "/admin/product-tags", icon: Hash },
+        ]
+    },
+    {
         id: "sales",
         name: "Sales Hub",
         icon: ShoppingBag,

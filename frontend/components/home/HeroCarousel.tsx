@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { marketingService } from "@/src/services/marketing.service";
 
 const fallbackSlides = [
     {
@@ -30,10 +31,10 @@ export default function HeroCarousel() {
 
     const fetchSlides = async () => {
         try {
-            const res = await fetch("/api/banners")
-            const data = await res.json()
-            if (data.success) {
-                const carouselItems = data.data.filter((b: any) => b.type === "CAROUSEL")
+            const res = await marketingService.getBanners()
+            if (res.success) {
+                // Ensure we access data.data as per backend response format
+                const carouselItems = res.data.filter((b: any) => b.type === "CAROUSEL")
                 setSlides(carouselItems.length > 0 ? carouselItems : fallbackSlides)
             } else {
                 setSlides(fallbackSlides)

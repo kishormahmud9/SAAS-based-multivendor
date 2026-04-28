@@ -28,12 +28,7 @@ export default function Navbar() {
 
     const handleUserClick = () => {
         if (isLoading) return;
-
-        if (user && window.innerWidth < 768) {
-            router.push("/menu");
-        } else {
-            router.push(getRedirectPath(user));
-        }
+        router.push(getRedirectPath(user));
     };
 
 

@@ -3,17 +3,135 @@ import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { categoryServices } from './category.service';
 
-const getAllCategories = catchAsync(async (req, res) => {
-  const result = await categoryServices.getAllCategories();
+import { optimizeAndSaveImage } from '../../utils/uploadHandler';
 
+const createCategory = catchAsync(async (req, res) => {
+  const categoryData = req.body;
+
+  if (req.file) {
+    const imagePath = await optimizeAndSaveImage(req.file, 'category');
+    categoryData.image = imagePath;
+  }
+
+  const result = await categoryServices.createCategory(categoryData);
   sendResponse(res, {
-    statusCode: httpStatus.OK,
+    statusCode: httpStatus.CREATED,
     success: true,
-    message: 'Categories fetched successfully',
+    message: 'Category created successfully',
     data: result,
   });
 });
 
+const getAllTree = catchAsync(async (req, res) => {
+  const result = await categoryServices.getAllTree(req.query);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Category tree fetched successfully',
+    data: result,
+  });
+});
+
+const getPaginated = catchAsync(async (req, res) => {
+  const result = await categoryServices.getPaginated(req.query);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Paginated categories fetched successfully',
+    data: result.data,
+    meta: result.meta
+  });
+});
+
+const getAllFlat = catchAsync(async (req, res) => {
+  const result = await categoryServices.getAllFlat();
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Flat categories fetched successfully',
+    data: result,
+  });
+});
+
+const getSingleCategory = catchAsync(async (req, res) => {
+  const result = await categoryServices.getSingleCategory(req.params.id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Category details fetched successfully',
+    data: result,
+  });
+});
+
+const updateCategory = catchAsync(async (req, res) => {
+  const categoryData = req.body;
+
+  if (req.file) {
+    const imagePath = await optimizeAndSaveImage(req.file, 'category');
+    categoryData.image = imagePath;
+  }
+
+  const result = await categoryServices.updateCategory(req.params.id, categoryData);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Category updated successfully',
+    data: result,
+  });
+});
+
+const deleteCategory = catchAsync(async (req, res) => {
+  await categoryServices.deleteCategory(req.params.id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Category deleted successfully',
+    data: null,
+  });
+});
+
+const bulkStatusUpdate = catchAsync(async (req, res) => {
+  const { ids, isActive } = req.body;
+  await categoryServices.bulkStatusUpdate(ids, isActive);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Bulk status updated successfully',
+    data: null,
+  });
+});
+
+const bulkDelete = catchAsync(async (req, res) => {
+  const { ids } = req.body;
+  await categoryServices.bulkDelete(ids);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Bulk delete completed (categories with products/children were skipped)',
+    data: null,
+  });
+});
+
+const updateSortOrder = catchAsync(async (req, res) => {
+  const { items } = req.body;
+  await categoryServices.updateSortOrder(items);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Sort order updated successfully',
+    data: null,
+  });
+});
+
 export const categoryControllers = {
-  getAllCategories,
+  createCategory,
+  getAllTree,
+  getPaginated,
+  getAllFlat,
+  getSingleCategory,
+  updateCategory,
+  deleteCategory,
+  bulkStatusUpdate,
+  bulkDelete,
+  updateSortOrder
 };

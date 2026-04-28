@@ -13,10 +13,25 @@ const validateRequest = (schema: AnyZodObject) => {
 
     // Assign cleaned/transformed values back to request
     // This ensures that Zod defaults, trims, and transforms are persisted
-    req.body = parsed.body;
-    req.query = parsed.query;
-    req.params = parsed.params;
-    req.cookies = parsed.cookies;
+    // We use Object.assign for query, params and cookies because they are often read-only getters
+    if (parsed.body) {
+      req.body = parsed.body;
+    }
+
+    if (parsed.query) {
+      Object.keys(req.query).forEach((key) => delete req.query[key]);
+      Object.assign(req.query, parsed.query);
+    }
+
+    if (parsed.params) {
+      Object.keys(req.params).forEach((key) => delete req.params[key]);
+      Object.assign(req.params, parsed.params);
+    }
+
+    if (parsed.cookies) {
+      Object.keys(req.cookies).forEach((key) => delete req.cookies[key]);
+      Object.assign(req.cookies, parsed.cookies);
+    }
 
     next();
   });

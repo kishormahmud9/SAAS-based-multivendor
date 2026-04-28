@@ -15,11 +15,11 @@ import { useAuth } from "@/lib/contexts/AuthContext"
 import Image from "next/image"
 
 const menuItems = [
-    { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Profile", href: "/profile", icon: User },
-    { name: "Orders", href: "/orders", icon: ShoppingBag },
-    { name: "Favorites", href: "/wishlist", icon: Heart },
-    { name: "Settings", href: "/settings", icon: Settings },
+    { name: "Overview", href: "/user/dashboard", icon: LayoutDashboard },
+    { name: "Profile", href: "/user/profile", icon: User },
+    { name: "Orders", href: "/user/orders", icon: ShoppingBag },
+    { name: "Favorites", href: "/user/wishlist", icon: Heart },
+    { name: "Settings", href: "/user/settings", icon: Settings },
 ]
 
 export default function UserSidebar() {

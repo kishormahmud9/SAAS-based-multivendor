@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/contexts/AuthContext"
@@ -144,32 +144,32 @@ export default function VendorSidebar() {
     const { logout, hasPermission } = useAuth()
     const { isOpen, close } = useSidebar()
 
-    const filteredGroups = navGroups.filter(group => {
-        // If group itself has a permission check, use it
-        if ((group as any).permission && !hasPermission((group as any).permission)) return false
-        
-        // Otherwise, a group is visible if at least one of its items is visible
-        return group.items.some(item => !item.permission || hasPermission(item.permission))
-    })
+    const filteredGroups = useMemo(() => {
+        return navGroups.filter(group => {
+            if ((group as any).permission && !hasPermission((group as any).permission)) return false
+            return group.items.some(item => !item.permission || hasPermission(item.permission))
+        })
+    }, [hasPermission])
 
-    const initialGroup = filteredGroups.find(group => 
-        group.items.some(item => pathname === item.href || pathname?.startsWith(item.href + "/"))
-    ) || filteredGroups[0];
+    const currentGroup = useMemo(() => {
+        return filteredGroups.find(group => 
+            group.items.some(item => pathname === item.href || pathname?.startsWith(item.href + "/"))
+        ) || filteredGroups[0];
+    }, [pathname, filteredGroups])
 
-    const [activeGroup, setActiveGroup] = useState(initialGroup)
+    const [activeGroup, setActiveGroup] = useState(currentGroup)
 
     useEffect(() => {
-        const currentGroup = filteredGroups.find(group => 
-            group.items.some(item => pathname === item.href || pathname?.startsWith(item.href + "/"))
-        )
-        if (currentGroup) setActiveGroup(currentGroup)
-    }, [pathname, filteredGroups])
+        if (currentGroup) {
+            setActiveGroup(currentGroup)
+        }
+    }, [currentGroup])
 
     const handleLogout = async () => {
         try {
             await logout()
             toast.success("Successfully logged out")
-            router.push("/login")
+            // Redirection is now handled by AuthContext logout
         } catch (error) {
             toast.error("Logout failed")
         }
@@ -267,6 +267,7 @@ export default function VendorSidebar() {
                             <Link
                                 key={item.name}
                                 href={item.href}
+                                onClick={close}
                                 className={`
                                     flex items-center space-x-3 px-4 py-3.5 rounded-xl font-medium transition-all duration-200 group
                                     ${isActive

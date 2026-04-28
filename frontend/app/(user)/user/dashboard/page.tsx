@@ -72,7 +72,7 @@ export default function DashboardPage() {
             <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 overflow-hidden shadow-sm">
                 <div className="p-8 border-b border-gray-50 dark:border-gray-800 flex items-center justify-between">
                     <h2 className="text-xl font-bold text-gray-950 dark:text-white">Recent Orders</h2>
-                    <Link href="/orders" className="text-orange-600 dark:text-orange-400 text-sm font-bold hover:underline flex items-center gap-1">
+                    <Link href="/user/orders" className="text-orange-600 dark:text-orange-400 text-sm font-bold hover:underline flex items-center gap-1">
                         View History <ArrowRight size={16} />
                     </Link>
                 </div>

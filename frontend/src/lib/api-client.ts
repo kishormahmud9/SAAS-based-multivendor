@@ -17,18 +17,18 @@ export const apiClient = async <T = any>(
   options: ApiOptions = {}
 ): Promise<T> => {
   const { method = 'GET', body, headers = {}, credentials = 'include' } = options;
-
+  const isFormData = body instanceof FormData;
   const config: RequestInit = {
     method,
     credentials,
     headers: {
-      'Content-Type': 'application/json',
+      ...(!isFormData && { 'Content-Type': 'application/json' }),
       ...headers,
     },
   };
 
   if (body) {
-    config.body = JSON.stringify(body);
+    config.body = isFormData ? (body as any) : JSON.stringify(body);
   }
 
   try {
@@ -39,8 +39,13 @@ export const apiClient = async <T = any>(
       return data;
     }
 
-    throw new Error(data.message || `Request failed with status ${response.status}`);
+    // If backend returns a message, use it
+    const errorMessage = data.message || `Request failed with status ${response.status}`;
+    const error: any = new Error(errorMessage);
+    error.errorMessages = data.errorMessages || [];
+    throw error;
   } catch (error: any) {
-    return Promise.reject(error.message || 'Network error');
+    // Re-throw so the caller's catch block receives the Error object with errorMessages
+    throw error;
   }
 };

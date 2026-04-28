@@ -12,7 +12,7 @@ export default function CategoryManagePage() {
     const [categories, setCategories] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState("")
-    
+
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingCategory, setEditingCategory] = useState<any>(null)
     const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null)
@@ -123,10 +123,10 @@ export default function CategoryManagePage() {
                                         <td className="px-6 py-4">
                                             <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden border border-gray-200">
                                                 {category.image ? (
-                                                    <img src={category.image} alt={category.name} className="w-full h-full object-cover" />
+                                                    <img src={`http://localhost:5000/${category.image}`} alt={category.name} className="w-full h-full object-cover" />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                                        NC
+                                                        No Image
                                                     </div>
                                                 )}
                                             </div>
@@ -153,7 +153,7 @@ export default function CategoryManagePage() {
                                             >
                                                 <Edit size={18} />
                                             </button>
-                                             <button
+                                            <button
                                                 onClick={() => setCategoryToDelete(category.id)}
                                                 className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                             >
