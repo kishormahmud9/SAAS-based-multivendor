@@ -7,41 +7,25 @@ import { toast } from "react-hot-toast"
 import ShippingStep from "@/components/checkout/ShippingStep"
 import OrderSummary from "@/components/checkout/OrderSummary"
 import PaymentStep from "@/components/checkout/PaymentStep"
+import { useCart } from "@/lib/contexts/CartContext"
+import { orderService } from "@/src/services/order.service"
+import { paymentService } from "@/src/services/payment.service"
 
 export default function CheckoutPage() {
     const router = useRouter()
+    const { cartItems, subtotal, refreshCart } = useCart()
     const [step, setStep] = useState(1)
     const [loading, setLoading] = useState(true)
     const [processing, setProcessing] = useState(false)
-    const [cart, setCart] = useState<any>(null)
     const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null)
-    const [paymentMethod, setPaymentMethod] = useState("card")
+    const [paymentMethod, setPaymentMethod] = useState("STRIPE")
 
     useEffect(() => {
-        fetchCart()
-    }, [])
-
-    const fetchCart = async () => {
-        try {
-            const response = await fetch("/api/cart", {
-                credentials: "include",
-            })
-            const data = await response.json()
-            if (data.success) {
-                if (data.data.items.length === 0) {
-                    router.push("/cart")
-                    return
-                }
-                setCart(data.data)
-            } else {
-                router.push("/cart")
-            }
-        } catch (error) {
-            toast.error("Failed to load checkout")
-        } finally {
-            setLoading(false)
+        if (cartItems.length === 0 && !loading) {
+            router.push("/cart")
         }
-    }
+        setLoading(false)
+    }, [cartItems, loading, router])
 
     const handlePlaceOrder = async () => {
         if (!selectedAddressId) {
@@ -51,30 +35,38 @@ export default function CheckoutPage() {
 
         setProcessing(true)
         try {
-            const response = await fetch("/api/orders", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({
-                    shippingAddressId: selectedAddressId,
-                    paymentMethod,
-                }),
+            // 1. Create Order
+            const orderRes = await orderService.placeOrder({
+                addressId: selectedAddressId,
+                paymentMethod: paymentMethod, // STRIPE, SSLCOMMERZ, COD
             })
 
-            const data = await response.json()
+            if (orderRes.success) {
+                const orderId = orderRes.data.id
 
-            if (data.success) {
-                if (paymentMethod === "card") {
-                    router.push(`/checkout/payment/${data.data.id}`)
-                } else {
+                if (paymentMethod === "COD") {
                     toast.success("Order placed successfully!")
-                    router.push(`/order-confirmation?orderId=${data.data.id}`)
+                    router.push(`/order-confirmation?orderId=${orderId}`)
+                } else {
+                    // 2. Create Payment Session
+                    const paymentRes = await paymentService.createPaymentIntent(orderId, paymentMethod as any)
+                    
+                    if (paymentRes.success && paymentRes.data.url) {
+                        // Redirect to gateway
+                        window.location.href = paymentRes.data.url
+                    } else {
+                        toast.error("Order created but payment session failed. Please try from order history.")
+                        router.push(`/user/orders/${orderId}`)
+                    }
                 }
+                
+                // Clear cart locally
+                refreshCart()
             } else {
-                toast.error(data.error || "Failed to place order")
+                toast.error(orderRes.message || "Failed to place order")
             }
-        } catch (error) {
-            toast.error("Something went wrong")
+        } catch (error: any) {
+            toast.error(error || "Something went wrong")
         } finally {
             setProcessing(false)
         }
@@ -87,8 +79,6 @@ export default function CheckoutPage() {
             </div>
         )
     }
-
-    if (!cart) return null
 
     return (
         <div className="min-h-screen bg-gray-50 py-12">
@@ -178,9 +168,9 @@ export default function CheckoutPage() {
                     <div className="lg:col-span-1">
                         <div className="sticky top-24">
                             <OrderSummary
-                                items={cart.items}
-                                subtotal={cart.subtotal}
-                                total={cart.subtotal} // Add shipping logic later if needed
+                                items={cartItems as any}
+                                subtotal={subtotal}
+                                total={subtotal} 
                             />
 
                             <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-500">

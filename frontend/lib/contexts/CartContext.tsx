@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react"
 import { useAuth } from "./AuthContext"
 import { toast } from "react-hot-toast"
+import { cartService } from "@/src/services/cart.service"
 
 export interface CartItem {
     id: string
@@ -36,7 +37,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 const LOCAL_STORAGE_KEY = "readymart_guest_cart"
 
 export function CartProvider({ children }: { children: ReactNode }) {
-    const { user, isAuthenticated } = useAuth()
+    const { isAuthenticated } = useAuth()
     const [cartItems, setCartItems] = useState<CartItem[]>([])
     const [loading, setLoading] = useState(true)
 
@@ -54,7 +55,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
             try {
                 setCartItems(JSON.parse(savedCart))
             } catch (e) {
-                console.error("Failed to parse guest cart", e)
                 setCartItems([])
             }
         } else {
@@ -65,8 +65,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     // Fetch cart from DB (Authenticated)
     const fetchDBCart = useCallback(async () => {
         try {
-            const res = await fetch("/api/cart", { credentials: "include" })
-            const data = await res.json()
+            const data = await cartService.getCart()
             if (data.success) {
                 setCartItems(data.data.items || [])
             }
@@ -75,28 +74,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
     }, [])
 
-    // Merge Guest Cart into DB
-    const mergeCart = useCallback(async (guestItems: CartItem[]) => {
+    // Sync Guest Cart into DB
+    const syncCart = useCallback(async (guestItems: CartItem[]) => {
         try {
-            const itemsToMerge = guestItems.map(item => ({
+            const itemsToSync = guestItems.map(item => ({
                 productId: item.productId,
                 quantity: item.quantity
             }))
 
-            const res = await fetch("/api/cart/merge", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ items: itemsToMerge }),
-                credentials: "include"
-            })
-            const data = await res.json()
+            const data = await cartService.syncCart(itemsToSync)
             
             if (data.success) {
                 localStorage.removeItem(LOCAL_STORAGE_KEY)
                 fetchDBCart()
             }
         } catch (error) {
-            console.error("Merge failed", error)
+            console.error("Sync failed", error)
         }
     }, [fetchDBCart])
 
@@ -105,12 +98,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const handleAuthSync = async () => {
             setLoading(true)
             if (isAuthenticated) {
-                // If transitioning to Auth, check for guest items to merge
                 const savedCart = localStorage.getItem(LOCAL_STORAGE_KEY)
                 if (savedCart) {
                     const guestItems = JSON.parse(savedCart)
                     if (guestItems.length > 0) {
-                        await mergeCart(guestItems)
+                        await syncCart(guestItems)
                     } else {
                         await fetchDBCart()
                     }
@@ -118,38 +110,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
                     await fetchDBCart()
                 }
             } else {
-                // Not authenticated, load guest cart
                 loadGuestCart()
             }
             setLoading(false)
         }
 
         handleAuthSync()
-    }, [isAuthenticated, fetchDBCart, loadGuestCart, mergeCart])
+    }, [isAuthenticated, fetchDBCart, loadGuestCart, syncCart])
 
     const addItem = async (productId: string, quantity: number, productData?: any) => {
         if (isAuthenticated) {
             try {
-                const res = await fetch("/api/cart", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ productId, quantity }),
-                    credentials: "include"
-                })
-                const data = await res.json()
+                const data = await cartService.addToCart(productId, quantity)
                 if (data.success) {
                     setCartItems(data.data.items)
-                } else {
-                    throw new Error(data.error)
                 }
             } catch (error: any) {
-                toast.error(error.message || "Failed to add to cart")
+                toast.error(error || "Failed to add to cart")
                 throw error
             }
         } else {
             // Guest Logic
             if (!productData) {
-                toast.error("Product data missing for guest add")
+                toast.error("Product data missing")
                 return
             }
 
@@ -176,51 +159,39 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
     }
 
-    const removeItem = async (productId: string) => {
+    const removeItem = async (itemId: string) => {
         if (isAuthenticated) {
             try {
-                const res = await fetch(`/api/cart?productId=${productId}`, {
-                    method: "DELETE",
-                    credentials: "include"
-                })
-                const data = await res.json()
+                const data = await cartService.removeFromCart(itemId)
                 if (data.success) {
                     setCartItems(data.data.items)
                 }
             } catch (error) {
-                console.error("Failed to remove item", error)
                 toast.error("Failed to remove item")
             }
         } else {
             setCartItems(prev => {
-                const newItems = prev.filter(item => item.productId !== productId)
+                const newItems = prev.filter(item => item.id !== itemId)
                 localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newItems))
                 return newItems
             })
         }
     }
 
-    const updateQuantity = async (productId: string, quantity: number) => {
+    const updateQuantity = async (itemId: string, quantity: number) => {
         if (isAuthenticated) {
             try {
-                const res = await fetch("/api/cart", {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ productId, quantity }),
-                    credentials: "include"
-                })
-                const data = await res.json()
+                const data = await cartService.updateQuantity(itemId, quantity)
                 if (data.success) {
                     setCartItems(data.data.items)
                 }
             } catch (error) {
-                console.error("Failed to update quantity", error)
                 toast.error("Failed to update quantity")
             }
         } else {
             setCartItems(prev => {
                 const newItems = prev.map(item => 
-                    item.productId === productId ? { ...item, quantity } : item
+                    item.id === itemId ? { ...item, quantity } : item
                 )
                 localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newItems))
                 return newItems

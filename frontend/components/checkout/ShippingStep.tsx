@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Plus, CheckCircle, MapPin } from "lucide-react"
 import AddressForm from "@/components/user/AddressForm"
+import { userService } from "@/src/services/user.service"
 
 interface Address {
     id: string
@@ -31,10 +32,7 @@ export default function ShippingStep({ selectedAddressId, onSelectAddress }: Shi
 
     const fetchAddresses = async () => {
         try {
-            const response = await fetch("/api/user/addresses", {
-                credentials: "include",
-            })
-            const data = await response.json()
+            const data = await userService.getAddresses()
             if (data.success) {
                 setAddresses(data.data)
                 // Auto-select default address if none selected
@@ -56,13 +54,7 @@ export default function ShippingStep({ selectedAddressId, onSelectAddress }: Shi
 
     const handleAddressAdded = async (newAddress: any) => {
         try {
-            const response = await fetch("/api/user/addresses", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify(newAddress),
-            })
-            const data = await response.json()
+            const data = await userService.addAddress(newAddress)
             if (data.success) {
                 await fetchAddresses()
                 setShowForm(false)

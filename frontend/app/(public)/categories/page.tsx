@@ -1,20 +1,12 @@
-import { prisma } from "@/lib/prisma";
+import { productService } from "@/src/services/product.service"
 import Link from "next/link";
 import { ChevronRight, Package, LayoutGrid } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function CategoriesPage() {
-    const categories = await prisma.category.findMany({
-        include: {
-            _count: {
-                select: { products: true }
-            }
-        },
-        orderBy: {
-            name: 'asc'
-        }
-    });
+    const res = await productService.getCategories();
+    const categories = res.success ? res.data : [];
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-20">
@@ -37,7 +29,7 @@ export default async function CategoriesPage() {
             {/* Categories Grid */}
             <div className="container mx-auto px-4 -mt-16">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                    {categories.map((category) => (
+                    {categories.map((category: any) => (
                         <Link 
                             key={category.id} 
                             href={`/shop?category=${category.slug}`}
@@ -64,7 +56,7 @@ export default async function CategoriesPage() {
                             <div className="absolute bottom-0 left-0 right-0 p-8 transform transition-transform duration-500 translate-y-2 group-hover:translate-y-0">
                                 <div className="flex items-center space-x-3 mb-3">
                                     <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border border-white/20">
-                                        {category._count.products} Products
+                                        {category._count?.products || 0} Products
                                     </span>
                                 </div>
                                 <h3 className="text-3xl font-black text-white mb-2 font-display uppercase tracking-tight">

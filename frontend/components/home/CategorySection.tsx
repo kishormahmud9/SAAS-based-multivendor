@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { prisma } from "@/lib/prisma";
+import { productService } from "@/src/services/product.service";
 
 const colors = [
     "from-blue-500 to-blue-700",
@@ -12,12 +12,8 @@ const colors = [
 ];
 
 export default async function CategorySection() {
-    const categories = await prisma.category.findMany({
-        take: 8,
-        orderBy: {
-            createdAt: 'desc',
-        },
-    });
+    const res = await productService.getCategories();
+    const categories = res.success ? res.data.slice(0, 8) : [];
 
     return (
         <section className="py-20 bg-gray-50">
@@ -27,7 +23,7 @@ export default async function CategorySection() {
                 </h2>
                 {categories.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
-                        {categories.map((category, index) => (
+                        {categories.map((category: any, index: number) => (
                             <Link 
                                 key={category.id} 
                                 href={`/shop?category=${category.slug}`} 

@@ -1,15 +1,16 @@
-import nodemailer from "nodemailer";
-import config from "../config";
-import path from "path";
-import ejs from "ejs";
+import nodemailer from 'nodemailer';
+import config from '../config';
+import path from 'path';
+import ejs from 'ejs';
+import { logger } from '../../shared/logger';
 
 const transporter = nodemailer.createTransport({
-  host: config.EMAIL_HOST,
-  port: Number(config.EMAIL_PORT),
+  host: config.email.host,
+  port: Number(config.email.port),
   secure: false,
   auth: {
-    user: config.EMAIL_USER,
-    pass: config.EMAIL_PASSWORD,
+    user: config.email.user,
+    pass: config.email.password,
   },
 });
 
@@ -36,17 +37,18 @@ export const sendEmail = async ({
     const tempPath = path.join(__dirname, `templates/${tempName}.ejs`);
     const html = await ejs.renderFile(tempPath, tempData);
     const info = await transporter.sendMail({
-      to: to,
-      subject: subject,
-      html: html,
+      from: `"ReadyMart" <${config.email.from}>`,
+      to,
+      subject,
+      html,
       attachments: attachments?.map((x) => ({
         filename: x.fileName,
         content: x.content,
         contentType: x.contentType,
       })),
     });
-    console.log("Email Send Done", info.messageId);
+    logger.info(`Email sent to ${to}: ${info.messageId}`);
   } catch (err) {
-    console.log("Email Send Failed", err);
+    logger.error(`Email send failed to ${to}: ${err}`);
   }
 };

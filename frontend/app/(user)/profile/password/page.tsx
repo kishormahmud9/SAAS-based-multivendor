@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Lock, Save, Loader2 } from "lucide-react"
 import { toast } from "react-hot-toast"
+import { userService } from "@/src/services/user.service"
 
 export default function ChangePasswordPage() {
     const [loading, setLoading] = useState(false)
@@ -23,27 +24,23 @@ export default function ChangePasswordPage() {
         setLoading(true)
 
         try {
-            const response = await fetch("/api/user/password", {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify(formData),
+            const data = await userService.changePassword({
+                oldPassword: formData.currentPassword,
+                newPassword: formData.newPassword
             })
 
-            const data = await response.json()
-
             if (data.success) {
-                toast.success(data.message)
+                toast.success(data.message || "Password updated successfully!")
                 setFormData({
                     currentPassword: "",
                     newPassword: "",
                     confirmPassword: "",
                 })
             } else {
-                toast.error(data.error)
+                toast.error(data.message || "Failed to update password")
             }
-        } catch (error) {
-            toast.error("Failed to update password")
+        } catch (error: any) {
+            toast.error(error || "Failed to update password")
         } finally {
             setLoading(false)
         }
@@ -52,15 +49,15 @@ export default function ChangePasswordPage() {
     return (
         <div className="p-8 max-w-2xl">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Change Password</h1>
-                <p className="text-gray-600">Update your password to keep your account secure</p>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Change Password</h1>
+                <p className="text-gray-600 dark:text-gray-400">Update your password to keep your account secure</p>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-8">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-8 border border-gray-100 dark:border-gray-800">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Current Password */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Current Password
                         </label>
                         <div className="relative">
@@ -71,7 +68,7 @@ export default function ChangePasswordPage() {
                                 type="password"
                                 value={formData.currentPassword}
                                 onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
-                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-lg focus:ring-2 focus:ring-orange-500 transition-all"
                                 required
                             />
                         </div>
@@ -79,7 +76,7 @@ export default function ChangePasswordPage() {
 
                     {/* New Password */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             New Password
                         </label>
                         <div className="relative">
@@ -91,7 +88,7 @@ export default function ChangePasswordPage() {
                                 value={formData.newPassword}
                                 onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
                                 minLength={6}
-                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-lg focus:ring-2 focus:ring-orange-500 transition-all"
                                 required
                             />
                         </div>
@@ -100,7 +97,7 @@ export default function ChangePasswordPage() {
 
                     {/* Confirm Password */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Confirm New Password
                         </label>
                         <div className="relative">
@@ -112,7 +109,7 @@ export default function ChangePasswordPage() {
                                 value={formData.confirmPassword}
                                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                                 minLength={6}
-                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-lg focus:ring-2 focus:ring-orange-500 transition-all"
                                 required
                             />
                         </div>
@@ -122,7 +119,7 @@ export default function ChangePasswordPage() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="w-full py-4 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold shadow-lg shadow-orange-600/20 transition-all flex items-center justify-center gap-2"
                     >
                         {loading ? (
                             <>

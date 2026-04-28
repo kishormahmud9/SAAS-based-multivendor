@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Search, Filter, Eye, ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
 import { toast } from "react-hot-toast"
-import { fetchWithAuth } from "@/lib/api/fetchWithAuth"
+import { adminService } from "@/src/services/admin.service"
 
 interface Order {
     id: string
@@ -37,19 +37,14 @@ export default function AdminOrdersPage() {
     const fetchOrders = async () => {
         setLoading(true)
         try {
-            const params = new URLSearchParams({
-                page: page.toString(),
-                limit: "20",
-            })
+            const params = new URLSearchParams({ page: page.toString(), limit: "20" })
             if (search) params.append("search", search)
             if (statusFilter) params.append("status", statusFilter)
 
-            const res = await fetchWithAuth(`/api/admin/orders?${params}`)
-            const data = await res.json()
-
+            const data = await adminService.getOrders(params.toString())
             if (data.success) {
                 setOrders(data.data)
-                setTotalPages(data.pagination.totalPages)
+                setTotalPages(data.pagination?.totalPages || 1)
             }
         } catch (error) {
             toast.error("Failed to load orders")

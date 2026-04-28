@@ -4,7 +4,8 @@ import { useEffect, useState } from "react"
 import { Search, Filter, Plus, Pencil, Trash2, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import toast from "react-hot-toast"
-import { fetchWithAuth } from "@/lib/api/fetchWithAuth"
+import { adminService } from "@/src/services/admin.service"
+import { productService } from "@/src/services/product.service"
 import ConfirmModal from "@/components/ui/ConfirmModal"
 
 interface Product {
@@ -60,14 +61,10 @@ export default function ProductsManagePage() {
 
     const fetchFilters = async () => {
         try {
-            const [catRes, brandRes] = await Promise.all([
-                fetch("/api/categories"),
-                fetch("/api/brands"),
+            const [catData, brandData] = await Promise.all([
+                productService.getCategories(),
+                productService.getBrands(),
             ])
-
-            const catData = await catRes.json()
-            const brandData = await brandRes.json()
-
             if (catData.success) setCategories(catData.data)
             if (brandData.success) setBrands(brandData.data)
         } catch (error) {
@@ -78,22 +75,16 @@ export default function ProductsManagePage() {
     const fetchProducts = async () => {
         setLoading(true)
         try {
-            const params = new URLSearchParams({
-                page: page.toString(),
-                limit: "20",
-            })
-
+            const params = new URLSearchParams({ page: page.toString(), limit: "20" })
             if (search) params.append("search", search)
             if (categoryFilter) params.append("category", categoryFilter)
             if (brandFilter) params.append("brand", brandFilter)
 
-            const res = await fetchWithAuth(`/api/admin/products?${params}`)
-            const data = await res.json()
-
+            const data = await adminService.getProducts(params.toString())
             if (data.success) {
                 setProducts(data.data)
-                setTotalPages(data.pagination.totalPages)
-                setTotalCount(data.pagination.totalCount)
+                setTotalPages(data.pagination?.totalPages || 1)
+                setTotalCount(data.pagination?.totalCount || 0)
             }
         } catch (error) {
             toast.error("Failed to load products")
@@ -104,16 +95,13 @@ export default function ProductsManagePage() {
 
     const handleDelete = async (product: Product) => {
         setProductToDelete(null)
-
         try {
-            const res = await fetchWithAuth(`/api/admin/products/${product.id}`, { method: "DELETE" })
-            const data = await res.json()
-
+            const data = await adminService.deleteProduct(product.id)
             if (data.success) {
                 toast.success("Product deleted successfully")
                 fetchProducts()
             } else {
-                toast.error(data.error || "Failed to delete product")
+                toast.error(data.message || "Failed to delete product")
             }
         } catch (error) {
             toast.error("Failed to delete product")

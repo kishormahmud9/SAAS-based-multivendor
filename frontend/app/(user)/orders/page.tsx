@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Package, Loader2 } from "lucide-react"
 import Link from "next/link"
 import OrderCard from "@/components/order/OrderCard"
+import { orderService } from "@/src/services/order.service"
 
 export default function OrdersPage() {
     const [orders, setOrders] = useState<any[]>([])
@@ -16,10 +17,7 @@ export default function OrdersPage() {
 
     const fetchOrders = async () => {
         try {
-            const response = await fetch("/api/orders", {
-                credentials: "include",
-            })
-            const data = await response.json()
+            const data = await orderService.getOrders()
             if (data.success) {
                 setOrders(data.data)
             }
@@ -71,7 +69,6 @@ export default function OrdersPage() {
                     </div>
                 </div>
 
-                {/* Tabs Navigation */}
                 <div className="flex p-1 bg-gray-100 dark:bg-gray-800/50 rounded-2xl w-fit">
                     {tabs.map((tab) => (
                         <button

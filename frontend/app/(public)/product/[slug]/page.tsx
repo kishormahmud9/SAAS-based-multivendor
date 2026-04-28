@@ -11,6 +11,7 @@ import AddToCartButton from "@/components/product/AddToCartButton"
 import RelatedProducts from "@/components/product/RelatedProducts"
 import ReviewList from "@/components/product/ReviewList"
 import ReviewForm from "@/components/product/ReviewForm"
+import { productService } from "@/src/services/product.service"
 
 interface Product {
     id: string
@@ -59,22 +60,18 @@ export default function ProductDetailPage() {
 
     const fetchProduct = async () => {
         try {
-            // Fetch product by slug
-            const productRes = await fetch(`/api/products?slug=${slug}`)
-            const productData = await productRes.json()
+            const productRes = await productService.getProductBySlug(slug)
 
-            if (productData.success && productData.data.length > 0) {
-                const fetchedProduct = productData.data[0]
+            if (productRes.success && productRes.data) {
+                const fetchedProduct = productRes.data as unknown as Product
                 setProduct(fetchedProduct)
 
                 // Fetch reviews
-                const reviewsRes = await fetch(`/api/products/${fetchedProduct.id}/reviews`)
-                const reviewsData = await reviewsRes.json()
-                if (reviewsData.success) {
-                    setReviews(reviewsData.data || [])
+                const reviewsRes = await productService.getReviews(fetchedProduct.id)
+                if (reviewsRes.success) {
+                    setReviews(reviewsRes.data || [])
                 }
             } else {
-                // Product not found
                 router.push("/shop")
             }
         } catch (error) {
@@ -199,8 +196,7 @@ export default function ProductDetailPage() {
                                 productId={product.id}
                                 onReviewSubmitted={() => {
                                     // Refresh reviews
-                                    fetch(`/api/products/${product.id}/reviews`)
-                                        .then(res => res.json())
+                                    productService.getReviews(product.id)
                                         .then(data => {
                                             if (data.success) setReviews(data.data)
                                         })

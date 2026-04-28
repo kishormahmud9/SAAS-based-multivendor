@@ -18,7 +18,7 @@ import {
     Lock, 
     Activity,
     ChevronRight,
-    Tool
+    Wrench
 } from "lucide-react"
 
 const settingGroups = [

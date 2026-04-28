@@ -1,54 +1,58 @@
+import { ErrorRequestHandler } from 'express';
+import httpStatus from 'http-status';
+import { ZodError } from 'zod';
+import config from '../config';
+import ApiError from '../errors/ApiError';
+import { errorLogger } from '../../shared/logger';
 
-import { NextFunction, Request, Response } from "express"
-import httpStatus from "http-status"
-import { Prisma } from "../../generated/prisma/client";
+const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
+  let statusCode = httpStatus.INTERNAL_SERVER_ERROR;
+  let message = 'Something went wrong!';
+  let errorMessages: any[] = [];
 
-const globalErrorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-    console.log(err)
-    let statusCode: number = err.statusCode || httpStatus.INTERNAL_SERVER_ERROR;
-    let success = false;
-    let message = err.message || "Something went wrong!";
-    let error = err;
+  if (err instanceof ZodError) {
+    statusCode = httpStatus.BAD_REQUEST;
+    message = 'Validation Error';
+    errorMessages = err.issues.map((issue) => ({
+      path: issue.path[issue.path.length - 1],
+      message: issue.message,
+    }));
+  } else if (err instanceof ApiError) {
+    statusCode = err.statusCode;
+    message = err.message;
+    errorMessages = err?.message
+      ? [
+          {
+            path: '',
+            message: err?.message,
+          },
+        ]
+      : [];
+  } else if (err instanceof Error) {
+    message = err?.message;
+    errorMessages = err?.message
+      ? [
+          {
+            path: '',
+            message: err?.message,
+          },
+        ]
+      : [];
+  }
 
-    if (err instanceof Prisma.PrismaClientKnownRequestError) {
-        if (err.code === "P2002") {
-            message = "Duplicate key error",
-                error = err.meta,
-                statusCode = httpStatus.CONFLICT
-        }
-        if (err.code === "P1000") {
-            message = "Authentication failed against database server",
-                error = err.meta,
-                statusCode = httpStatus.BAD_GATEWAY
-        }
-        if (err.code === "P2003") {
-            message = "Foreign key constraint failed",
-                error = err.meta,
-                statusCode = httpStatus.BAD_REQUEST
-        }
-    }
+  // Log error
+  if (config.NODE_ENV === 'development') {
+    console.error('💥 Error:', err);
+  } else {
+    errorLogger.error(err);
+  }
 
-    else if (err instanceof Prisma.PrismaClientValidationError) {
-        message = "Validation Error",
-            error = err.message,
-            statusCode = httpStatus.BAD_REQUEST
-    }
-    else if (err instanceof Prisma.PrismaClientUnknownRequestError) {
-        message = "Unknown Prisma error occured!",
-            error = err.message,
-            statusCode = httpStatus.BAD_REQUEST
-    }
-    else if (err instanceof Prisma.PrismaClientInitializationError) {
-        message = "Prisma client failed to initialize!",
-            error = err.message,
-            statusCode = httpStatus.BAD_REQUEST
-    }
-
-    res.status(statusCode).json({
-        success,
-        message,
-        error
-    })
+  res.status(statusCode).json({
+    success: false,
+    message,
+    errorMessages,
+    stack: config.NODE_ENV === 'development' ? err?.stack : undefined,
+  });
 };
 
 export default globalErrorHandler;

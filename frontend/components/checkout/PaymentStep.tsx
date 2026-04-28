@@ -8,27 +8,30 @@ interface PaymentStepProps {
 }
 
 export default function PaymentStep({ selectedMethod, onSelectMethod }: PaymentStepProps) {
-    const methods = [
+    const methods: { id: string; name: string; icon: any; description: string; disabled?: boolean }[] = [
         {
-            id: "card",
-            name: "Credit / Debit Card",
+            id: "STRIPE",
+            name: "Credit / Debit Card (Stripe)",
             icon: CreditCard,
             description: "Pay securely with your bank card",
+            disabled: false,
         },
         {
-            id: "cod",
+            id: "SSLCOMMERZ",
+            name: "Local Payment (SSLCommerz)",
+            icon: Wallet,
+            description: "Pay with bKash, Nagad, Rocket or Local Cards",
+            disabled: false,
+        },
+        {
+            id: "COD",
             name: "Cash on Delivery",
             icon: Truck,
             description: "Pay when you receive your order",
-        },
-        {
-            id: "wallet",
-            name: "Digital Wallet",
-            icon: Wallet,
-            description: "Pay with PayPal, Apple Pay, or Google Pay",
-            disabled: true,
+            disabled: false,
         },
     ]
+
 
     return (
         <div className="space-y-4">

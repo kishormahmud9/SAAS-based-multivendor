@@ -1,20 +1,10 @@
 import ProductCard from "../products/ProductCard";
-import { prisma } from "@/lib/prisma";
+import { productService } from "@/src/services/product.service";
 
 export default async function TrendingSection() {
-    // For now, let's take top 4 products as trending
-    const trendingProducts = await prisma.product.findMany({
-        where: {
-            isArchived: false,
-        },
-        take: 4,
-        include: {
-            category: true,
-        },
-        orderBy: {
-            createdAt: 'asc', // Different order than featured to show variety
-        },
-    });
+    // Fetch top 4 products as trending (using sortBy/sortOrder or just limit)
+    const res = await productService.getProducts('limit=4&sortBy=createdAt&sortOrder=asc');
+    const trendingProducts = res.success ? res.data : [];
 
     if (trendingProducts.length === 0) return null;
 
@@ -31,7 +21,7 @@ export default async function TrendingSection() {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {trendingProducts.map((product) => (
+                    {trendingProducts.map((product: any) => (
                         <ProductCard
                             key={product.id}
                             id={product.id}

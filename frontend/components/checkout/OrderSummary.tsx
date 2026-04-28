@@ -3,14 +3,15 @@
 import Image from "next/image"
 import { useState } from "react"
 import { Tag, Loader2, X, CheckCircle } from "lucide-react"
+import { checkoutService } from "@/src/services/checkout.service"
 
 interface CartItem {
     id: string
     quantity: number
     product: {
         name: string
-        price: string
-        salePrice: string | null
+        price: number
+        salePrice: number | null
         images: string[]
     }
 }
@@ -35,7 +36,7 @@ export default function OrderSummary({
     const [appliedCoupon, setAppliedCoupon] = useState<{ code: string, discountAmount: number } | null>(null)
     const [couponError, setCouponError] = useState("")
 
-    const handleApplyCoupon = () => {
+    const handleApplyCoupon = async () => {
         if (!couponCode.trim()) {
             setCouponError("Please enter a valid coupon code")
             return
@@ -44,20 +45,22 @@ export default function OrderSummary({
         setCouponError("")
         setIsApplying(true)
 
-        // Simulate API call for applying a coupon
-        setTimeout(() => {
-            if (couponCode.toUpperCase() === "WELCOME20") {
-                setAppliedCoupon({ code: "WELCOME20", discountAmount: 20 })
-                // Clear input after applying
-                setCouponCode("")
-            } else if (couponCode.toUpperCase() === "SAVE10") {
-                setAppliedCoupon({ code: "SAVE10", discountAmount: subtotal * 0.1 })
+        try {
+            const data = await checkoutService.validateCoupon(couponCode.toUpperCase())
+            if (data.success) {
+                setAppliedCoupon({ 
+                    code: data.data.code, 
+                    discountAmount: data.data.discountAmount 
+                })
                 setCouponCode("")
             } else {
-                setCouponError("Invalid or expired coupon code")
+                setCouponError(data.message || "Invalid or expired coupon code")
             }
+        } catch (error: any) {
+            setCouponError(error || "Failed to validate coupon")
+        } finally {
             setIsApplying(false)
-        }, 1200)
+        }
     }
 
     const handleRemoveCoupon = () => {
@@ -95,11 +98,11 @@ export default function OrderSummary({
                                         {item.product.name}
                                     </h4>
                                     <p className="text-sm text-gray-500">
-                                        ${parseFloat(item.product.salePrice || item.product.price).toFixed(2)}
+                                        ${Number(item.product.salePrice || item.product.price).toFixed(2)}
                                     </p>
                                 </div>
                                 <div className="text-sm font-semibold text-gray-900">
-                                    ${(parseFloat(item.product.salePrice || item.product.price) * item.quantity).toFixed(2)}
+                                    ${(Number(item.product.salePrice || item.product.price) * item.quantity).toFixed(2)}
                                 </div>
                             </div>
                         ))}
@@ -139,9 +142,6 @@ export default function OrderSummary({
                             {couponError && (
                                 <p className="mt-2 text-sm text-red-600">{couponError}</p>
                             )}
-                            <p className="mt-2 text-xs text-gray-500">
-                                Try <span className="font-bold text-gray-700">WELCOME20</span> or <span className="font-bold text-gray-700">SAVE10</span>
-                            </p>
                         </div>
                     ) : (
                         <div className="bg-green-50 border border-green-100 rounded-lg p-3 flex items-center justify-between">
@@ -172,10 +172,6 @@ export default function OrderSummary({
                     <div className="flex justify-between text-gray-600">
                         <span>Shipping</span>
                         <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
-                    </div>
-                    <div className="flex justify-between text-gray-600">
-                        <span>Tax (Estimated)</span>
-                        <span>$0.00</span>
                     </div>
                     {appliedCoupon && (
                         <div className="flex justify-between text-green-600 font-medium">

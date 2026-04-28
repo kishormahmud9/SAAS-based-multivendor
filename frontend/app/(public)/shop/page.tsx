@@ -6,18 +6,10 @@ import FilterSidebar from "@/components/shop/FilterSidebar"
 import SortDropdown from "@/components/shop/SortDropdown"
 import ProductGrid from "@/components/shop/ProductGrid"
 import Pagination from "@/components/shop/Pagination"
+import { productService } from "@/src/services/product.service"
+import type { IProduct } from "@/src/types/product"
 
-interface Product {
-    id: string
-    name: string
-    slug: string
-    price: string
-    salePrice: string | null
-    images: string[]
-    stock: number
-    brand: { name: string } | null
-    category: { name: string }
-}
+type Product = IProduct;
 
 interface Category {
     id: string
@@ -59,15 +51,12 @@ export default function ShopPage() {
     const fetchFilters = async () => {
         try {
             const [categoriesRes, brandsRes] = await Promise.all([
-                fetch("/api/categories"),
-                fetch("/api/brands"),
+                productService.getCategories(),
+                productService.getBrands(),
             ])
 
-            const categoriesData = await categoriesRes.json()
-            const brandsData = await brandsRes.json()
-
-            if (categoriesData.success) setCategories(categoriesData.data)
-            if (brandsData.success) setBrands(brandsData.data)
+            if (categoriesRes.success) setCategories(categoriesRes.data)
+            if (brandsRes.success) setBrands(brandsRes.data)
         } catch (error) {
             console.error("Error fetching filters:", error)
         }
@@ -112,12 +101,11 @@ export default function ShopPage() {
             params.append("page", currentPage.toString())
             params.append("limit", "12")
 
-            const response = await fetch(`/api/products?${params.toString()}`)
-            const data = await response.json()
+            const response = await productService.getProducts(params.toString())
 
-            if (data.success) {
-                setProducts(data.data)
-                setTotalPages(data.pagination?.totalPages || 1)
+            if (response.success) {
+                setProducts(response.data)
+                setTotalPages(response.pagination?.totalPages || 1)
             }
         } catch (error) {
             console.error("Error fetching products:", error)

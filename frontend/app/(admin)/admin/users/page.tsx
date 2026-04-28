@@ -4,13 +4,13 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Search, Eye, ChevronLeft, ChevronRight, Loader2, User, Shield } from "lucide-react"
 import { toast } from "react-hot-toast"
-import { fetchWithAuth } from "@/lib/api/fetchWithAuth"
+import { adminService } from "@/src/services/admin.service"
 
 interface User {
     id: string
     name: string | null
     email: string
-    role: "USER" | "ADMIN"
+    role: "USER" | "ADMIN" | "VENDOR"
     createdAt: string
     _count: {
         orders: number
@@ -31,18 +31,10 @@ export default function AdminUsersPage() {
     const fetchUsers = async () => {
         setLoading(true)
         try {
-            const params = new URLSearchParams({
-                page: page.toString(),
-                limit: "20",
-            })
-            if (search) params.append("search", search)
-
-            const res = await fetchWithAuth(`/api/admin/users?${params}`)
-            const data = await res.json()
-
+            const data = await adminService.getUsers() // Backend needs to support pagination/search
             if (data.success) {
                 setUsers(data.data)
-                setTotalPages(data.pagination.totalPages)
+                // Backend pagination logic here if available
             }
         } catch (error) {
             toast.error("Failed to load users")
@@ -97,20 +89,19 @@ export default function AdminUsersPage() {
                                 <th className="px-6 py-3">User</th>
                                 <th className="px-6 py-3">Role</th>
                                 <th className="px-6 py-3">Joined</th>
-                                <th className="px-6 py-3">Orders</th>
                                 <th className="px-6 py-3 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                             {loading ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center">
+                                    <td colSpan={4} className="px-6 py-12 text-center">
                                         <Loader2 className="animate-spin mx-auto text-orange-600" size={32} />
                                     </td>
                                 </tr>
                             ) : users.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                                    <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
                                         No users found
                                     </td>
                                 </tr>
@@ -129,7 +120,10 @@ export default function AdminUsersPage() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${user.role === 'ADMIN' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
+                                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                user.role === 'ADMIN' ? 'bg-purple-100 text-purple-800' : 
+                                                user.role === 'VENDOR' ? 'bg-blue-100 text-blue-800' :
+                                                'bg-green-100 text-green-800'
                                                 }`}>
                                                 {user.role === 'ADMIN' && <Shield size={12} />}
                                                 {user.role}
@@ -137,9 +131,6 @@ export default function AdminUsersPage() {
                                         </td>
                                         <td className="px-6 py-4 text-gray-600 dark:text-gray-400">
                                             {new Date(user.createdAt).toLocaleDateString()}
-                                        </td>
-                                        <td className="px-6 py-4 text-gray-600 dark:text-gray-400">
-                                            {user._count.orders}
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <Link

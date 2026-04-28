@@ -1,45 +1,67 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-export const loginValidationSchema = z.object({
+const register = z.object({
   body: z.object({
-    email: z.string().email("Invalid email format"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    name: z.string({ required_error: 'Name is required' }),
+    email: z.string({ required_error: 'Email is required' }).email(),
+    password: z
+      .string({ required_error: 'Password is required' })
+      .min(6, 'Password must be at least 6 characters'),
+    phone: z.string().optional(),
+    role: z.enum(['CUSTOMER', 'VENDOR']).optional(),
   }),
 });
 
-export const registerValidationSchema = z.object({
+const login = z.object({
   body: z.object({
-    name: z.string().min(1, "Name is required"),
-    email: z.string().email("Invalid email format"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    contactNo: z.string().min(1, "Contact number is required"),
+    email: z.string({ required_error: 'Email is required' }).email(),
+    password: z.string({ required_error: 'Password is required' }),
   }),
 });
 
-export const forgotPasswordValidationSchema = z.object({
-  body: z.object({
-    email: z.string().email("Invalid email format"),
+const refreshToken = z.object({
+  cookies: z.object({
+    refreshToken: z.string({ required_error: 'Refresh token is required' }),
   }),
 });
 
-export const verifyOTPValidationSchema = z.object({
+const forgotPassword = z.object({
   body: z.object({
-    email: z.string().email("Invalid email format"),
-    otp: z.string().min(4, "OTP is required"),
+    email: z.string({ required_error: 'Email is required' }).email(),
   }),
 });
 
-export const changePasswordValidationSchema = z.object({
+const verifyOtp = z.object({
   body: z.object({
-    resetToken: z.string({ required_error: "Reset token is required" }),
-    newPassword: z.string().min(6, "Password must be at least 6 characters"),
+    email: z.string({ required_error: 'Email is required' }).email(),
+    otp: z.string({ required_error: 'OTP is required' }),
+    purpose: z.enum(['EMAIL_VERIFY', 'PASSWORD_RESET']),
   }),
 });
 
-export const authValidations = {
-  loginValidationSchema,
-  registerValidationSchema,
-  forgotPasswordValidationSchema,
-  verifyOTPValidationSchema,
-  changePasswordValidationSchema,
+const resetPassword = z.object({
+  body: z.object({
+    email: z.string({ required_error: 'Email is required' }).email(),
+    newPassword: z
+      .string({ required_error: 'New password is required' })
+      .min(6, 'Password must be at least 6 characters'),
+    resetToken: z.string({ required_error: 'Reset token is required' }),
+  }),
+});
+
+const changePassword = z.object({
+  body: z.object({
+    oldPassword: z.string({ required_error: 'Old password is required' }),
+    newPassword: z.string({ required_error: 'New password is required' }),
+  }),
+});
+
+export const authValidation = {
+  register,
+  login,
+  refreshToken,
+  forgotPassword,
+  verifyOtp,
+  resetPassword,
+  changePassword,
 };

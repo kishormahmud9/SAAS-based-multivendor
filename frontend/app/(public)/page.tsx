@@ -8,14 +8,15 @@ import LookbookSection from "@/components/home/LookbookSection";
 import NewsletterSection from "@/components/home/NewsletterSection";
 import UGCSection from "@/components/home/UGCSection";
 import FeatureHighlight from "@/components/home/FeatureHighlight";
-
-import { prisma } from "@/lib/prisma";
+import { marketingService } from "@/src/services/marketing.service";
 
 export default async function Home() {
-    const settings = await prisma.uiSetting.findMany();
-    const lookbookData = settings.find((s: any) => s.key === 'lookbook')?.value as any;
-    const featureData = settings.find((s: any) => s.key === 'feature_highlight')?.value as any;
-    const ugcData = settings.find((s: any) => s.key === 'ugc')?.value as any;
+    const res = await marketingService.getUiSettings();
+    const settings = res.success ? res.data : [];
+    
+    const lookbookData = settings.find((s: any) => s.key === 'lookbook')?.value;
+    const featureData = settings.find((s: any) => s.key === 'feature_highlight')?.value;
+    const ugcData = settings.find((s: any) => s.key === 'ugc')?.value;
 
     return (
         <div className="flex flex-col">

@@ -1,20 +1,41 @@
-import { NextFunction, Request, Response } from "express";
-import ApiError from "../errors/ApiError";
-import httpStatus from "http-status";
+import { NextFunction, Request, Response } from 'express';
+import httpStatus from 'http-status';
+import ApiError from '../errors/ApiError';
 
+/**
+ * Tenant Isolation Middleware
+ * - Ensures that VENDOR users are restricted to their own store data.
+ * - Injects 'storeId' into req.tenant for use in repositories.
+ */
 export const tenantContext = () => {
-  return async (req: Request & { user?: any, tenant?: any }, res: Response, next: NextFunction) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      if (!req.user || !req.user.storeId) {
-        throw new ApiError(httpStatus.FORBIDDEN, "Tenant access denied. You are not associated with a store.");
+      const user = req.user;
+
+      if (!user) {
+        throw new ApiError(httpStatus.UNAUTHORIZED, 'Authentication required');
       }
-      
-      // Inject storeId directly into req.body or a dedicated context object 
-      req.tenant = { storeId: req.user.storeId };
-      
+
+      // 1. If user is VENDOR, they MUST have an active storeId
+      if (user.role === 'VENDOR') {
+        if (!user.storeId) {
+          throw new ApiError(
+            httpStatus.FORBIDDEN,
+            'Access Denied: Your vendor account is not yet associated with an active store.',
+          );
+        }
+        req.tenant = { storeId: user.storeId };
+      }
+
+      // 2. If user is ADMIN, they might pass storeId in query/body for specific store management
+      if (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') {
+        req.tenant = { storeId: req.query.storeId || req.body.storeId || null };
+      }
+
       next();
     } catch (err) {
       next(err);
     }
   };
 };
+

@@ -2,18 +2,7 @@
 
 import { useEffect, useState } from "react"
 import ProductCard from "../products/ProductCard"
-
-interface Product {
-    id: string
-    name: string
-    slug: string
-    price: string
-    salePrice: string | null
-    images: string[]
-    stock: number
-    brand: { name: string } | null
-    category: { name: string }
-}
+import { productService } from "@/src/services/product.service"
 
 interface RelatedProductsProps {
     categoryId: string
@@ -21,7 +10,7 @@ interface RelatedProductsProps {
 }
 
 export default function RelatedProducts({ categoryId, currentProductId }: RelatedProductsProps) {
-    const [products, setProducts] = useState<Product[]>([])
+    const [products, setProducts] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -30,13 +19,9 @@ export default function RelatedProducts({ categoryId, currentProductId }: Relate
 
     const fetchRelatedProducts = async () => {
         try {
-            const response = await fetch(
-                `/api/products?categoryId=${categoryId}&limit=4&excludeId=${currentProductId}`
-            )
-            const data = await response.json()
-
+            const data = await productService.getProducts(`category=${categoryId}&limit=4`)
             if (data.success) {
-                setProducts(data.data)
+                setProducts(data.data.filter((p: any) => p.id !== currentProductId))
             }
         } catch (error) {
             console.error("Error fetching related products:", error)
@@ -64,16 +49,24 @@ export default function RelatedProducts({ categoryId, currentProductId }: Relate
         )
     }
 
-    if (products.length === 0) {
-        return null
-    }
+    if (products.length === 0) return null
 
     return (
         <div className="mt-16">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">You May Also Like</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {products.map(product => (
-                    <ProductCard key={product.id} product={product} />
+                    <ProductCard
+                        key={product.id}
+                        id={product.id}
+                        name={product.name}
+                        price={Number(product.price)}
+                        salePrice={product.salePrice ? Number(product.salePrice) : null}
+                        image={product.images?.[0] || null}
+                        category={product.category?.name || ''}
+                        slug={product.slug}
+                        stock={product.stock}
+                    />
                 ))}
             </div>
         </div>

@@ -1,20 +1,9 @@
 import ProductCard from "../products/ProductCard";
-import { prisma } from "@/lib/prisma";
+import { productService } from "@/src/services/product.service";
 
 export default async function ProductSection() {
-    const featuredProducts = await prisma.product.findMany({
-        where: {
-            isFeatured: true,
-            isArchived: false,
-        },
-        take: 4,
-        include: {
-            category: true,
-        },
-        orderBy: {
-            createdAt: 'desc',
-        },
-    });
+    const res = await productService.getProducts('isFeatured=true&limit=4');
+    const featuredProducts = res.success ? res.data : [];
 
     return (
         <section className="py-16 bg-gray-50">
@@ -35,7 +24,7 @@ export default async function ProductSection() {
                 </div>
                 {featuredProducts.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {featuredProducts.map((product) => (
+                        {featuredProducts.map((product: any) => (
                             <ProductCard
                                 key={product.id}
                                 id={product.id}
