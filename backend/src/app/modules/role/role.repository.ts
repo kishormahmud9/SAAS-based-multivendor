@@ -35,6 +35,9 @@ const getPaginated = async (query: any) => {
       skip,
       take: Number(limit),
       include: {
+        permissions: {
+          include: { permission: true }
+        },
         _count: { select: { userRoles: true, permissions: true } }
       },
       orderBy: { createdAt: 'desc' }

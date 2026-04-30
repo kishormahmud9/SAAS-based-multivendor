@@ -67,7 +67,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         try {
             const data = await cartService.getCart()
             if (data.success) {
-                setCartItems(data.data.items || [])
+                setCartItems(data.data?.items || [])
             }
         } catch (error) {
             console.error("Failed to fetch DB cart", error)

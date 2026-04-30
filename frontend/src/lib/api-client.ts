@@ -53,10 +53,10 @@ export const apiClient = async <T = any>(
     // If backend returns a message, use it
     const errorMessage = data.message || `Request failed with status ${response.status}`;
     const error: any = new Error(errorMessage);
-    error.errorMessages = data.errorMessages || [];
+    error.errors = data.errors || []; // Capture structured errors from backend
     throw error;
   } catch (error: any) {
-    // Re-throw so the caller's catch block receives the Error object with errorMessages
+    // Re-throw so the caller's catch block receives the Error object with errors
     throw error;
   }
 };

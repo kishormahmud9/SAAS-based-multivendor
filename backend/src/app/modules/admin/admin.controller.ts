@@ -4,6 +4,9 @@ import sendResponse from '../../utils/sendResponse';
 import { adminRepository } from './admin.repository';
 import { logAudit } from '../../utils/auditLogger';
 import { prisma } from '../../db_connection';
+import { optimizeAndSaveImage } from '../../utils/uploadHandler';
+import slugify from 'slugify';
+import ApiError from '../../errors/ApiError';
 
 const getStats = catchAsync(async (req, res) => {
   const result = await adminRepository.getDashboardStats();
@@ -33,7 +36,7 @@ const getAllUsers = catchAsync(async (req, res) => {
   const result = await (prisma as any).user.findMany({
     where: { isDeleted: false },
     include: {
-      userRoles: {
+      roleAssignments: {
         include: {
           role: { select: { id: true, name: true } }
         }
@@ -85,12 +88,12 @@ const assignUserRoles = catchAsync(async (req, res) => {
   }
 
   // Delete existing roles and insert new ones
-  await (prisma as any).roleByUser.deleteMany({
+  await (prisma as any).roleAssignment.deleteMany({
     where: { userId: id }
   });
 
   if (roleIds && roleIds.length > 0) {
-    await (prisma as any).roleByUser.createMany({
+    await (prisma as any).roleAssignment.createMany({
       data: roleIds.map(roleId => ({
         userId: id,
         roleId,
@@ -102,7 +105,7 @@ const assignUserRoles = catchAsync(async (req, res) => {
   const updatedUser = await (prisma as any).user.findUnique({
     where: { id },
     include: {
-      userRoles: {
+      roleAssignments: {
         include: {
           role: { select: { id: true, name: true } }
         }
@@ -144,24 +147,57 @@ const getAllProducts = catchAsync(async (req, res) => {
 });
 
 const createProduct = catchAsync(async (req, res) => {
-  let { storeId, ...productData } = req.body;
+  let { storeId, attributes, variants, metaKeywords, ...productData } = req.body;
 
-  // If storeId is not provided, find the admin's official store
+  // 1. Handle Images
+  const images: string[] = [];
+  if (req.files && Array.isArray(req.files)) {
+    for (const file of req.files as Express.Multer.File[]) {
+      const url = await optimizeAndSaveImage(file, 'products');
+      images.push(url);
+    }
+  }
+
+  // 2. Default Store (Admin Store)
   if (!storeId) {
     const adminStore = await (prisma as any).store.findFirst({
       where: { vendor: { systemRole: 'SUPER_ADMIN' } }
     });
     if (!adminStore) {
-      throw new Error('Admin official store not found. Please run seeds.');
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Admin official store not found. Please run seeds.');
     }
     storeId = adminStore.id;
   }
 
+  // 3. Slugify
+  if (!productData.slug) {
+    productData.slug = slugify(productData.name, { lower: true });
+  }
+
+  // 4. Database Persistence
   const result = await (prisma as any).product.create({
     data: {
       ...productData,
       storeId,
+      images,
+      thumbnail: images[0] || null,
+      metaKeywords: metaKeywords || [],
+      attributes: {
+        create: attributes || []
+      },
+      variants: {
+        create: variants?.map((v: any) => ({
+          ...v,
+          images: v.images || [], // For now, variants use main images or none
+        })) || []
+      }
     },
+    include: {
+      attributes: true,
+      variants: true,
+      category: { select: { name: true } },
+      brand: { select: { name: true } }
+    }
   });
 
   await logAudit(req, {
@@ -181,10 +217,63 @@ const createProduct = catchAsync(async (req, res) => {
 
 const updateProduct = catchAsync(async (req, res) => {
   const { id } = req.params as { id: string };
-  const oldProduct = await (prisma as any).product.findUnique({ where: { id } });
+  let { attributes, variants, metaKeywords, ...productData } = req.body;
+
+  const oldProduct = await (prisma as any).product.findUnique({ 
+    where: { id },
+    include: { attributes: true, variants: true }
+  });
+
+  if (!oldProduct) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Product not found');
+  }
+
+  // 1. Handle New Images (if any)
+  let images = oldProduct.images;
+  if (req.files && Array.isArray(req.files) && (req.files as any[]).length > 0) {
+    const newImages: string[] = [];
+    for (const file of req.files as Express.Multer.File[]) {
+      const url = await optimizeAndSaveImage(file, 'products');
+      newImages.push(url);
+    }
+    images = [...images, ...newImages];
+  }
+
+  // 2. Update Basic Data
+  const updateData: any = {
+    ...productData,
+    images,
+    thumbnail: images[0] || null,
+    metaKeywords: metaKeywords || oldProduct.metaKeywords,
+  };
+
+  // 3. Handle Nested Updates (Simplified: Delete and Recreate)
+  if (attributes) {
+    updateData.attributes = {
+      deleteMany: {},
+      create: attributes
+    };
+  }
+
+  if (variants) {
+    updateData.variants = {
+      deleteMany: {},
+      create: variants.map((v: any) => ({
+        ...v,
+        images: v.images || [],
+      }))
+    };
+  }
+
   const result = await (prisma as any).product.update({
     where: { id },
-    data: req.body,
+    data: updateData,
+    include: {
+      attributes: true,
+      variants: true,
+      category: { select: { name: true } },
+      brand: { select: { name: true } }
+    }
   });
 
   await logAudit(req, {

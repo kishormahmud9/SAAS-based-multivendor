@@ -38,6 +38,25 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
 
       errors = err?.message ? [{ field, message: err.message }] : [];
     }
+  } else if (err.constructor.name === 'PrismaClientKnownRequestError') {
+    statusCode = httpStatus.BAD_REQUEST;
+    if (err.code === 'P2002') {
+      message = 'Unique constraint violation';
+      const target = (err.meta?.target as string[]) || [];
+      errors = target.map(field => ({ field, message: `${field} already exists` }));
+    } else if (err.code === 'P2003') {
+      message = 'Foreign key constraint violation';
+      errors = [{ field: 'parentId', message: 'The selected parent does not exist' }];
+    } else if (err.code === 'P2021') {
+      message = 'Database table missing. Please run migrations.';
+      errors = [{ field: '', message: 'Table does not exist in the database' }];
+    } else if (err.code === 'P2025') {
+      message = 'Record not found';
+      errors = [{ field: '', message: 'The requested record does not exist' }];
+    } else {
+      message = err.message;
+      errors = [{ field: '', message: err.message }];
+    }
   } else if (err instanceof Error) {
     message = err?.message;
     errors = err?.message ? [{ field: '', message: err.message }] : [];

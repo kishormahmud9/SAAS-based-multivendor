@@ -15,6 +15,20 @@ router.get(
   roleControllers.getAllPermissions
 );
 
+router.get(
+  '/:id/permissions',
+  requireAuth('ADMIN', 'SUPER_ADMIN'),
+  permission('roles:view'),
+  roleControllers.getRolePermissions
+);
+
+router.put(
+  '/:id/permissions',
+  requireAuth('ADMIN', 'SUPER_ADMIN'),
+  permission('roles:edit'),
+  roleControllers.updateRolePermissions
+);
+
 router.post(
   '/',
   requireAuth('ADMIN', 'SUPER_ADMIN'),

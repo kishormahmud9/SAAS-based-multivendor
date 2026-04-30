@@ -41,6 +41,7 @@ const moduleRoutes = [
   { path: '/reviews', route: reviewRoutes },
   { path: '/tickets', route: ticketRoutes },
   { path: '/roles', route: roleRoutes },
+  { path: '/permissions', route: roleRoutes },
 ];
 
 moduleRoutes.forEach((route) => {

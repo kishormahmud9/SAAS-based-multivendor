@@ -37,7 +37,9 @@ const getAll = async (filters: any, options: any) => {
         values: {
           orderBy: { sortOrder: 'asc' },
         },
-        _count: true,
+        _count: {
+          select: { values: true }
+        },
       },
     }),
     (prisma as any).attribute.count({ where }),
@@ -80,7 +82,7 @@ const checkExists = async (name: string, excludeId?: string): Promise<boolean> =
   if (excludeId) where.id = { not: excludeId };
   
   const count = await (prisma as any).attribute.count({ where });
-  return count > 0;
+  return (count as number) > 0;
 };
 
 export const AttributeRepository = {

@@ -7,7 +7,7 @@ const createRole = async (payload: { name: string; description?: string; permiss
 
   const existingRole = await roleRepository.findByName(roleData.name);
   if (existingRole) {
-    throw new ApiError(httpStatus.CONFLICT, 'Role name already exists');
+    throw new ApiError(httpStatus.CONFLICT, 'Role name already exists', [{ field: 'name', message: 'Role name already exists' }]);
   }
 
   return await roleRepository.createRole(roleData, permissionIds || []);
@@ -40,7 +40,7 @@ const updateRole = async (id: string, payload: { name?: string; description?: st
   if (roleData.name && roleData.name !== role.name) {
     const existingRole = await roleRepository.findByName(roleData.name);
     if (existingRole && existingRole.id !== id) {
-      throw new ApiError(httpStatus.CONFLICT, 'Role name already exists');
+      throw new ApiError(httpStatus.CONFLICT, 'Role name already exists', [{ field: 'name', message: 'Role name already exists' }]);
     }
   }
 
@@ -68,11 +68,34 @@ const getAllPermissions = async () => {
   return await roleRepository.getAllPermissions();
 };
 
+const getRolePermissions = async (roleId: string) => {
+  const role = await roleRepository.getRoleById(roleId);
+  if (!role) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Role not found');
+  }
+  return role.permissions.map((rp: any) => rp.permissionId);
+};
+
+const updateRolePermissions = async (roleId: string, permissionIds: string[]) => {
+  const role = await roleRepository.getRoleById(roleId);
+  if (!role) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Role not found');
+  }
+
+  if (role.isSystem) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Cannot modify permissions of a system role');
+  }
+
+  return await roleRepository.updateRole(roleId, {}, permissionIds);
+};
+
 export const roleServices = {
   createRole,
   getRoles,
   getRoleById,
   updateRole,
   deleteRole,
-  getAllPermissions
+  getAllPermissions,
+  getRolePermissions,
+  updateRolePermissions
 };

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
+import Link from "next/link"
 import { Shield, ShieldCheck, Plus, Search, Edit3, Trash2, Check, X, ShieldAlert, Loader2 } from "lucide-react"
 import Modal from "@/components/ui/Modal"
 import ConfirmModal from "@/components/ui/ConfirmModal"
@@ -79,7 +80,9 @@ export default function RolesPermissionsPage() {
             if (!window.confirm("You have unsaved changes. Discard them?")) return
         }
         setSelectedRole(role)
-        setLocalPermissionIds(new Set(role.permissions.map(p => p.permissionId)))
+        // Defensive check for role.permissions
+        const permissionIds = role.permissions?.map(p => p.permissionId) || []
+        setLocalPermissionIds(new Set(permissionIds))
         setHasUnsavedChanges(false)
     }
 
@@ -207,15 +210,12 @@ export default function RolesPermissionsPage() {
                     </h1>
                     <p className="text-gray-500 dark:text-gray-400 mt-1">Define system roles and granular module-level permissions.</p>
                 </div>
-                <button 
-                    onClick={() => {
-                        setFormData({ id: '', name: '', description: '' })
-                        setIsFormOpen(true)
-                    }}
+                <Link 
+                    href="/admin/roles/create"
                     className="bg-blue-600 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center gap-2 shadow-xl shadow-blue-600/20 active:scale-95"
                 >
                     <Plus size={18} /> Create New Role
-                </button>
+                </Link>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -255,10 +255,21 @@ export default function RolesPermissionsPage() {
                                 <p className={`text-xs font-medium leading-relaxed mb-4 line-clamp-2 ${selectedRole?.id === role.id ? "text-blue-50/70" : "text-gray-500"}`}>
                                     {role.description || "No description provided."}
                                 </p>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center justify-between gap-2">
                                     <span className={`text-[10px] font-black uppercase tracking-widest ${selectedRole?.id === role.id ? "text-white" : "text-gray-400"}`}>
                                         {role._count?.userRoles || 0} Users • {role._count?.permissions || 0} Perms
                                     </span>
+                                    <Link 
+                                        href={`/admin/roles/${role.id}/permissions`}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className={`p-2 rounded-lg transition-all ${
+                                            selectedRole?.id === role.id 
+                                            ? "bg-white/20 text-white hover:bg-white/30" 
+                                            : "bg-gray-50 text-gray-400 hover:text-blue-600 dark:bg-gray-800"
+                                        }`}
+                                    >
+                                        <ShieldCheck size={16} />
+                                    </Link>
                                 </div>
                             </button>
                         ))}

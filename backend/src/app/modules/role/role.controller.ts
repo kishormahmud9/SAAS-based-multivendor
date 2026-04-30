@@ -64,11 +64,33 @@ const getAllPermissions = catchAsync(async (req, res) => {
   });
 });
 
+const getRolePermissions = catchAsync(async (req, res) => {
+  const result = await roleServices.getRolePermissions(req.params.id as string);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Role permissions fetched successfully',
+    data: result,
+  });
+});
+
+const updateRolePermissions = catchAsync(async (req, res) => {
+  const result = await roleServices.updateRolePermissions(req.params.id as string, req.body.permissionIds);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Role permissions updated successfully',
+    data: result,
+  });
+});
+
 export const roleControllers = {
   createRole,
   getRoles,
   getRoleById,
   updateRole,
   deleteRole,
-  getAllPermissions
+  getAllPermissions,
+  getRolePermissions,
+  updateRolePermissions
 };

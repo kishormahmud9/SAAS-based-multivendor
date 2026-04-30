@@ -94,6 +94,10 @@ export const PERMISSIONS: PermissionDefinition[] = [
 
   // ── Roles ─────────────────────────────────────────────────────────────────
   ...crudPermissions('roles', 'roles & permissions'),
+
+  // ── Profile ───────────────────────────────────────────────────────────────
+  { name: 'profile:view', module: 'profile', action: 'view', description: 'View own profile' },
+  { name: 'profile:edit', module: 'profile', action: 'edit', description: 'Edit own profile' },
 ];
 
 // =============================================================================
@@ -107,25 +111,20 @@ export const PERMISSION_KEYS = PERMISSIONS.map((p) => p.name);
 // =============================================================================
 
 export const ROLE_PRESETS = {
-  // Super Admin gets everything — handled by bypass in permission middleware
+  // Super Admin: Full access (handled automatically in seeder)
   SUPER_ADMIN: PERMISSION_KEYS,
 
-  // Inventory Manager: products, categories, brands, attributes, inventory
-  INVENTORY_MANAGER: PERMISSION_KEYS.filter((k) =>
-    ['products', 'categories', 'brands', 'attributes', 'inventory'].some((m) =>
-      k.startsWith(m + ':')
-    )
-  ),
-
-  // Support Agent: view orders, manage support tickets, view users
-  SUPPORT_AGENT: [
-    'orders:view',
-    'users:view',
-    'support:view',
-    'support:create',
-    'support:edit',
-    'support:assign',
-    'support:close',
-    'reviews:view',
+  // Vendor Admin: products (full), categories (view/create/edit), brands (view), orders (view/manage), inventory
+  VENDOR_ADMIN: [
+    ...PERMISSION_KEYS.filter((k) => k.startsWith('products:')),
+    'categories:view',
+    'categories:create',
+    'categories:edit',
+    'brands:view',
+    ...PERMISSION_KEYS.filter((k) => k.startsWith('orders:')),
+    ...PERMISSION_KEYS.filter((k) => k.startsWith('inventory:')),
   ],
+
+  // User: Minimal permissions
+  USER: ['profile:view', 'profile:edit', 'orders:view'],
 };

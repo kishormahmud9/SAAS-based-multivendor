@@ -2,6 +2,10 @@ import { Router } from 'express';
 import requireAuth from '../../middlewares/requireAuth';
 import permission from '../../middlewares/permission';
 import { adminControllers } from './admin.controller';
+import { upload } from '../../utils/uploadHandler';
+import { productValidation } from '../product/product.validation';
+import validateRequest from '../../middlewares/validateRequest';
+
 
 const router = Router();
 
@@ -43,11 +47,15 @@ router.get('/products',
 router.post('/products',
   requireAuth('ADMIN', 'SUPER_ADMIN'),
   permission('products:create'),
+  upload.array('images', 10),
+  validateRequest(productValidation.createProduct),
   adminControllers.createProduct
 );
 router.patch('/products/:id',
   requireAuth('ADMIN', 'SUPER_ADMIN'),
   permission('products:edit'),
+  upload.array('images', 10),
+  validateRequest(productValidation.updateProduct),
   adminControllers.updateProduct
 );
 router.delete('/products/:id',

@@ -328,7 +328,17 @@ export default function AdminSidebar() {
                 {/* Link Items */}
                 <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
                     {activeGroup.items.map((item) => {
-                        const isActive = pathname === item.href || pathname?.startsWith(item.href + "/")
+                        // Improved isActive logic: Exact match OR starts with item.href + "/"
+                        // BUT only if no more specific menu item matches the current path.
+                        const isExact = pathname === item.href
+                        const isSubPath = pathname?.startsWith(item.href + "/")
+                        const isMoreSpecificMatch = activeGroup.items.some(other => 
+                            other.href !== item.href && 
+                            other.href.length > item.href.length && 
+                            pathname?.startsWith(other.href)
+                        )
+                        
+                        const isActive = isExact || (isSubPath && !isMoreSpecificMatch)
                         const ItemIcon = item.icon
 
                         return (
