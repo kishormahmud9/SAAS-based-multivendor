@@ -9,7 +9,7 @@ export default function Footer() {
                     {/* Brand Info */}
                     <div>
                         <Link href="/" className="text-3xl font-bold mb-6 block">
-                            Ready<span className="text-orange-500">Mart</span>
+                            {process.env.NEXT_PUBLIC_APP_NAME?.split('Mart')[0] || 'Ready'}<span className="text-orange-500">{process.env.NEXT_PUBLIC_APP_NAME?.includes('Mart') ? 'Mart' : ''}</span>
                         </Link>
                         <p className="text-blue-200 mb-6">
                             Your one-stop destination for premium fashion. We bring you the latest trends at unbeatable prices.
@@ -68,14 +68,14 @@ export default function Footer() {
                             </li>
                             <li className="flex items-center space-x-3">
                                 <Mail size={20} className="flex-shrink-0 text-orange-500" />
-                                <span>support@readymart.com</span>
+                                <span>support@{process.env.NEXT_PUBLIC_APP_NAME?.toLowerCase() || 'readymart'}.com</span>
                             </li>
                         </ul>
                     </div>
                 </div>
 
                 <div className="border-t border-blue-800 pt-8 text-center text-blue-300 text-sm">
-                    <p>&copy; {new Date().getFullYear()} ReadyMart. All rights reserved.</p>
+                    <p>&copy; {new Date().getFullYear()} {process.env.NEXT_PUBLIC_APP_NAME || 'ReadyMart'}. All rights reserved.</p>
                 </div>
             </div>
         </footer>

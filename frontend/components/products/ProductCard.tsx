@@ -6,6 +6,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ShoppingCart, Heart, Eye } from "lucide-react";
 import Image from "next/image";
+import { getImageUrl } from "@/src/lib/image-utils";
 
 interface ProductCardProps {
     id: string;
@@ -59,7 +60,7 @@ export default function ProductCard({ id, name, price, salePrice, image, categor
             {/* Image Container */}
             <div className="relative h-64 w-full overflow-hidden bg-gray-100">
                 <Image
-                    src={image || "/placeholder.png"}
+                    src={getImageUrl(image)}
                     alt={name}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-110"

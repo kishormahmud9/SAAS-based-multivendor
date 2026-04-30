@@ -38,7 +38,7 @@ export default function Navbar() {
                 {/* Top Bar - Hidden on mobile */}
                 <div className="hidden md:block bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white text-xs py-2">
                     <div className="container mx-auto px-4 flex justify-between items-center">
-                        <p className="font-medium tracking-wide">✨ Welcome to ReadyMart - Your Premium Fashion Destination</p>
+                        <p className="font-medium tracking-wide">✨ Welcome to {process.env.NEXT_PUBLIC_APP_NAME || 'ReadyMart'} - Your Premium Fashion Destination</p>
                         <div className="flex space-x-6">
                             <Link href="/track-order" className="hover:text-orange-300 transition duration-300">Track Order</Link>
                             <Link href="/about" className="hover:text-orange-300 transition duration-300">About Us</Link>
@@ -51,7 +51,7 @@ export default function Navbar() {
                     <div className="flex justify-between items-center">
                         {/* Logo */}
                         <Link href="/" className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-900 to-blue-600 hover:from-orange-500 hover:to-orange-600 transition duration-500">
-                            Ready<span className="text-orange-500">Mart</span>
+                            {process.env.NEXT_PUBLIC_APP_NAME?.split('Mart')[0] || 'Ready'}<span className="text-orange-500">{process.env.NEXT_PUBLIC_APP_NAME?.includes('Mart') ? 'Mart' : ''}</span>
                         </Link>
 
                         {/* Search Bar (Hidden on mobile) */}
@@ -155,7 +155,7 @@ export default function Navbar() {
                                     <ChevronRight size={16} className="opacity-40" />
                                 </Link>
                                 <Link onClick={toggleMenu} href="/about" className="flex items-center justify-between p-3.5 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-900 text-sm text-gray-700 dark:text-gray-300 transition-all">
-                                    <span>About ReadyMart</span>
+                                    <span>About {process.env.NEXT_PUBLIC_APP_NAME || 'ReadyMart'}</span>
                                     <ChevronRight size={16} className="opacity-40" />
                                 </Link>
                             </div>
@@ -168,7 +168,7 @@ export default function Navbar() {
                             onClick={toggleMenu}
                             className="block text-center text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-900 to-blue-600"
                         >
-                            Ready<span className="text-orange-500">Mart</span>
+                            {process.env.NEXT_PUBLIC_APP_NAME?.split('Mart')[0] || 'Ready'}<span className="text-orange-500">{process.env.NEXT_PUBLIC_APP_NAME?.includes('Mart') ? 'Mart' : ''}</span>
                         </Link>
                         <p className="text-[10px] text-center text-gray-400 mt-2 italic px-8">Premium Fashion & Lifestyle Destination</p>
                     </div>

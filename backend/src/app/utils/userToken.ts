@@ -7,17 +7,18 @@ export const createUserToken = (payload: Partial<TJwtPayload>) => {
     id: payload.id!,
     email: payload.email!,
     name: payload.name!,
+    role: payload.role!,
   };
 
   const accessToken = generateToken(
     data,
-    config.JWT_ACCESS_TOKEN as string,
-    config.JWT_ACCESS_EXPIRES_IN as string,
+    config.jwt.access_secret as string,
+    config.jwt.access_expires_in as string,
   );
   const refreshToken = generateToken(
     data,
-    config.JWT_REFRESH_TOKEN as string,
-    config.JWT_REFRESH_EXPIRES_IN as string,
+    config.jwt.refresh_secret as string,
+    config.jwt.refresh_expires_in as string,
   );
 
   return { accessToken, refreshToken };

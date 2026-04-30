@@ -2,7 +2,7 @@ import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { categoryServices } from './category.service';
-
+import { prisma } from '../../db_connection';
 import { optimizeAndSaveImage } from '../../utils/uploadHandler';
 
 const createCategory = catchAsync(async (req, res) => {
@@ -54,7 +54,7 @@ const getAllFlat = catchAsync(async (req, res) => {
 });
 
 const getSingleCategory = catchAsync(async (req, res) => {
-  const result = await categoryServices.getSingleCategory(req.params.id);
+  const result = await categoryServices.getSingleCategory(req.params.id as string);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -71,7 +71,7 @@ const updateCategory = catchAsync(async (req, res) => {
     categoryData.image = imagePath;
   }
 
-  const result = await categoryServices.updateCategory(req.params.id, categoryData);
+  const result = await categoryServices.updateCategory(req.params.id as string, categoryData);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -81,7 +81,7 @@ const updateCategory = catchAsync(async (req, res) => {
 });
 
 const deleteCategory = catchAsync(async (req, res) => {
-  await categoryServices.deleteCategory(req.params.id);
+  await categoryServices.deleteCategory(req.params.id as string);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -123,6 +123,16 @@ const updateSortOrder = catchAsync(async (req, res) => {
   });
 });
 
+const getNextOrder = catchAsync(async (req, res) => {
+  const result = await categoryServices.getNextSortOrder();
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Next sort order fetched successfully',
+    data: result,
+  });
+});
+
 export const categoryControllers = {
   createCategory,
   getAllTree,
@@ -133,5 +143,32 @@ export const categoryControllers = {
   deleteCategory,
   bulkStatusUpdate,
   bulkDelete,
-  updateSortOrder
+  updateSortOrder,
+  getNextOrder,
+  checkName: catchAsync(async (req, res) => {
+    const { name } = req.query;
+    if (!name) {
+      return sendResponse(res, {
+        statusCode: httpStatus.BAD_REQUEST,
+        success: false,
+        message: 'Name is required',
+        data: null,
+      });
+    }
+    const slug = (name as string).toLowerCase().trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    
+    const existing = await (prisma as any).category.findUnique({
+      where: { slug }
+    });
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: existing ? 'Category exists' : 'Category available',
+      data: { exists: !!existing },
+    });
+  })
 };

@@ -2,39 +2,42 @@ import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
 import ApiError from '../errors/ApiError';
 import catchAsync from '../utils/catchAsync';
-import { authRepository } from '../modules/auth/auth.repository';
 
 /**
- * Granular Permission Middleware
- * - Checks if the authenticated user has all required permissions
- * - Automatically allows SUPER_ADMIN to bypass
+ * Granular Permission Middleware (Phase 3 — Hardened)
+ * ────────────────────────────────────────────────────
+ * MUST be used AFTER requireAuth, which caches permissions on req.user.
+ *
+ * - SUPER_ADMIN (permissions = ['*']) always bypasses
+ * - All other roles are checked against the pre-loaded permissions cache
+ * - No additional DB queries required
+ *
+ * Usage:
+ *   router.post('/', requireAuth('ADMIN'), permission('products:create'), handler)
+ *   router.delete('/:id', requireAuth('ADMIN', 'VENDOR'), permission('orders:delete'), handler)
  */
 const permission = (...requiredPermissions: string[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
 
     if (!user) {
-      throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized');
+      throw new ApiError(httpStatus.UNAUTHORIZED, 'Authentication required');
     }
 
-    // 1. SUPER_ADMIN bypass
-    if (user.role === 'SUPER_ADMIN') {
+    // ── SUPER_ADMIN wildcard bypass ─────────────────────────────────────────
+    if (user.permissions.includes('*')) {
       return next();
     }
 
-    // 2. Fetch permissions from DB
-    // In production, this should be cached (e.g. Redis) to avoid DB hits on every request
-    const userPermissions = await authRepository.getUserPermissions(user.id as string);
-
-    // 3. Verify all required permissions are present
-    const hasPermission = requiredPermissions.every((perm) =>
-      userPermissions.includes(perm),
+    // ── Check each required permission against cached list ──────────────────
+    const missing = requiredPermissions.filter(
+      (perm) => !user.permissions.includes(perm)
     );
 
-    if (!hasPermission) {
+    if (missing.length > 0) {
       throw new ApiError(
         httpStatus.FORBIDDEN,
-        'Access Denied: You do not have sufficient permissions to perform this action',
+        `Access Denied: Missing permission${missing.length > 1 ? 's' : ''}: ${missing.join(', ')}`
       );
     }
 
@@ -43,4 +46,3 @@ const permission = (...requiredPermissions: string[]) => {
 };
 
 export default permission;
-

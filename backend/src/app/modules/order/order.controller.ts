@@ -14,7 +14,7 @@ const getOrderHistory = catchAsync(async (req, res) => {
 });
 
 const getOrderDetails = catchAsync(async (req, res) => {
-  const result = await orderRepository.getOrderDetails(req.params.id, req.user!.id);
+  const result = await orderRepository.getOrderDetails(req.params.id as string, req.user!.id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

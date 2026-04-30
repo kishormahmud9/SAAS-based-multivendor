@@ -44,7 +44,7 @@ const createAddress = catchAsync(async (req, res) => {
 });
 
 const updateAddress = catchAsync(async (req, res) => {
-  const result = await userRepository.updateAddress(req.params.id, req.user!.id, req.body);
+  const result = await userRepository.updateAddress(req.params.id as string, req.user!.id, req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -54,7 +54,7 @@ const updateAddress = catchAsync(async (req, res) => {
 });
 
 const deleteAddress = catchAsync(async (req, res) => {
-  await userRepository.deleteAddress(req.params.id, req.user!.id);
+  await userRepository.deleteAddress(req.params.id as string, req.user!.id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

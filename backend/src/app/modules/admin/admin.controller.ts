@@ -32,6 +32,13 @@ const getDashboardOverview = catchAsync(async (req, res) => {
 const getAllUsers = catchAsync(async (req, res) => {
   const result = await (prisma as any).user.findMany({
     where: { isDeleted: false },
+    include: {
+      userRoles: {
+        include: {
+          role: { select: { id: true, name: true } }
+        }
+      }
+    },
     orderBy: { createdAt: 'desc' },
   });
   sendResponse(res, {
@@ -43,7 +50,7 @@ const getAllUsers = catchAsync(async (req, res) => {
 });
 
 const toggleUserStatus = catchAsync(async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   const { status } = req.body;
 
   const oldUser = await (prisma as any).user.findUnique({ where: { id } });
@@ -65,6 +72,56 @@ const toggleUserStatus = catchAsync(async (req, res) => {
     success: true,
     message: 'User status updated successfully',
     data: result,
+  });
+});
+
+const assignUserRoles = catchAsync(async (req, res) => {
+  const { id } = req.params as { id: string };
+  const { roleIds } = req.body as { roleIds: string[] };
+
+  const user = await (prisma as any).user.findUnique({ where: { id } });
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  // Delete existing roles and insert new ones
+  await (prisma as any).roleByUser.deleteMany({
+    where: { userId: id }
+  });
+
+  if (roleIds && roleIds.length > 0) {
+    await (prisma as any).roleByUser.createMany({
+      data: roleIds.map(roleId => ({
+        userId: id,
+        roleId,
+        grantedBy: req.user?.id
+      }))
+    });
+  }
+
+  const updatedUser = await (prisma as any).user.findUnique({
+    where: { id },
+    include: {
+      userRoles: {
+        include: {
+          role: { select: { id: true, name: true } }
+        }
+      }
+    }
+  });
+
+  await logAudit(req, {
+    action: 'user.assign_roles',
+    entity: 'User',
+    entityId: id,
+    newValue: { roleIds },
+  });
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User roles assigned successfully',
+    data: updatedUser,
   });
 });
 
@@ -123,7 +180,7 @@ const createProduct = catchAsync(async (req, res) => {
 });
 
 const updateProduct = catchAsync(async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   const oldProduct = await (prisma as any).product.findUnique({ where: { id } });
   const result = await (prisma as any).product.update({
     where: { id },
@@ -147,7 +204,7 @@ const updateProduct = catchAsync(async (req, res) => {
 });
 
 const deleteProduct = catchAsync(async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   const result = await (prisma as any).product.update({
     where: { id },
     data: { isDeleted: true },
@@ -268,6 +325,7 @@ export const adminControllers = {
   getDashboardOverview,
   getAllUsers,
   toggleUserStatus,
+  assignUserRoles,
   getAllProducts,
   createProduct,
   updateProduct,

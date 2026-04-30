@@ -3,8 +3,13 @@ import { productService } from "@/src/services/product.service";
 
 export default async function TrendingSection() {
     // Fetch top 4 products as trending (using sortBy/sortOrder or just limit)
-    const res = await productService.getProducts('limit=4&sortBy=createdAt&sortOrder=asc');
-    const trendingProducts = res.success ? res.data : [];
+    let trendingProducts: any[] = [];
+    try {
+        const res = await productService.getProducts('limit=4&sortBy=createdAt&sortOrder=asc');
+        trendingProducts = res.success ? res.data : [];
+    } catch (error) {
+        console.error("Failed to fetch trending products:", error);
+    }
 
     if (trendingProducts.length === 0) return null;
 

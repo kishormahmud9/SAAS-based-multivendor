@@ -25,6 +25,7 @@ import {
 import { adminService } from "@/src/services/admin.service"
 import { toast } from "react-hot-toast"
 import { getImageUrl } from "@/src/lib/image-utils"
+import ConfirmModal from "@/components/ui/ConfirmModal"
 
 export default function AdminCategoriesPage() {
     const [categories, setCategories] = useState<any[]>([])
@@ -34,6 +35,11 @@ export default function AdminCategoriesPage() {
     const [selectedIds, setSelectedIds] = useState<string[]>([])
     const [page, setPage] = useState(1)
     const [total, setTotal] = useState(0)
+
+    // Modal States
+    const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null)
+    const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false)
+    const [isDeleting, setIsDeleting] = useState(false)
 
     useEffect(() => {
         fetchCategories()
@@ -72,16 +78,25 @@ export default function AdminCategoriesPage() {
         }
     }
 
-    const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure? This will fail if products or sub-categories exist.")) return
+    const handleDelete = (id: string) => {
+        setCategoryToDelete(id)
+    }
+
+    const confirmDelete = async () => {
+        if (!categoryToDelete) return
+        
+        setIsDeleting(true)
         try {
-            const res = await adminService.deleteCategory(id)
+            const res = await adminService.deleteCategory(categoryToDelete)
             if (res.success) {
                 toast.success("Category deleted")
+                setCategoryToDelete(null)
                 fetchCategories()
             }
         } catch (error: any) {
             toast.error(error.message || "Delete failed")
+        } finally {
+            setIsDeleting(false)
         }
     }
 
@@ -97,15 +112,23 @@ export default function AdminCategoriesPage() {
         }
     }
 
-    const handleBulkDelete = async () => {
-        if (!selectedIds.length || !confirm("Delete selected categories? Categories with products will be skipped.")) return
+    const handleBulkDelete = () => {
+        if (!selectedIds.length) return
+        setIsBulkDeleteModalOpen(true)
+    }
+
+    const confirmBulkDelete = async () => {
+        setIsDeleting(true)
         try {
             await adminService.bulkDeleteCategories(selectedIds)
             toast.success("Bulk delete completed")
             setSelectedIds([])
+            setIsBulkDeleteModalOpen(false)
             fetchCategories()
         } catch (error) {
             toast.error("Bulk delete failed")
+        } finally {
+            setIsDeleting(false)
         }
     }
 
@@ -290,6 +313,27 @@ export default function AdminCategoriesPage() {
                     </button>
                 </div>
             )}
+
+            {/* Delete Confirmation Modals */}
+            <ConfirmModal
+                isOpen={!!categoryToDelete}
+                onClose={() => setCategoryToDelete(null)}
+                onConfirm={confirmDelete}
+                title="Delete Category"
+                message="Are you sure you want to delete this category? This action cannot be undone and will fail if products or sub-categories are linked."
+                confirmText="Delete Now"
+                isLoading={isDeleting}
+            />
+
+            <ConfirmModal
+                isOpen={isBulkDeleteModalOpen}
+                onClose={() => setIsBulkDeleteModalOpen(false)}
+                onConfirm={confirmBulkDelete}
+                title="Bulk Delete"
+                message={`Are you sure you want to delete ${selectedIds.length} categories? Categories with active products or sub-categories will be skipped for safety.`}
+                confirmText="Delete Selected"
+                isLoading={isDeleting}
+            />
         </div>
     )
 }

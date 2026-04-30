@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast"
 import Modal from "@/components/ui/Modal"
 import CategoryForm from "@/components/admin/CategoryForm"
 import ConfirmModal from "@/components/ui/ConfirmModal"
+import { getImageUrl } from "@/src/lib/image-utils"
 
 export default function CategoryManagePage() {
     const [categories, setCategories] = useState<any[]>([])
@@ -23,7 +24,7 @@ export default function CategoryManagePage() {
 
     const fetchCategories = async () => {
         try {
-            const response = await fetch("/api/categories")
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`)
             const data = await response.json()
             if (data.success) {
                 setCategories(data.data)
@@ -39,7 +40,7 @@ export default function CategoryManagePage() {
         setCategoryToDelete(null)
 
         try {
-            const response = await fetch(`/api/categories/${id}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/${id}`, {
                 method: "DELETE",
             })
             const data = await response.json()
@@ -123,7 +124,7 @@ export default function CategoryManagePage() {
                                         <td className="px-6 py-4">
                                             <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden border border-gray-200">
                                                 {category.image ? (
-                                                    <img src={`http://localhost:5000/${category.image}`} alt={category.name} className="w-full h-full object-cover" />
+                                                    <img src={getImageUrl(category.image)} alt={category.name} className="w-full h-full object-cover" />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-gray-400">
                                                         No Image

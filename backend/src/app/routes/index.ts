@@ -14,6 +14,8 @@ import { adminRoutes } from '../modules/admin/admin.routes';
 import { paymentRoutes } from '../modules/payment/payment.routes';
 import { vendorRoutes } from '../modules/vendor/vendor.routes';
 import { subscriptionRoutes } from '../modules/subscription/subscription.routes';
+import { AttributeRoutes } from '../modules/attribute/attribute.routes';
+import { roleRoutes } from '../modules/role/role.routes';
 
 const router = Router();
 
@@ -24,6 +26,7 @@ const moduleRoutes = [
   { path: '/subscriptions', route: subscriptionRoutes },
   { path: '/payments', route: paymentRoutes },
   { path: '/products', route: productRoutes },
+  { path: '/attributes', route: AttributeRoutes },
 
 
 
@@ -37,6 +40,7 @@ const moduleRoutes = [
   { path: '/orders', route: orderRoutes },
   { path: '/reviews', route: reviewRoutes },
   { path: '/tickets', route: ticketRoutes },
+  { path: '/roles', route: roleRoutes },
 ];
 
 moduleRoutes.forEach((route) => {

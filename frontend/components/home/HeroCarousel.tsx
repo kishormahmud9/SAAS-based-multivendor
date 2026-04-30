@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { marketingService } from "@/src/services/marketing.service";
+import { getImageUrl } from "@/src/lib/image-utils";
 
 const fallbackSlides = [
     {
@@ -92,7 +93,7 @@ export default function HeroCarousel() {
                         key={slide.id}
                         className={`absolute top-0 left-0 w-full h-full flex items-center justify-center transition-all duration-1000 ease-in-out transform ${index === current ? "opacity-100 scale-100" : "opacity-0 scale-105"
                             } ${!isImageBg ? bgGradient : ""}`}
-                        style={isImageBg && hasImage ? { backgroundImage: `url(${slide.image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+                        style={isImageBg && hasImage ? { backgroundImage: `url(${getImageUrl(slide.image)})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
                     >
                         {/* Overlay Pattern for Solid BG */}
                         {!isImageBg && (

@@ -24,7 +24,7 @@ const addToWishlist = catchAsync(async (req, res) => {
 });
 
 const removeFromWishlist = catchAsync(async (req, res) => {
-  await wishlistRepository.removeFromWishlist(req.user!.id, req.params.productId);
+  await wishlistRepository.removeFromWishlist(req.user!.id, req.params.productId as string);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

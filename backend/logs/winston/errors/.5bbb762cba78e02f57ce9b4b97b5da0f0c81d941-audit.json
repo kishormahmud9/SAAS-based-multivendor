@@ -29,6 +29,36 @@
             "date": 1777417917926,
             "name": "D:\\Kishor\\Others\\AI Powerd E-com\\backend\\logs\\winston\\errors\\error-2026-29-04-05.log",
             "hash": "da63703eefee8e7952533ce6043b4e51610bf30aaecfbe4bfcdb5e4bec5f732f"
+        },
+        {
+            "date": 1777483649489,
+            "name": "D:\\Kishor\\Others\\AI Powerd E-com\\backend\\logs\\winston\\errors\\error-2026-29-04-23.log",
+            "hash": "058b5ca609e899d8c5348ba1c655cc5b1b1e33530aa8d9a69af113b6bf7ef138"
+        },
+        {
+            "date": 1777486702829,
+            "name": "D:\\Kishor\\Others\\AI Powerd E-com\\backend\\logs\\winston\\errors\\error-2026-30-04-00.log",
+            "hash": "643ad8d6f7ef343fa7f50ec5827a026662b0b383ec075f1b9b67ff430ff2b9bb"
+        },
+        {
+            "date": 1777493187809,
+            "name": "D:\\Kishor\\Others\\AI Powerd E-com\\backend\\logs\\winston\\errors\\error-2026-30-04-02.log",
+            "hash": "a642b86c74f0446fa5d38606e4175c40412ab17782cc2f1097b796f56327132b"
+        },
+        {
+            "date": 1777497680425,
+            "name": "D:\\Kishor\\Others\\AI Powerd E-com\\backend\\logs\\winston\\errors\\error-2026-30-04-03.log",
+            "hash": "a505cc206538f3bf20e2937f1a23331a76ad6fc5ba5a6851bfa64dbdff0dc0a2"
+        },
+        {
+            "date": 1777500095849,
+            "name": "D:\\Kishor\\Others\\AI Powerd E-com\\backend\\logs\\winston\\errors\\error-2026-30-04-04.log",
+            "hash": "5b17264ccc73d24c5f51641c001abc6e9b9d4a163a3d15960725844801a2b6d7"
+        },
+        {
+            "date": 1777510032711,
+            "name": "D:\\Kishor\\Others\\AI Powerd E-com\\backend\\logs\\winston\\errors\\error-2026-30-04-06.log",
+            "hash": "b3974d6a6ce43f494a306795d871456ab90efb4ef7e854f20f383231441568cf"
         }
     ],
     "hashType": "sha256"

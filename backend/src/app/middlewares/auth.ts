@@ -17,7 +17,7 @@ const auth = (...requiredRoles: string[]) => {
     // Verify token
     let decodedUser: JwtPayload;
     try {
-      decodedUser = jwt.verify(token, config.JWT_ACCESS_TOKEN as string) as JwtPayload;
+      decodedUser = jwt.verify(token, config.jwt.access_secret as string) as JwtPayload;
     } catch (error) {
       throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid token');
     }
@@ -30,7 +30,7 @@ const auth = (...requiredRoles: string[]) => {
     }
 
     // Add user to request object
-    req.user = decodedUser;
+    req.user = decodedUser as any;
     next();
   });
 };

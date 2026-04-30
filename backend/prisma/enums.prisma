@@ -75,6 +75,13 @@ enum ProductType {
   BUNDLED
 }
 
+enum AttributeType {
+  SELECT
+  COLOR
+  BUTTON
+  RADIO
+}
+
 // ── Order ─────────────────────────────────────────────────────────────────────
 enum OrderStatus {
   PENDING

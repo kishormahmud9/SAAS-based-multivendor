@@ -2,263 +2,316 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Save, X, Loader2, Upload, Trash2 } from "lucide-react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { 
+    Plus, 
+    Upload, 
+    Save, 
+    Loader2, 
+    Globe, 
+    Type, 
+    Image as ImageIcon,
+    X,
+    Activity,
+    AlertCircle
+} from "lucide-react"
+import { adminService } from "@/src/services/admin.service"
 import { toast } from "react-hot-toast"
+import { getImageUrl } from "@/src/lib/image-utils"
+import AdminInput from "./AdminInput"
+import { handleBackendErrors } from "@/src/lib/form-utils"
+
+const brandSchema = z.object({
+    name: z.string().min(2, "Name must be at least 2 characters").max(50, "Name too long"),
+    slug: z.string().min(2, "Slug must be at least 2 characters"),
+    description: z.string().max(500, "Description too long").optional().or(z.literal("")),
+    isActive: z.union([z.boolean(), z.string()]).transform(val => val === true || val === 'true'),
+})
+
+type BrandFormValues = z.infer<typeof brandSchema>
 
 interface BrandFormProps {
-    initialData?: {
-        id: string
-        name: string
-        slug: string
-        logo?: string
-    }
-    onSuccess?: (id: string) => void
-    onCancel?: () => void
+    initialData?: any;
+    isEdit?: boolean;
+    onSuccess?: (id?: string) => void;
+    onCancel?: () => void;
 }
 
-export default function BrandForm({ initialData, onSuccess, onCancel }: BrandFormProps) {
+export default function BrandForm({ initialData, isEdit, onSuccess, onCancel }: BrandFormProps) {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
-    const [formData, setFormData] = useState({
-        name: "",
-        slug: "",
-        logo: "",
+    const [imageFile, setImageFile] = useState<File | null>(null)
+    const [imagePreview, setImagePreview] = useState<string>(initialData?.logo || "")
+    const [isCheckingName, setIsCheckingName] = useState(false)
+
+    const { 
+        register, 
+        handleSubmit, 
+        setValue, 
+        watch, 
+        setError, 
+        clearErrors,
+        formState: { errors } 
+    } = useForm<BrandFormValues>({
+        resolver: zodResolver(brandSchema),
+        defaultValues: {
+            name: initialData?.name || "",
+            slug: initialData?.slug || "",
+            description: initialData?.description || "",
+            isActive: initialData?.isActive ?? true,
+        }
     })
-    const [selectedFile, setSelectedFile] = useState<{ file: File; preview: string } | null>(null)
-    const [uploading, setUploading] = useState(false)
 
+    const brandName = watch("name")
+
+    // Dynamic Slug Generation
     useEffect(() => {
-        if (initialData) {
-            setFormData({
-                name: initialData.name,
-                slug: initialData.slug,
-                logo: initialData.logo || "",
-            })
+        if (brandName && !isEdit) {
+            const generatedSlug = brandName.toLowerCase().trim()
+                .replace(/[^\w\s-]/g, '')
+                .replace(/[\s_]+/g, '-')
+                .replace(/^-+|-+$/g, '')
+            
+            setValue("slug", generatedSlug)
         }
-    }, [initialData])
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target
-        setFormData((prev) => ({ ...prev, [name]: value }))
-
-        // Auto-generate slug from name if creating new
-        if (name === "name" && !initialData) {
-            setFormData((prev) => ({
-                ...prev,
-                slug: value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
-            }))
+        if (brandName && errors.name) {
+            clearErrors("name")
         }
-    }
+    }, [brandName, setValue, clearErrors, errors.name, isEdit])
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Debounced Name Check
+    useEffect(() => {
+        const checkName = async () => {
+            if (!brandName?.trim()) return
+            if (isEdit && brandName.trim() === initialData?.name) return
+
+            setIsCheckingName(true)
+            try {
+                const res = await adminService.checkBrandName(brandName)
+                if (res.success && res.data.exists) {
+                    setError("name", { message: "Brand name is already available" })
+                }
+            } catch (error) {
+                console.error("Name check failed", error)
+            } finally {
+                setIsCheckingName(false)
+            }
+        }
+
+        const timeoutId = setTimeout(checkName, 600)
+        return () => clearTimeout(timeoutId)
+    }, [brandName, isEdit, initialData?.name, setError])
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
-        if (!file) return
-
-        const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-        const maxSize = 2 * 1024 * 1024; // 2MB
-
-        if (!allowedTypes.includes(file.type)) {
-            toast.error("Format not supported. Please use JPG, PNG or WebP.");
-            return;
-        }
-
-        if (file.size > maxSize) {
-            toast.error("File is too large. Max size is 2MB.");
-            return;
-        }
-
-        if (selectedFile) {
-            URL.revokeObjectURL(selectedFile.preview)
-        }
-
-        setSelectedFile({
-            file,
-            preview: URL.createObjectURL(file)
-        })
-    }
-
-    const removeSelectedFile = () => {
-        if (selectedFile) {
-            URL.revokeObjectURL(selectedFile.preview)
-        }
-        setSelectedFile(null)
-    }
-
-    const uploadFile = async (file: File) => {
-        setUploading(true)
-        try {
-            const formData = new FormData()
-            formData.append("file", file)
-
-            const res = await fetch("/api/upload", {
-                method: "POST",
-                body: formData,
-                credentials: 'include',
-            })
-
-            const data = await res.json()
-            if (data.success) {
-                return data.url
+        if (file) {
+            if (file.size > 2 * 1024 * 1024) {
+                toast.error("Logo size must be less than 2MB")
+                return
             }
-            return null
-        } catch (error) {
-            toast.error("Logo upload failed")
-            return null
-        } finally {
-            setUploading(false)
+            setImageFile(file)
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string)
+            }
+            reader.readAsDataURL(file)
         }
     }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
+    const onFormSubmit = async (values: BrandFormValues) => {
         setLoading(true)
-
         try {
-            let logoUrl = formData.logo
-
-            if (selectedFile) {
-                const uploadedUrl = await uploadFile(selectedFile.file)
-                if (!uploadedUrl) {
-                    setLoading(false)
-                    return
+            const submitData = new FormData()
+            Object.entries(values).forEach(([key, value]) => {
+                if (value !== null && value !== undefined) {
+                    submitData.append(key, value.toString())
                 }
-                logoUrl = uploadedUrl
-            }
-
-            const url = initialData
-                ? `/api/brands/${initialData.id}`
-                : "/api/brands"
-
-            const method = initialData ? "PUT" : "POST"
-
-            const response = await fetch(url, {
-                method,
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ...formData, logo: logoUrl }),
-                credentials: 'include',
             })
-
-            const data = await response.json()
-
-            if (data.success) {
-                toast.success(initialData ? "Brand updated" : "Brand created")
-                if (onSuccess) {
-                    onSuccess(data.data.id)
-                } else {
-                    router.push("/admin/brands/manage")
-                    router.refresh()
-                }
-            } else {
-                toast.error(data.error || "Something went wrong")
+            if (imageFile) {
+                submitData.append('image', imageFile)
             }
-        } catch (error) {
-            toast.error("Failed to save brand")
+
+            const res = isEdit 
+                ? await adminService.updateBrand(initialData.id, submitData)
+                : await adminService.createBrand(submitData)
+            
+            if (res.success) {
+                toast.success(`Brand ${isEdit ? 'updated' : 'created'} successfully`)
+                if (onSuccess) {
+                    onSuccess(res.data?.id)
+                } else {
+                    router.push("/admin/brands")
+                }
+            }
+        } catch (error: any) {
+            if (error.errors && error.errors.length > 0) {
+                handleBackendErrors<BrandFormValues>(error.errors, setError)
+            } else {
+                toast.error(error.message || "Something went wrong")
+            }
         } finally {
             setLoading(false)
         }
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name</label>
-                    <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                        required
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Slug</label>
-                    <input
-                        type="text"
-                        name="slug"
-                        value={formData.slug}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                        required
-                    />
-                </div>
-                <div className="md:col-span-2 space-y-2">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Brand Logo</label>
-                    <div className="flex items-center gap-6 p-4 border border-dashed border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50/50 dark:bg-gray-700/50">
-                        {/* Preview */}
-                        <div className="relative w-24 h-24 bg-white dark:bg-gray-700 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 flex items-center justify-center">
-                            {(selectedFile?.preview || formData.logo) ? (
-                                <>
-                                    <img 
-                                        src={selectedFile?.preview || formData.logo} 
-                                        alt="Logo Preview" 
-                                        className="w-full h-full object-contain p-2"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            if (selectedFile) removeSelectedFile()
-                                            else setFormData({...formData, logo: ""})
-                                        }}
-                                        className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full shadow-sm hover:bg-red-600 transition-colors"
-                                    >
-                                        <Trash2 size={12} />
-                                    </button>
-                                </>
-                            ) : (
-                                <Upload className="text-gray-300" size={32} />
-                            )}
+        <form onSubmit={handleSubmit(onFormSubmit)} className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                
+                {/* Left Side: Main Form Content (2/3 Width) */}
+                <div className="lg:col-span-2 space-y-8">
+                    {/* General Information Card */}
+                    <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 border border-gray-100 dark:border-gray-800 shadow-sm space-y-8">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-orange-50 dark:bg-orange-900/20 rounded-2xl flex items-center justify-center text-orange-600">
+                                <Type size={24} />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black text-gray-900 dark:text-white">Brand Identity</h3>
+                                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-0.5">Core brand details and naming</p>
+                            </div>
                         </div>
 
-                        {/* Controls */}
-                        <div className="flex-1 space-y-2">
-                            <label className="cursor-pointer inline-flex items-center px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
-                                <Upload size={16} className="mr-2" />
-                                {uploading ? "Uploading..." : "Click to upload logo"}
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleFileChange}
-                                    className="hidden"
-                                    disabled={uploading}
-                                />
-                            </label>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Recommended size: 200x200px. Max size: 2MB.</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <AdminInput 
+                                label="Brand Name"
+                                placeholder="e.g. Apple, Samsung, Nike"
+                                {...register("name")}
+                                error={errors.name?.message}
+                                isChecking={isCheckingName}
+                                name="name"
+                            />
+
+                            <AdminInput 
+                                label="Slug"
+                                placeholder="Auto-generated from name"
+                                {...register("slug")}
+                                error={errors.slug?.message}
+                                readOnly
+                                name="slug"
+                            />
                         </div>
-                    </div>
-                    
-                    {/* Fallback URL input (optional, but keep it for flexibility) */}
-                    <div className="mt-4">
-                        <input
-                            type="url"
-                            name="logo"
-                            value={formData.logo}
-                            onChange={(e) => setFormData({...formData, logo: e.target.value})}
-                            placeholder="Or paste an image URL instead"
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+
+                        <AdminInput 
+                            label="Description"
+                            as="textarea"
+                            placeholder="Write a compelling description for this brand..."
+                            rows={8}
+                            {...register("description")}
+                            error={errors.description?.message}
+                            className="resize-none"
+                            name="description"
                         />
                     </div>
-                </div>
-            </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
-                <button
-                    type="button"
-                    onClick={() => onCancel ? onCancel() : router.back()}
-                    className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center gap-2"
-                >
-                    <X size={18} />
-                    Cancel
-                </button>
-                <button
-                    type="submit"
-                    disabled={loading || uploading}
-                    className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center gap-2 disabled:opacity-50"
-                >
-                    {(loading || uploading) ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
-                    {initialData ? "Update Brand" : "Create Brand"}
-                </button>
+                    {/* Status Section (Only for Edit) */}
+                    {isEdit && (
+                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 border border-gray-100 dark:border-gray-800 shadow-sm space-y-6">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center text-emerald-600">
+                                    <Activity size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-black text-gray-900 dark:text-white">Visibility Control</h3>
+                                    <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-0.5">Manage store-front availability</p>
+                                </div>
+                            </div>
+
+                            <div className="max-w-md">
+                                <AdminInput 
+                                    label="Current Status"
+                                    as="select"
+                                    {...register("isActive")}
+                                    error={errors.isActive?.message}
+                                    name="isActive"
+                                >
+                                    <option value="true">Active (Published)</option>
+                                    <option value="false">Inactive (Draft)</option>
+                                </AdminInput>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Right Side: Media & Actions (1/3 Width) */}
+                <div className="space-y-8">
+                    {/* Brand Logo Card */}
+                    <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 border border-gray-100 dark:border-gray-800 shadow-sm space-y-6">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600">
+                                <ImageIcon size={24} />
+                            </div>
+                            <h3 className="text-xl font-black text-gray-900 dark:text-white">Brand Logo</h3>
+                        </div>
+                        
+                        <div className="flex flex-col items-center">
+                            {imagePreview ? (
+                                <div className="relative w-full aspect-square rounded-[2rem] overflow-hidden border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 flex items-center justify-center group">
+                                    <img 
+                                        src={getImageUrl(imagePreview)} 
+                                        className="max-w-full max-h-full object-contain p-8 transition-transform group-hover:scale-105 duration-500" 
+                                        alt="Preview"
+                                    />
+                                    <button 
+                                        type="button"
+                                        onClick={() => {
+                                            setImageFile(null)
+                                            setImagePreview("")
+                                        }}
+                                        className="absolute top-4 right-4 p-2 bg-rose-500 text-white rounded-xl shadow-xl hover:bg-rose-600 transition-all opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0"
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                </div>
+                            ) : (
+                                <label name="logo" className={`w-full aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 group cursor-pointer hover:border-orange-500 hover:bg-orange-50/10 transition-all border-gray-200 dark:border-gray-800`}>
+                                     <div className="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-2xl flex items-center justify-center text-gray-300 group-hover:text-orange-500 group-hover:scale-110 transition-all">
+                                         <Upload size={32} />
+                                     </div>
+                                     <div className="text-center">
+                                         <span className="text-xs font-black uppercase tracking-widest text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">Upload Assets</span>
+                                         <p className="text-[10px] text-gray-400 mt-1 font-bold">JPG, PNG, WEBP (Max 2MB)</p>
+                                     </div>
+                                     <input 
+                                         type="file" 
+                                         accept="image/*"
+                                         onChange={handleImageChange}
+                                         className="hidden"
+                                     />
+                                </label>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Action Card */}
+                    <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 border border-gray-100 dark:border-gray-800 shadow-sm space-y-4">
+                        <div className="flex items-center gap-3 text-orange-500 mb-2">
+                            <AlertCircle size={18} />
+                            <span className="text-[10px] font-black uppercase tracking-widest">Publishing Actions</span>
+                        </div>
+                        
+                        <button 
+                            type="submit"
+                            disabled={loading || isCheckingName}
+                            className="w-full py-5 bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-[2rem] font-black shadow-xl shadow-orange-500/25 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group"
+                        >
+                            {loading ? <Loader2 className="animate-spin" size={24} /> : <Save className="group-hover:rotate-12 transition-transform" size={24} />}
+                            {isEdit ? 'Update Changes' : 'Launch Brand'}
+                        </button>
+                        
+                        {onCancel && (
+                            <button 
+                                type="button"
+                                onClick={onCancel}
+                                className="w-full py-5 bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 rounded-[2rem] font-black hover:bg-gray-100 dark:hover:bg-gray-700 transition-all border border-transparent hover:border-gray-200 dark:hover:border-gray-600"
+                            >
+                                Discard Changes
+                            </button>
+                        )}
+                    </div>
+                </div>
             </div>
         </form>
     )

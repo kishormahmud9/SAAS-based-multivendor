@@ -94,6 +94,7 @@ const findAll = async (filters: any, options: IPaginationOptions) => {
       total,
       page,
       limit,
+      totalPage: Math.ceil(total / limit),
     },
     data: result,
   };

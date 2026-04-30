@@ -11,12 +11,17 @@ import FeatureHighlight from "@/components/home/FeatureHighlight";
 import { marketingService } from "@/src/services/marketing.service";
 
 export default async function Home() {
-    const res = await marketingService.getUiSettings();
-    const settings = res.success ? res.data : [];
+    let settings = [];
+    try {
+        const res = await marketingService.getUiSettings();
+        settings = res.success ? res.data : [];
+    } catch (error) {
+        console.error("Failed to fetch UI settings:", error);
+    }
     
-    const lookbookData = settings.find((s: any) => s.key === 'lookbook')?.value;
-    const featureData = settings.find((s: any) => s.key === 'feature_highlight')?.value;
-    const ugcData = settings.find((s: any) => s.key === 'ugc')?.value;
+    const lookbookData = settings?.find((s: any) => s.key === 'lookbook')?.value || null;
+    const featureData = settings?.find((s: any) => s.key === 'feature_highlight')?.value || null;
+    const ugcData = settings?.find((s: any) => s.key === 'ugc')?.value || null;
 
     return (
         <div className="flex flex-col">

@@ -70,7 +70,8 @@ const getPaginated = async (query: any) => {
     meta: {
       page: Number(page),
       limit: Number(limit),
-      total
+      total,
+      totalPage: Math.ceil(total / Number(limit))
     }
   };
 };
@@ -99,11 +100,21 @@ const getDescendants = async (id: string): Promise<string[]> => {
   return descendantIds;
 };
 
+const getMaxSortOrder = async () => {
+  const result = await (prisma as any).category.aggregate({
+    _max: {
+      sortOrder: true
+    }
+  });
+  return result._max.sortOrder || 0;
+};
+
 export const categoryRepository = {
   findById,
   findBySlug,
   getAllTree,
   getPaginated,
   getAllFlat,
-  getDescendants
+  getDescendants,
+  getMaxSortOrder
 };

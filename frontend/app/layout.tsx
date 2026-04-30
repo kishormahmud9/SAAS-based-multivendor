@@ -19,8 +19,8 @@ const ubuntuMono = Ubuntu_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ReadyMart - Your Premium Shopping Destination",
-  description: "Shop premium products with fast delivery and secure payments",
+  title: `${process.env.NEXT_PUBLIC_APP_NAME || 'ReadyMart'} - ${process.env.NEXT_PUBLIC_APP_DESCRIPTION || 'Your Premium Shopping Destination'}`,
+  description: process.env.NEXT_PUBLIC_APP_DESCRIPTION || "Shop premium products with fast delivery and secure payments",
 };
 
 export default function RootLayout({

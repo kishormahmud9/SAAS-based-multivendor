@@ -2,8 +2,13 @@ import ProductCard from "../products/ProductCard";
 import { productService } from "@/src/services/product.service";
 
 export default async function ProductSection() {
-    const res = await productService.getProducts('isFeatured=true&limit=4');
-    const featuredProducts = res.success ? res.data : [];
+    let featuredProducts = [];
+    try {
+        const res = await productService.getProducts('isFeatured=true&limit=4');
+        featuredProducts = res.success ? res.data : [];
+    } catch (error) {
+        console.error("Failed to fetch featured products:", error);
+    }
 
     return (
         <section className="py-16 bg-gray-50">

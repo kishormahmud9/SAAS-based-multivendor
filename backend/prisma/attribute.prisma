@@ -1,0 +1,31 @@
+// =============================================================================
+// GLOBAL ATTRIBUTE — Reusable properties (Color, Size, Material)
+// =============================================================================
+model Attribute {
+  id          String           @id @default(cuid())
+  name        String           // e.g. "Color"
+  slug        String           @unique
+  description String?
+  type        AttributeType    @default(SELECT)
+  isActive    Boolean          @default(true)
+  sortOrder   Int              @default(0)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  values      AttributeValue[]
+
+  @@index([slug])
+  @@map("attributes")
+}
+
+model AttributeValue {
+  id          String    @id @default(cuid())
+  attributeId String
+  value       String    // e.g. "Red"
+  slug        String
+  sortOrder   Int       @default(0)
+  attribute   Attribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+
+  @@unique([attributeId, value])
+  @@unique([attributeId, slug])
+  @@map("attribute_values")
+}

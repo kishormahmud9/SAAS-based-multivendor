@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Instagram } from "lucide-react";
+import { getImageUrl } from "@/src/lib/image-utils";
 
 export default function UGCSection({ data }: { data?: any }) {
     const title = data?.title || "Shop the Look";
@@ -30,7 +31,7 @@ export default function UGCSection({ data }: { data?: any }) {
                     {posts.map((post: any, index: number) => (
                         <div key={index} className="group relative aspect-square overflow-hidden rounded-2xl cursor-pointer">
                             <Image
-                                src={post.image}
+                                src={getImageUrl(post.image)}
                                 alt={`UGC Post ${index + 1}`}
                                 fill
                                 className="object-cover transition-transform duration-500 group-hover:scale-110"

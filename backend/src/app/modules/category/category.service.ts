@@ -12,7 +12,7 @@ const createCategory = async (payload: any) => {
   // Check if slug exists
   const existing = await categoryRepository.findBySlug(payload.slug);
   if (existing) {
-    payload.slug = `${payload.slug}-${Date.now()}`;
+    throw new ApiError(httpStatus.CONFLICT, 'Category name is already available');
   }
 
   return await (prisma as any).category.create({ data: payload });
@@ -44,7 +44,7 @@ const updateCategory = async (id: string, payload: any) => {
       where: { slug: payload.slug, NOT: { id } }
     });
     if (existing) {
-      payload.slug = `${payload.slug}-${Date.now()}`;
+      throw new ApiError(httpStatus.CONFLICT, 'Category name is already available');
     }
   }
 
@@ -124,6 +124,11 @@ const updateSortOrder = async (items: { id: string, sortOrder: number }[]) => {
   );
 };
 
+const getNextSortOrder = async () => {
+  const maxOrder = await categoryRepository.getMaxSortOrder();
+  return maxOrder + 1;
+};
+
 export const categoryServices = {
   createCategory,
   updateCategory,
@@ -134,5 +139,6 @@ export const categoryServices = {
   getAllFlat,
   bulkStatusUpdate,
   bulkDelete,
-  updateSortOrder
+  updateSortOrder,
+  getNextSortOrder
 };

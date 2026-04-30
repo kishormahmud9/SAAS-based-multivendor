@@ -18,11 +18,22 @@ export const apiClient = async <T = any>(
 ): Promise<T> => {
   const { method = 'GET', body, headers = {}, credentials = 'include' } = options;
   const isFormData = body instanceof FormData;
+
+  // Handle Token (Client-side only to avoid next/headers build issues)
+  let token: string | undefined;
+  if (typeof window !== 'undefined') {
+    token = document.cookie
+      .split('; ')
+      .find((row) => row.startsWith('accessToken='))
+      ?.split('=')[1];
+  }
+
   const config: RequestInit = {
     method,
     credentials,
     headers: {
       ...(!isFormData && { 'Content-Type': 'application/json' }),
+      ...(token && { Authorization: `Bearer ${token}` }),
       ...headers,
     },
   };

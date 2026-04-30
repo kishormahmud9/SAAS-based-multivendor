@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { getImageUrl } from "@/src/lib/image-utils";
 
 export default function LookbookSection({ data }: { data?: any }) {
     const sectionTitle = data?.title || "Curated Collections";
@@ -46,7 +47,7 @@ export default function LookbookSection({ data }: { data?: any }) {
                             className={`group relative overflow-hidden rounded-3xl shadow-lg ${item.className}`}
                         >
                             <Image
-                                src={item.image}
+                                src={getImageUrl(item.image)}
                                 alt={item.title}
                                 fill
                                 className="object-cover transition-transform duration-700 group-hover:scale-110"

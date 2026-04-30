@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { productService } from "@/src/services/product.service";
+import { getImageUrl } from "@/src/lib/image-utils";
 
 const colors = [
     "from-blue-500 to-blue-700",
@@ -12,8 +13,13 @@ const colors = [
 ];
 
 export default async function CategorySection() {
-    const res = await productService.getCategories();
-    const categories = res.success ? res.data.slice(0, 8) : [];
+    let categories = [];
+    try {
+        const res = await productService.getCategories();
+        categories = res.success ? res.data.slice(0, 8) : [];
+    } catch (error) {
+        console.error("Failed to fetch categories:", error);
+    }
 
     return (
         <section className="py-20 bg-gray-50">
@@ -24,17 +30,18 @@ export default async function CategorySection() {
                 {categories.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
                         {categories.map((category: any, index: number) => (
-                            <Link 
-                                key={category.id} 
-                                href={`/shop?category=${category.slug}`} 
+                            <Link
+                                key={category.id}
+                                href={`/shop?category=${category.slug}`}
                                 className="group relative block h-80 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
                             >
                                 {/* Background Image */}
                                 <div className="absolute inset-0">
                                     <Image
-                                        src={category.image || "/placeholder.png"}
+                                        src={getImageUrl(category?.image)}
                                         alt={category.name}
                                         fill
+                                        unoptimized
                                         className="object-cover transition-transform duration-700 group-hover:scale-110"
                                     />
                                     <div className={`absolute inset-0 bg-gradient-to-t ${colors[index % colors.length]} opacity-60 group-hover:opacity-40 transition-opacity duration-500`}></div>
