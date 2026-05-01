@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { 
     Store, 
     Upload, 
@@ -40,7 +41,13 @@ export default function StoreSettingsPage() {
             <div className="space-y-6">
                 <div className="relative group">
                     <div className="w-full h-64 rounded-[2.5rem] bg-gray-100 dark:bg-gray-800 border border-gray-100 dark:border-gray-800 overflow-hidden relative">
-                        <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=400&fit=crop" className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000" />
+                        <Image 
+                            src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=400&fit=crop" 
+                            alt="Store Banner"
+                            fill
+                            unoptimized
+                            className="object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000" 
+                        />
                         <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                             <button className="px-6 py-3 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl text-white text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:bg-white hover:text-black transition-all">
                                 <Camera size={18} /> Change Banner
@@ -51,7 +58,13 @@ export default function StoreSettingsPage() {
                     {/* Logo Overlay */}
                     <div className="absolute -bottom-10 left-10 group/logo">
                         <div className="w-32 h-32 rounded-3xl bg-white dark:bg-gray-900 border-4 border-white dark:border-gray-900 shadow-2xl overflow-hidden relative">
-                            <img src="https://images.unsplash.com/photo-1541746972996-4e0b0f43e01a?w=200&h=200&fit=crop" className="w-full h-full object-cover" />
+                            <Image 
+                                src="https://images.unsplash.com/photo-1541746972996-4e0b0f43e01a?w=200&h=200&fit=crop" 
+                                alt="Store Logo"
+                                fill
+                                unoptimized
+                                className="object-cover" 
+                            />
                             <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/logo:opacity-100 transition-opacity cursor-pointer">
                                 <Camera size={20} className="text-white" />
                             </div>

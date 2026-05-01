@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import { getImageUrl } from "@/src/lib/image-utils"
 
 interface ImageGalleryProps {
     images: string[]
@@ -24,9 +25,10 @@ export default function ImageGallery({ images, productName }: ImageGalleryProps)
             {/* Main Image */}
             <div className="relative w-full aspect-square bg-white rounded-2xl shadow-lg overflow-hidden group">
                 <Image
-                    src={images[selectedImage]}
+                    src={getImageUrl(images[selectedImage])}
                     alt={`${productName} - Image ${selectedImage + 1}`}
                     fill
+                    unoptimized
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                     priority
                 />
@@ -48,9 +50,10 @@ export default function ImageGallery({ images, productName }: ImageGalleryProps)
                             `}
                         >
                             <Image
-                                src={image}
+                                src={getImageUrl(image)}
                                 alt={`${productName} thumbnail ${index + 1}`}
                                 fill
+                                unoptimized
                                 className="object-cover"
                             />
                         </button>

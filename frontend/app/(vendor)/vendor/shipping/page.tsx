@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { 
     Truck, 
     Plus, 
@@ -119,8 +120,14 @@ export default function ShippingPage() {
                             ].map(partner => (
                                 <div key={partner.name} className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-800 flex items-center justify-between group">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-12 h-10 bg-white rounded-lg flex items-center justify-center p-2">
-                                            <img src={partner.logo} alt={partner.name} className="max-h-full max-w-full object-contain" />
+                                        <div className="w-12 h-10 bg-white rounded-lg flex items-center justify-center p-2 relative overflow-hidden">
+                                            <Image 
+                                                src={partner.logo} 
+                                                alt={partner.name} 
+                                                fill 
+                                                unoptimized 
+                                                className="object-contain p-2" 
+                                            />
                                         </div>
                                         <span className="text-xs font-black text-gray-900 dark:text-white">{partner.name}</span>
                                     </div>

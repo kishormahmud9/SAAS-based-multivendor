@@ -64,6 +64,10 @@ export const adminService = {
     return apiClient(`/admin/products${params ? `?${params}` : ''}`, { method: 'GET' });
   },
 
+  getProductById: async (id: string): Promise<any> => {
+    return apiClient(`/admin/products/${id}`, { method: 'GET' });
+  },
+
   createProduct: async (data: any): Promise<any> => {
     return apiClient('/admin/products', { method: 'POST', body: data });
   },

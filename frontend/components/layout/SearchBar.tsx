@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Search, Loader2, Package, ChevronRight } from "lucide-react"
+import Image from "next/image"
+import { getImageUrl } from "@/src/lib/image-utils"
 
 interface Product {
     id: string;
@@ -101,9 +103,9 @@ export default function SearchBar() {
                                 onClick={() => handleSuggestionClick(product.id)}
                                 className="w-full flex items-center p-2.5 hover:bg-orange-50 rounded-xl transition-all duration-200 group text-left"
                             >
-                                <div className="w-12 h-12 rounded-lg bg-gray-100 flex-shrink-0 overflow-hidden border border-gray-100">
+                                <div className="w-12 h-12 rounded-lg bg-gray-100 flex-shrink-0 overflow-hidden border border-gray-100 relative">
                                     {product.images?.[0] ? (
-                                        <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                                        <Image src={getImageUrl(product.images[0])} alt={product.name} fill unoptimized className="object-cover group-hover:scale-110 transition-transform duration-300" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-gray-400">
                                             <Package size={20} />

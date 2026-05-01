@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { User, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, Check, X } from "lucide-react";
+import Image from "next/image";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
 import { useAuth } from "@/lib/contexts/AuthContext";
@@ -118,8 +119,8 @@ export default function RegisterForm() {
                     <div className="relative z-10">
                         <div className="flex -space-x-4 mb-4">
                             {[1, 2, 3, 4].map((i) => (
-                                <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gray-300 flex items-center justify-center text-xs font-bold text-gray-600 overflow-hidden">
-                                    <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" className="w-full h-full object-cover" />
+                                <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gray-300 flex items-center justify-center text-xs font-bold text-gray-600 overflow-hidden relative">
+                                    <Image src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" fill unoptimized className="object-cover" />
                                 </div>
                             ))}
                             <div className="w-10 h-10 rounded-full border-2 border-white bg-white flex items-center justify-center text-xs font-bold text-orange-600">

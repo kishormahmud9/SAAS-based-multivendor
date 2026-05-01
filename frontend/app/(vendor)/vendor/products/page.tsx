@@ -22,6 +22,8 @@ import {
 } from "lucide-react"
 import { vendorService } from "@/src/services/vendor.service"
 import { toast } from "react-hot-toast"
+import Image from "next/image"
+import { getImageUrl } from "@/src/lib/image-utils"
 
 export default function ProductListPage() {
     const [products, setProducts] = useState<any[]>([])
@@ -139,8 +141,14 @@ export default function ProductListPage() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800 shrink-0 border border-gray-200 dark:border-gray-700">
-                                                    <img src={product.images?.[0] || "/placeholder.png"} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                                <div className="w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800 shrink-0 border border-gray-200 dark:border-gray-700 relative">
+                                                    <Image 
+                                                        src={getImageUrl(product.images?.[0] || "/placeholder.png")} 
+                                                        alt={product.name}
+                                                        fill
+                                                        unoptimized
+                                                        className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                                                    />
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-black text-gray-900 dark:text-white leading-tight">{product.name}</p>

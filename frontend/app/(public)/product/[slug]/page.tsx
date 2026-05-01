@@ -29,6 +29,7 @@ interface Product {
     brand: {
         name: string
     } | null
+    reviews?: Review[]
 }
 
 interface Review {
@@ -38,7 +39,8 @@ interface Review {
     createdAt: string
     user: {
         name: string | null
-        email: string
+        avatar?: string | null
+        email?: string
     }
 }
 
@@ -63,13 +65,22 @@ export default function ProductDetailPage() {
             const productRes = await productService.getProductBySlug(slug)
 
             if (productRes.success && productRes.data) {
-                const fetchedProduct = productRes.data as unknown as Product
+                const fetchedProduct = productRes.data as any
                 setProduct(fetchedProduct)
+                
+                // If the product API already returned reviews, use them as initial state
+                if (fetchedProduct.reviews) {
+                    setReviews(fetchedProduct.reviews)
+                }
 
-                // Fetch reviews
-                const reviewsRes = await productService.getReviews(fetchedProduct.id)
-                if (reviewsRes.success) {
-                    setReviews(reviewsRes.data || [])
+                // Fetch reviews separately to get latest/paginated (won't crash page if it fails)
+                try {
+                    const reviewsRes = await productService.getReviews(fetchedProduct.id)
+                    if (reviewsRes.success && reviewsRes.data) {
+                        setReviews(reviewsRes.data)
+                    }
+                } catch (reviewError) {
+                    console.error("Non-critical error fetching reviews:", reviewError)
                 }
             } else {
                 router.push("/shop")

@@ -1,5 +1,7 @@
 import { productService } from "@/src/services/product.service"
 import Link from "next/link";
+import Image from "next/image";
+import { getImageUrl } from "@/src/lib/image-utils";
 import { ChevronRight, Package, LayoutGrid } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -38,10 +40,12 @@ export default async function CategoriesPage() {
                             {/* Category Image */}
                             <div className="absolute inset-0">
                                 {category.image ? (
-                                    <img 
-                                        src={category.image} 
+                                    <Image 
+                                        src={getImageUrl(category.image)} 
                                         alt={category.name}
-                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        fill
+                                        unoptimized
+                                        className="object-cover transition-transform duration-700 group-hover:scale-110"
                                     />
                                 ) : (
                                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center">

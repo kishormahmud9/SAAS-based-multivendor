@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Search, Eye, ChevronLeft, ChevronRight, Loader2, User as UserIcon, Shield, Edit, Plus, CheckCircle2 } from "lucide-react"
 import { toast } from "react-hot-toast"
 import { adminService } from "@/src/services/admin.service"
@@ -215,12 +216,14 @@ export default function AdminUsersPage() {
                                     <tr key={user.id} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-all border-b border-gray-50 dark:border-gray-800/50 last:border-0">
                                         <td className="px-8 py-5">
                                             <div className="flex items-center gap-4">
-                                                <div className="relative">
+                                                <div className="relative w-12 h-12">
                                                     {user.avatar ? (
-                                                        <img 
+                                                        <Image 
                                                             src={getImageUrl(user.avatar)} 
                                                             alt={user.name || ""} 
-                                                            className="w-12 h-12 rounded-2xl object-cover ring-2 ring-gray-100 dark:ring-gray-800 group-hover:scale-110 transition-transform duration-300" 
+                                                            fill
+                                                            unoptimized
+                                                            className="rounded-2xl object-cover ring-2 ring-gray-100 dark:ring-gray-800 group-hover:scale-110 transition-transform duration-300" 
                                                         />
                                                     ) : (
                                                         <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-2xl flex items-center justify-center text-gray-400 group-hover:scale-110 transition-transform duration-300">

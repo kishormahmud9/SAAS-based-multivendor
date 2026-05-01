@@ -20,6 +20,7 @@ import {
 import { adminService } from "@/src/services/admin.service"
 import { toast } from "react-hot-toast"
 import { getImageUrl } from "@/src/lib/image-utils"
+import Image from "next/image"
 import AdminInput from "./AdminInput"
 import { handleBackendErrors } from "@/src/lib/form-utils"
 
@@ -249,9 +250,11 @@ export default function BrandForm({ initialData, isEdit, onSuccess, onCancel }: 
                         <div className="flex flex-col items-center">
                             {imagePreview ? (
                                 <div className="relative w-full aspect-square rounded-[2rem] overflow-hidden border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 flex items-center justify-center group">
-                                    <img 
+                                    <Image 
                                         src={getImageUrl(imagePreview)} 
-                                        className="max-w-full max-h-full object-contain p-8 transition-transform group-hover:scale-105 duration-500" 
+                                        fill
+                                        unoptimized
+                                        className="object-contain p-8 transition-transform group-hover:scale-105 duration-500" 
                                         alt="Preview"
                                     />
                                     <button 

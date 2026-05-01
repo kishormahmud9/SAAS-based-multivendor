@@ -6,6 +6,7 @@ import { Plus, Edit, Trash2, Search, Loader2 } from "lucide-react"
 import { toast } from "react-hot-toast"
 import Modal from "@/components/ui/Modal"
 import BrandForm from "@/components/admin/BrandForm"
+import Image from "next/image"
 import ConfirmModal from "@/components/ui/ConfirmModal"
 
 export default function BrandManagePage() {
@@ -120,9 +121,9 @@ export default function BrandManagePage() {
                                 filteredBrands.map((brand) => (
                                     <tr key={brand.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                                         <td className="px-6 py-4">
-                                            <div className="w-12 h-12 rounded-lg bg-white overflow-hidden border border-gray-100 flex items-center justify-center p-1">
+                                            <div className="w-12 h-12 rounded-lg bg-white overflow-hidden border border-gray-100 flex items-center justify-center p-1 relative">
                                                 {brand.logo ? (
-                                                    <img src={brand.logo} alt={brand.name} className="max-w-full max-h-full object-contain" />
+                                                    <Image src={brand.logo} alt={brand.name} fill unoptimized className="object-contain p-1" />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
                                                         NB

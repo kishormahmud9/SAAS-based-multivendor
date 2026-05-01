@@ -63,19 +63,20 @@ export default function ProductCard({ id, name, price, salePrice, image, categor
                     src={getImageUrl(image)}
                     alt={name}
                     fill
+                    unoptimized
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
 
                 {/* Quick Actions Overlay */}
                 <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center space-x-4">
-                    <button 
+                    <button
                         onClick={handleAddToCart}
                         disabled={isAdding}
                         className="bg-white text-gray-800 p-3 rounded-full shadow-lg hover:bg-orange-500 hover:text-white transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 disabled:opacity-50"
                     >
                         <ShoppingCart size={20} className={isAdding ? "animate-pulse" : ""} />
                     </button>
-                    <Link href={`/product/${id}`} className="bg-white text-gray-800 p-3 rounded-full shadow-lg hover:bg-blue-600 hover:text-white transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 delay-75">
+                    <Link href={`/product/${slug || id}`} className="bg-white text-gray-800 p-3 rounded-full shadow-lg hover:bg-blue-600 hover:text-white transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 delay-75">
                         <Eye size={20} />
                     </Link>
                 </div>
@@ -84,7 +85,7 @@ export default function ProductCard({ id, name, price, salePrice, image, categor
             {/* Content */}
             <div className="p-5">
                 <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">{category}</p>
-                <Link href={`/product/${id}`}>
+                <Link href={`/product/${slug || id}`}>
                     <h3 className="font-bold text-gray-800 text-lg mb-2 truncate group-hover:text-blue-600 transition-colors">{name}</h3>
                 </Link>
                 <div className="flex items-center space-x-2">

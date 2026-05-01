@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast"
 import Modal from "@/components/ui/Modal"
 import CategoryForm from "@/components/admin/CategoryForm"
 import ConfirmModal from "@/components/ui/ConfirmModal"
+import Image from "next/image"
 import { getImageUrl } from "@/src/lib/image-utils"
 
 export default function CategoryManagePage() {
@@ -122,9 +123,9 @@ export default function CategoryManagePage() {
                                 filteredCategories.map((category) => (
                                     <tr key={category.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                                         <td className="px-6 py-4">
-                                            <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden border border-gray-200">
+                                            <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden border border-gray-200 relative">
                                                 {category.image ? (
-                                                    <img src={getImageUrl(category.image)} alt={category.name} className="w-full h-full object-cover" />
+                                                    <Image src={getImageUrl(category.image)} alt={category.name} fill unoptimized className="object-cover" />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-gray-400">
                                                         No Image

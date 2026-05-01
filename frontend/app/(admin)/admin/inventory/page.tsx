@@ -16,6 +16,8 @@ import {
 } from "lucide-react"
 import { adminService } from "@/src/services/admin.service"
 import { toast } from "react-hot-toast"
+import Image from "next/image"
+import { getImageUrl } from "@/src/lib/image-utils"
 
 export default function AdminInventoryPage() {
     const [products, setProducts] = useState<any[]>([])
@@ -149,8 +151,14 @@ export default function AdminInventoryPage() {
                                 <tr key={product.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-all group">
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden border border-gray-100 dark:border-gray-700">
-                                                <img src={product.images?.[0] || "/placeholder.png"} className="w-full h-full object-cover" />
+                                            <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden border border-gray-100 dark:border-gray-700 relative">
+                                                <Image 
+                                                    src={getImageUrl(product.images?.[0] || "/placeholder.png")} 
+                                                    alt={product.name}
+                                                    fill
+                                                    unoptimized
+                                                    className="object-cover" 
+                                                />
                                             </div>
                                             <div>
                                                 <p className="text-sm font-black text-gray-900 dark:text-white leading-tight">{product.name}</p>

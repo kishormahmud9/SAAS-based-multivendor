@@ -44,6 +44,11 @@ router.get('/products',
   permission('products:view'),
   adminControllers.getAllProducts
 );
+router.get('/products/:id',
+  requireAuth('ADMIN', 'SUPER_ADMIN'),
+  permission('products:view'),
+  adminControllers.getSingleProduct
+);
 router.post('/products',
   requireAuth('ADMIN', 'SUPER_ADMIN'),
   permission('products:create'),

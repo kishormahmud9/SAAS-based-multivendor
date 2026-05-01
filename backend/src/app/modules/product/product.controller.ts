@@ -3,6 +3,7 @@ import catchAsync from '../../utils/catchAsync';
 import pick from '../../utils/pick';
 import sendResponse from '../../utils/sendResponse';
 import { productServices } from './product.service';
+import { reviewRepository } from '../review/review.repository';
 
 const getAllProducts = catchAsync(async (req, res) => {
   const filters = pick(req.query, ['searchTerm', 'category', 'brand', 'minPrice', 'maxPrice', 'isFeatured', 'status']);
@@ -30,7 +31,20 @@ const getProductBySlug = catchAsync(async (req, res) => {
   });
 });
 
+const getProductReviews = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await reviewRepository.getProductReviews(id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Reviews fetched successfully',
+    data: result,
+  });
+});
+
 export const productControllers = {
   getAllProducts,
   getProductBySlug,
+  getProductReviews,
 };

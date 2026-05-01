@@ -22,6 +22,7 @@ import {
 import { adminService } from "@/src/services/admin.service"
 import { toast } from "react-hot-toast"
 import { getImageUrl } from "@/src/lib/image-utils"
+import Image from "next/image"
 import AdminInput from "./AdminInput"
 import { handleBackendErrors } from "@/src/lib/form-utils"
 
@@ -299,9 +300,11 @@ export default function CategoryForm({ initialData, isEdit, onSuccess, onCancel 
                         <div className="space-y-4">
                             {imagePreview ? (
                                 <div className="relative aspect-video rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800">
-                                    <img 
+                                    <Image 
                                         src={getImageUrl(imagePreview)} 
-                                        className="w-full h-full object-cover" 
+                                        fill
+                                        unoptimized
+                                        className="object-cover" 
                                         alt="Preview"
                                     />
                                     <button 

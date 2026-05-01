@@ -101,7 +101,7 @@ const findAll = async (filters: any, options: IPaginationOptions) => {
 };
 
 const findBySlug = async (slug: string) => {
-  return await (prisma as any).product.findUnique({
+  return await (prisma as any).product.findFirst({
     where: {
       slug,
       isDeleted: false,
@@ -114,7 +114,7 @@ const findBySlug = async (slug: string) => {
       variants: true,
       attributes: true,
       reviews: {
-        where: { status: 'PUBLISHED' },
+        where: { isApproved: true },
         include: {
           user: {
             select: {

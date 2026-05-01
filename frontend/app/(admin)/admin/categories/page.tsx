@@ -25,6 +25,7 @@ import {
 import { adminService } from "@/src/services/admin.service"
 import { toast } from "react-hot-toast"
 import { getImageUrl } from "@/src/lib/image-utils"
+import Image from "next/image"
 import ConfirmModal from "@/components/ui/ConfirmModal"
 
 export default function AdminCategoriesPage() {
@@ -244,11 +245,13 @@ export default function AdminCategoriesPage() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-800">
-                                                    <img 
+                                                <div className="w-12 h-12 rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-800 relative">
+                                                    <Image 
                                                         src={getImageUrl(category.image)} 
                                                         alt={category.name}
-                                                        className="w-full h-full object-cover" 
+                                                        fill
+                                                        unoptimized
+                                                        className="object-cover" 
                                                     />
                                                 </div>
                                                 <div>

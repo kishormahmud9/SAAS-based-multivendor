@@ -2,6 +2,8 @@
 
 import Link from "next/link"
 import { Package, ChevronRight, Clock, CheckCircle, Truck } from "lucide-react"
+import Image from "next/image"
+import { getImageUrl } from "@/src/lib/image-utils"
 
 interface OrderCardProps {
     order: {
@@ -67,12 +69,13 @@ export default function OrderCard({ order }: OrderCardProps) {
                     <div className="flex items-center justify-between">
                         <div className="flex -space-x-2 overflow-hidden">
                             {order.items.slice(0, 4).map((item) => (
-                                <div key={item.id} className="relative w-10 h-10 rounded-full border-2 border-white bg-gray-100">
-                                    {/* Use a placeholder if image is missing, but ideally use next/image */}
-                                    <img
-                                        src={item.product.images[0] || "/placeholder.png"}
+                                <div key={item.id} className="relative w-10 h-10 rounded-full border-2 border-white bg-gray-100 overflow-hidden">
+                                    <Image
+                                        src={getImageUrl(item.product.images[0] || "/placeholder.png")}
                                         alt={item.product.name}
-                                        className="w-full h-full object-cover rounded-full"
+                                        fill
+                                        unoptimized
+                                        className="object-cover"
                                     />
                                 </div>
                             ))}

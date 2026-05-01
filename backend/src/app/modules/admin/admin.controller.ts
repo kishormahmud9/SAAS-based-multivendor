@@ -130,20 +130,107 @@ const assignUserRoles = catchAsync(async (req, res) => {
 
 // Product Management
 const getAllProducts = catchAsync(async (req, res) => {
-  const result = await (prisma as any).product.findMany({
-    where: { isDeleted: false },
-    include: {
-      category: { select: { name: true } },
-      brand: { select: { name: true } },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+  const { 
+    page = 1, 
+    limit = 10, 
+    search, 
+    category, 
+    brand, 
+    status, 
+    minPrice, 
+    maxPrice 
+  } = req.query as any;
+
+  const skip = (Number(page) - 1) * Number(limit);
+  const take = Number(limit);
+
+  const where: any = { isDeleted: false };
+
+  if (search) {
+    where.OR = [
+      { name: { contains: search, mode: 'insensitive' } },
+      { sku: { contains: search, mode: 'insensitive' } },
+      { slug: { contains: search, mode: 'insensitive' } },
+    ];
+  }
+
+  if (category) where.categoryId = category;
+  if (brand) where.brandId = brand;
+  if (status) where.status = status;
+  
+  if (minPrice || maxPrice) {
+    where.price = {};
+    if (minPrice) where.price.gte = Number(minPrice);
+    if (maxPrice) where.price.lte = Number(maxPrice);
+  }
+
+  const [products, total, activeCount, draftCount, lowStockCount] = await Promise.all([
+    (prisma as any).product.findMany({
+      where,
+      include: {
+        category: { select: { id: true, name: true } },
+        brand: { select: { id: true, name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take,
+    }),
+    (prisma as any).product.count({ where }),
+    (prisma as any).product.count({ where: { status: 'ACTIVE', isDeleted: false } }),
+    (prisma as any).product.count({ where: { status: 'DRAFT', isDeleted: false } }),
+    (prisma as any).product.count({ where: { stock: { lt: 10 }, isDeleted: false } }),
+  ]);
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Products fetched successfully',
-    data: result,
+    meta: {
+      page: Number(page),
+      limit: Number(limit),
+      total,
+      totalPage: Math.ceil(total / Number(limit)),
+    },
+    summary: {
+      total,
+      active: activeCount,
+      draft: draftCount,
+      lowStock: lowStockCount
+    },
+    data: products,
   });
+});
+
+const getSingleProduct = catchAsync(async (req, res) => {
+  const { id } = req.params as { id: string };
+  
+  try {
+    const result = await (prisma as any).product.findUnique({
+      where: { id },
+      include: {
+        attributes: true,
+        variants: true,
+        category: { select: { id: true, name: true } },
+        brand: { select: { id: true, name: true } },
+        store: { select: { id: true, name: true } },
+      },
+    });
+
+    if (!result) {
+      console.error(`Product not found for ID: ${id}`);
+      throw new ApiError(httpStatus.NOT_FOUND, 'Product not found');
+    }
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Product fetched successfully',
+      data: result,
+    });
+  } catch (error: any) {
+    console.error(`Error fetching product ${id}:`, error);
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message || 'Failed to fetch product');
+  }
 });
 
 const createProduct = catchAsync(async (req, res) => {
@@ -217,7 +304,7 @@ const createProduct = catchAsync(async (req, res) => {
 
 const updateProduct = catchAsync(async (req, res) => {
   const { id } = req.params as { id: string };
-  let { attributes, variants, metaKeywords, ...productData } = req.body;
+  let { attributes, variants, metaKeywords, existingImages, ...productData } = req.body;
 
   const oldProduct = await (prisma as any).product.findUnique({ 
     where: { id },
@@ -228,22 +315,24 @@ const updateProduct = catchAsync(async (req, res) => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Product not found');
   }
 
-  // 1. Handle New Images (if any)
-  let images = oldProduct.images;
+  // 1. Handle Images
+  // We take existingImages (the ones the user kept) and add any new ones
+  let finalImages = Array.isArray(existingImages) ? existingImages : oldProduct.images;
+  
   if (req.files && Array.isArray(req.files) && (req.files as any[]).length > 0) {
     const newImages: string[] = [];
     for (const file of req.files as Express.Multer.File[]) {
       const url = await optimizeAndSaveImage(file, 'products');
       newImages.push(url);
     }
-    images = [...images, ...newImages];
+    finalImages = [...finalImages, ...newImages];
   }
 
   // 2. Update Basic Data
   const updateData: any = {
     ...productData,
-    images,
-    thumbnail: images[0] || null,
+    images: finalImages,
+    thumbnail: finalImages[0] || null,
     metaKeywords: metaKeywords || oldProduct.metaKeywords,
   };
 
@@ -416,6 +505,7 @@ export const adminControllers = {
   toggleUserStatus,
   assignUserRoles,
   getAllProducts,
+  getSingleProduct,
   createProduct,
   updateProduct,
   deleteProduct,

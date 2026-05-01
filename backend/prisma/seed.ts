@@ -189,6 +189,31 @@ async function seedUsers(roleMap: Record<string, string>) {
         },
       });
     }
+
+    // ── Create Store for Admins and Vendors ──────────────────────────────────
+    if (userDef.systemRole === 'SUPER_ADMIN' || userDef.systemRole === 'VENDOR') {
+      const storeName = userDef.systemRole === 'SUPER_ADMIN' ? 'ReadyMart Official Store' : `${userDef.name}'s Shop`;
+      const storeSlug = userDef.systemRole === 'SUPER_ADMIN' ? 'readymart-official' : userDef.email.split('@')[0].toLowerCase() + '-shop';
+
+      await prisma.store.upsert({
+        where: { vendorId: user.id },
+        update: {
+          name: storeName,
+          status: 'ACTIVE',
+          isActive: true,
+        },
+        create: {
+          vendorId: user.id,
+          name: storeName,
+          slug: storeSlug,
+          status: 'ACTIVE',
+          isActive: true,
+          description: userDef.systemRole === 'SUPER_ADMIN' ? 'The official platform store.' : 'A demo vendor store.',
+        },
+      });
+      console.log(`   🏬 Store: "${storeName}" created/synced for ${user.email}`);
+    }
+
     console.log(`   👤 User: ${user.email} -> ${userDef.roleName}`);
   }
 }

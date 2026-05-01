@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { Search, Filter, Plus, Store, Users, ShieldCheck, AlertCircle, MoreHorizontal, Eye, Ban, CheckCircle, ExternalLink } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
+import { getImageUrl } from "@/src/lib/image-utils"
 
 interface Vendor {
     id: string
@@ -158,8 +160,8 @@ export default function VendorsManagePage() {
                                 <tr key={vendor.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors group">
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-gray-800 overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700 p-2">
-                                                <img src={vendor.logo} alt="" className="w-full h-full object-contain" />
+                                            <div className="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-gray-800 overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700 p-2 relative">
+                                                <Image src={getImageUrl(vendor.logo)} alt={vendor.storeName} fill unoptimized className="object-contain p-2" />
                                             </div>
                                             <div>
                                                 <p className="font-extrabold text-gray-900 dark:text-white leading-none mb-1">{vendor.storeName}</p>

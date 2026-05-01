@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { useForm, useFieldArray, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -97,8 +98,8 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
             price: Number(initialData?.price) || 0,
             salePrice: initialData?.salePrice ? Number(initialData?.salePrice) : null,
             stock: initialData?.stock || 0,
-            categoryId: initialData?.categoryId || "",
-            brandId: initialData?.brandId || "",
+            categoryId: initialData?.categoryId || initialData?.category?.id || "",
+            brandId: initialData?.brandId || initialData?.brand?.id || "",
             status: initialData?.status || "DRAFT",
             isFeatured: initialData?.isFeatured ?? false,
             metaTitle: initialData?.metaTitle || "",
@@ -227,6 +228,14 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                 formData.append('variants', JSON.stringify(variants))
             }
 
+            // Append flattened attributes for filtering
+            const flattenedAttributes = selectedAttributes.flatMap(attr => 
+                attr.selectedValues.map(val => ({ name: attr.name, value: val }))
+            )
+            if (flattenedAttributes.length > 0) {
+                formData.append('attributes', JSON.stringify(flattenedAttributes))
+            }
+
             // Append Images
             imageFiles.forEach(file => {
                 formData.append('images', file)
@@ -337,7 +346,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                             {imagePreviews.map((src, idx) => (
                                 <div key={idx} className="relative aspect-square rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 group shadow-sm">
-                                    <img src={getImageUrl(src)} alt="Preview" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                                    <Image src={getImageUrl(src)} alt="Preview" fill unoptimized className="w-full h-full object-cover transition-transform group-hover:scale-110" />
                                     <button 
                                         type="button"
                                         onClick={() => removeImage(idx)}

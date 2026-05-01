@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Package, Truck, CreditCard, MapPin, Calendar, Loader2 } from "lucide-react"
 import { toast } from "react-hot-toast"
+import Image from "next/image"
+import { getImageUrl } from "@/src/lib/image-utils"
 
 export default function AdminOrderDetailsPage() {
     const params = useParams()
@@ -110,9 +112,15 @@ export default function AdminOrderDetailsPage() {
                         <div className="divide-y divide-gray-200">
                             {order.items.map((item: any) => (
                                 <div key={item.id} className="p-6 flex items-center gap-4">
-                                    <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                                    <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
                                         {item.product.images[0] && (
-                                            <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
+                                            <Image 
+                                                src={getImageUrl(item.product.images[0])} 
+                                                alt={item.product.name} 
+                                                fill 
+                                                unoptimized 
+                                                className="object-cover" 
+                                            />
                                         )}
                                     </div>
                                     <div className="flex-1">

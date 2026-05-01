@@ -28,6 +28,7 @@ const createProduct = z.object({
     stock: z.preprocess((val) => Number(val), z.number().int()),
     isActive: z.preprocess((val) => val === 'true' || val === true, z.boolean()).optional(),
     isFeatured: z.preprocess((val) => val === 'true' || val === true, z.boolean()).optional(),
+    status: z.enum(["DRAFT", "PENDING_REVIEW", "ACTIVE", "INACTIVE", "ARCHIVED", "OUT_OF_STOCK"]).optional(),
     // Nested Arrays
     attributes: z.preprocess(
       (val) => (typeof val === 'string' ? JSON.parse(val) : val),
@@ -51,6 +52,10 @@ const createProduct = z.object({
     metaTitle: z.string().optional(),
     metaDescription: z.string().optional(),
     metaKeywords: z.preprocess(
+      (val) => (typeof val === 'string' ? JSON.parse(val) : val),
+      z.array(z.string())
+    ).optional(),
+    existingImages: z.preprocess(
       (val) => (typeof val === 'string' ? JSON.parse(val) : val),
       z.array(z.string())
     ).optional(),

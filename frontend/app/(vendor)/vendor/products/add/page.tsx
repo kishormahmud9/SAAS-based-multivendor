@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { 
     ChevronLeft, 
@@ -138,7 +139,13 @@ export default function AddProductPage() {
                             {/* Mock Images */}
                             {[1, 2].map(i => (
                                 <div key={i} className="aspect-square rounded-3xl bg-gray-50 dark:bg-gray-800 relative group overflow-hidden border border-gray-100 dark:border-gray-800">
-                                    <img src={`https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                    <Image 
+                                        src={`https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop`} 
+                                        alt="Product Preview"
+                                        fill
+                                        unoptimized
+                                        className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                                    />
                                     <button className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
                                         <Trash2 size={16} />
                                     </button>

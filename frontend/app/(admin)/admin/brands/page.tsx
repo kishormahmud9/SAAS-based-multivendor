@@ -19,6 +19,7 @@ import {
 import { adminService } from "@/src/services/admin.service"
 import { toast } from "react-hot-toast"
 import { getImageUrl } from "@/src/lib/image-utils"
+import Image from "next/image"
 import ConfirmModal from "@/components/ui/ConfirmModal"
 
 export default function AdminBrandsPage() {
@@ -237,12 +238,14 @@ export default function AdminBrandsPage() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-800 flex items-center justify-center">
+                                                <div className="w-12 h-12 rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-800 flex items-center justify-center relative">
                                                     {brand.logo ? (
-                                                        <img 
+                                                        <Image 
                                                             src={getImageUrl(brand.logo)} 
                                                             alt={brand.name}
-                                                            className="w-full h-full object-contain p-2" 
+                                                            fill
+                                                            unoptimized
+                                                            className="object-contain p-2" 
                                                         />
                                                     ) : (
                                                         <div className="text-sm font-black text-gray-300 uppercase">{brand.name[0]}</div>

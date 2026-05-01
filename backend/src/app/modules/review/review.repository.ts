@@ -8,7 +8,7 @@ const createReview = async (userId: string, data: any) => {
 
 const getProductReviews = async (productId: string) => {
   return await (prisma as any).review.findMany({
-    where: { productId, status: 'PUBLISHED' },
+    where: { productId, isApproved: true },
     include: {
       user: {
         select: { name: true, avatar: true },

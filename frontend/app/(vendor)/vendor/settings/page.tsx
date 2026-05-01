@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import {
     User,
     Mail,
@@ -40,8 +41,14 @@ export default function ProfileSettingsPage() {
             {/* Profile Picture Section */}
             <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-10 border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col md:flex-row items-center gap-10">
                 <div className="relative group">
-                    <div className="w-32 h-32 rounded-[2.5rem] bg-gray-100 dark:bg-gray-800 border-4 border-white dark:border-gray-950 shadow-2xl overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop" className="w-full h-full object-cover" />
+                    <div className="w-32 h-32 rounded-[2.5rem] bg-gray-100 dark:bg-gray-800 border-4 border-white dark:border-gray-950 shadow-2xl overflow-hidden relative">
+                        <Image 
+                            src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop" 
+                            alt="Profile"
+                            fill
+                            unoptimized
+                            className="object-cover" 
+                        />
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                             <Camera size={24} className="text-white" />
                         </div>

@@ -12,5 +12,6 @@ router.get(
 );
 
 router.get('/:slug', productControllers.getProductBySlug);
+router.get('/:id/reviews', productControllers.getProductReviews);
 
 export const productRoutes = router;
