@@ -68,8 +68,7 @@ export function middleware(request: NextRequest) {
   const isVendorRoute = pathname.startsWith('/vendor');
   // User/Customer routes (either prefixed with /user or specific common paths)
   const isUserRoute = pathname.startsWith('/user') || 
-                      pathname.startsWith('/checkout') || 
-                      pathname.startsWith('/cart');
+                      pathname.startsWith('/checkout');
 
   // 4. Protection Logic
   if (isAdminRoute || isVendorRoute || isUserRoute) {
@@ -115,7 +114,6 @@ export const config = {
     '/vendor/:path*',
     '/user/:path*',
     '/checkout/:path*',
-    '/cart/:path*',
     '/login',
     '/register',
   ],

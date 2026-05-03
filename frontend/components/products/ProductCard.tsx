@@ -46,57 +46,89 @@ export default function ProductCard({ id, name, price, salePrice, image, categor
     };
 
     return (
-        <div className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 relative">
+        <div className="group bg-white rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 border border-gray-100/50 relative flex flex-col h-full">
             {/* Badges */}
-            {salePrice && (
-                <span className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full z-10 shadow-md">
-                    SALE
-                </span>
-            )}
-            <span className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 hover:text-red-500 cursor-pointer">
+            <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+                {salePrice && (
+                    <span className="bg-gradient-to-r from-orange-500 to-red-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg shadow-lg uppercase tracking-wider animate-pulse">
+                        Sale
+                    </span>
+                )}
+                {stock && stock < 5 && (
+                    <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-3 py-1.5 rounded-lg shadow-sm uppercase tracking-wider">
+                        Low Stock
+                    </span>
+                )}
+            </div>
+
+            {/* Favorite Button */}
+            <button className="absolute top-4 right-4 bg-white/80 backdrop-blur-md p-2.5 rounded-xl shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 hover:bg-red-50 hover:text-red-500 transform translate-y-[-10px] group-hover:translate-y-0">
                 <Heart size={18} />
-            </span>
+            </button>
 
             {/* Image Container */}
-            <div className="relative h-64 w-full overflow-hidden bg-gray-100">
+            <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#F8F9FB]">
                 <Image
                     src={getImageUrl(image)}
                     alt={name}
                     fill
                     unoptimized
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
                 />
 
-                {/* Quick Actions Overlay */}
-                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center space-x-4">
+                {/* Bottom Action Bar (Visible on Hover) */}
+                <div className="absolute bottom-4 left-4 right-4 flex gap-2 translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out z-20">
                     <button
                         onClick={handleAddToCart}
                         disabled={isAdding}
-                        className="bg-white text-gray-800 p-3 rounded-full shadow-lg hover:bg-orange-500 hover:text-white transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 disabled:opacity-50"
+                        className="flex-1 bg-gray-900 text-white h-11 rounded-xl flex items-center justify-center gap-2 font-medium hover:bg-orange-600 transition-colors shadow-xl disabled:opacity-50 active:scale-95"
                     >
-                        <ShoppingCart size={20} className={isAdding ? "animate-pulse" : ""} />
+                        <ShoppingCart size={18} className={isAdding ? "animate-spin" : ""} />
+                        <span className="text-sm">Add to Cart</span>
                     </button>
-                    <Link href={`/product/${slug || id}`} className="bg-white text-gray-800 p-3 rounded-full shadow-lg hover:bg-blue-600 hover:text-white transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 delay-75">
-                        <Eye size={20} />
+                    <Link 
+                        href={`/product/${slug || id}`} 
+                        className="w-11 h-11 bg-white/90 backdrop-blur-md text-gray-900 rounded-xl flex items-center justify-center hover:bg-gray-900 hover:text-white transition-all shadow-xl active:scale-95"
+                    >
+                        <Eye size={18} />
                     </Link>
                 </div>
             </div>
 
             {/* Content */}
-            <div className="p-5">
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">{category}</p>
-                <Link href={`/product/${slug || id}`}>
-                    <h3 className="font-bold text-gray-800 text-lg mb-2 truncate group-hover:text-blue-600 transition-colors">{name}</h3>
-                </Link>
-                <div className="flex items-center space-x-2">
-                    {salePrice ? (
-                        <>
-                            <span className="text-xl font-bold text-orange-600">${salePrice}</span>
-                            <span className="text-sm text-gray-400 line-through">${price}</span>
-                        </>
-                    ) : (
-                        <span className="text-xl font-bold text-gray-900">${price}</span>
-                    )}
+            <div className="p-5 flex flex-col flex-grow">
+                <div className="mb-auto">
+                    <p className="text-[11px] font-bold text-orange-500 uppercase tracking-[0.1em] mb-1.5 opacity-80">{category}</p>
+                    <Link href={`/product/${slug || id}`}>
+                        <h3 className="font-semibold text-gray-800 text-base md:text-lg mb-2 line-clamp-2 leading-tight group-hover:text-orange-600 transition-colors">
+                            {name}
+                        </h3>
+                    </Link>
+                </div>
+                
+                <div className="mt-4 flex items-center justify-between">
+                    <div className="flex flex-col">
+                        {salePrice ? (
+                            <>
+                                <span className="text-xl font-bold text-gray-900 leading-none">
+                                    ${salePrice}
+                                </span>
+                                <span className="text-xs text-gray-400 line-through mt-1">
+                                    ${price}
+                                </span>
+                            </>
+                        ) : (
+                            <span className="text-xl font-bold text-gray-900 leading-none">
+                                ${price}
+                            </span>
+                        )}
+                    </div>
+                    
+                    {/* Tiny stock indicator */}
+                    <div className="flex items-center gap-1">
+                         <div className={`w-1.5 h-1.5 rounded-full ${stock > 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                         <span className="text-[10px] text-gray-500 font-medium">{stock > 0 ? 'In Stock' : 'Out of Stock'}</span>
+                    </div>
                 </div>
             </div>
         </div>
