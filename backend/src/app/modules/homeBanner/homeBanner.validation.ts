@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { BannerType } from '../../../generated/prisma/client';
+import { BannerType } from '@prisma/client';
 
 const createHomeBanner = z.object({
   body: z.object({

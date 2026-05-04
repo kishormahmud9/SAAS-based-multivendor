@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AttributeType } from '../../../generated/prisma';
+import { AttributeType } from '@prisma/client';
 
 const attributeValueSchema = z.object({
   id: z.string().optional(),

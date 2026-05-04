@@ -1,4 +1,4 @@
-import { Prisma, Attribute } from '../../../generated/prisma';
+import { Prisma, Attribute } from '@prisma/client';
 import { prisma } from '../../db_connection';
 
 const create = async (data: Prisma.AttributeCreateInput): Promise<Attribute> => {

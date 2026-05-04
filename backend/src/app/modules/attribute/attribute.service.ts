@@ -1,4 +1,4 @@
-import { Attribute } from '../../../generated/prisma';
+import { Attribute } from '@prisma/client';
 import httpStatus from 'http-status';
 import ApiError from '../../errors/ApiError';
 import { AttributeRepository } from './attribute.repository';

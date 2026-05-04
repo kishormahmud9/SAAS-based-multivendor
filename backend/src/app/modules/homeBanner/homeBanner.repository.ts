@@ -1,4 +1,4 @@
-import { Prisma } from "../../../generated/prisma/client";
+import { Prisma } from "@prisma/client";
 import { prisma } from "../../db_connection";
 
 const create = async (data: Prisma.HomeBannerCreateInput) => {
