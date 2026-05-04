@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../src/generated/prisma";
+import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
 import bcrypt from 'bcrypt';
 import { PERMISSIONS, ROLE_PRESETS } from '../src/app/config/permissions';
@@ -42,7 +42,7 @@ async function seedPermissions() {
     });
     permissionIds[perm.name] = record.id;
   }
-  
+
   console.log(`   ✅ ${PERMISSIONS.length} permissions synced.`);
   return permissionIds;
 }
@@ -51,7 +51,7 @@ async function seedPermissions() {
 
 async function seedRoles(permissionIds: Record<string, string>) {
   console.log('\n🎭 [2/3] Syncing Roles & Permissions...');
-  
+
   const rolesToSeed = [
     {
       name: 'Super Admin',
@@ -228,7 +228,7 @@ async function main() {
     const permissionIds = await seedPermissions();
     const roleMap = await seedRoles(permissionIds);
     await seedUsers(roleMap);
-    
+
     const duration = ((Date.now() - start) / 1000).toFixed(2);
     console.log(`\n✨ Unified seeding completed successfully in ${duration}s!\n`);
   } catch (error) {
