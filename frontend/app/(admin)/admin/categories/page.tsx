@@ -223,6 +223,7 @@ export default function AdminCategoriesPage() {
                                         </button>
                                     </th>
                                     <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">Category</th>
+                                    <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">Order</th>
                                     <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">Parent</th>
                                     <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">Products</th>
                                     <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">Status</th>
@@ -259,6 +260,11 @@ export default function AdminCategoriesPage() {
                                                     <p className="text-[10px] text-gray-400 font-bold uppercase mt-1 tracking-widest">{category.slug}</p>
                                                 </div>
                                             </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="px-3 py-1 bg-orange-50 dark:bg-orange-900/20 text-[10px] font-black text-orange-600 uppercase tracking-widest rounded-lg border border-orange-100 dark:border-orange-800/30">
+                                                #{category.sortOrder}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4">
                                             {category.parent ? (

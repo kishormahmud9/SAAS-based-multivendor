@@ -14,8 +14,8 @@ export const productService = {
     });
   },
 
-  getCategories: async (): Promise<any> => {
-    return apiClient('/categories', {
+  getCategories: async (params: string = ''): Promise<any> => {
+    return apiClient(`/categories${params ? `?${params}` : ''}`, {
       method: 'GET',
     });
   },

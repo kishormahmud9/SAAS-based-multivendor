@@ -100,8 +100,7 @@ export default function CategoryManagePage() {
                             <tr>
                                 <th className="px-6 py-3">Image</th>
                                 <th className="px-6 py-3">Name</th>
-                                <th className="px-6 py-3">Slug</th>
-                                <th className="px-6 py-3">Description</th>
+                                <th className="px-6 py-3">Order</th>
                                 <th className="px-6 py-3">Products</th>
                                 <th className="px-6 py-3 text-right">Actions</th>
                             </tr>
@@ -136,11 +135,10 @@ export default function CategoryManagePage() {
                                         <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
                                             {category.name}
                                         </td>
-                                        <td className="px-6 py-4 text-gray-600 dark:text-gray-400">
-                                            {category.slug}
-                                        </td>
-                                        <td className="px-6 py-4 text-gray-500 dark:text-gray-500 text-sm max-w-xs truncate">
-                                            {category.description || "No description"}
+                                        <td className="px-6 py-4">
+                                            <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded-md text-xs font-bold border border-blue-100">
+                                                {category.sortOrder}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4 text-gray-600 dark:text-gray-400">
                                             {category._count?.products || 0}

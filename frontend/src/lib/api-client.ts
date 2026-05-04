@@ -22,10 +22,15 @@ export const apiClient = async <T = any>(
   // Handle Token (Client-side only to avoid next/headers build issues)
   let token: string | undefined;
   if (typeof window !== 'undefined') {
-    token = document.cookie
-      .split('; ')
-      .find((row) => row.startsWith('accessToken='))
-      ?.split('=')[1];
+    token = localStorage.getItem('accessToken') || undefined;
+    
+    // Fallback to cookie if exists (though HttpOnly cookies won't be visible)
+    if (!token) {
+      token = document.cookie
+        .split('; ')
+        .find((row) => row.startsWith('accessToken='))
+        ?.split('=')[1];
+    }
   }
 
   const config: RequestInit = {

@@ -54,6 +54,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const result = await authService.login({ email, password, rememberMe });
 
         if (result.success && result.data.user) {
+            // Save token to localStorage and cookies so apiClient and middleware can use it
+            if (result.data.accessToken) {
+                localStorage.setItem('accessToken', result.data.accessToken);
+                // Set cookie for middleware (expires in 7 days if rememberMe, otherwise session)
+                const cookieExpiry = rememberMe ? `; max-age=${7 * 24 * 60 * 60}` : '';
+                document.cookie = `accessToken=${result.data.accessToken}; path=/${cookieExpiry}`;
+            }
+            
             setUser(result.data.user);
             return result.data.user;
         }
@@ -73,6 +81,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             await authService.logout();
         } finally {
+            localStorage.removeItem('accessToken');
+            document.cookie = "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
             localStorage.clear();
             setUser(null);
             router.push('/login');

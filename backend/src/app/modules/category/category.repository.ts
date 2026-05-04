@@ -60,7 +60,7 @@ const getPaginated = async (query: any) => {
         parent: { select: { name: true } },
         _count: { select: { products: true } }
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { sortOrder: 'asc' }
     }),
     (prisma as any).category.count({ where })
   ]);
@@ -78,7 +78,7 @@ const getPaginated = async (query: any) => {
 
 const getAllFlat = async () => {
   return await (prisma as any).category.findMany({
-    orderBy: { name: 'asc' }
+    orderBy: { sortOrder: 'asc' }
   });
 };
 
