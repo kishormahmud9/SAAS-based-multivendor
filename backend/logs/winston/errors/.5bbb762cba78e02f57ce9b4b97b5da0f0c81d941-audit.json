@@ -119,6 +119,11 @@
             "date": 1777835845066,
             "name": "D:\\Kishor\\Others\\AI Powerd E-com\\backend\\logs\\winston\\errors\\error-2026-04-05-01.log",
             "hash": "3f49d97326fd73e218d9df2feaaff7e63b9998150c61525d13ddb2569f6cbfe9"
+        },
+        {
+            "date": 1777916211706,
+            "name": "D:\\Kishor\\Others\\AI Powerd E-com\\backend\\logs\\winston\\errors\\error-2026-04-05-23.log",
+            "hash": "a25e083d4ddbc08df6a0f22197b60bd4cf8c7eeaf62b889ffcf6c3425d6cd798"
         }
     ],
     "hashType": "sha256"

@@ -26,7 +26,7 @@ const getAllBanners = catchAsync(async (req, res) => {
 });
 
 const getSingleBanner = catchAsync(async (req, res) => {
-  const result = await homeBannerServices.getSingleBanner(req.params.id);
+  const result = await homeBannerServices.getSingleBanner(req.params.id as string);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -37,7 +37,7 @@ const getSingleBanner = catchAsync(async (req, res) => {
 });
 
 const updateHomeBanner = catchAsync(async (req, res) => {
-  const result = await homeBannerServices.updateHomeBanner(req.params.id, req.body, req.file);
+  const result = await homeBannerServices.updateHomeBanner(req.params.id as string, req.body, req.file);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -48,7 +48,7 @@ const updateHomeBanner = catchAsync(async (req, res) => {
 });
 
 const deleteHomeBanner = catchAsync(async (req, res) => {
-  const result = await homeBannerServices.deleteHomeBanner(req.params.id);
+  const result = await homeBannerServices.deleteHomeBanner(req.params.id as string);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

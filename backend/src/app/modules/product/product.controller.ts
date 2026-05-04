@@ -32,7 +32,7 @@ const getProductBySlug = catchAsync(async (req, res) => {
 });
 
 const getProductReviews = catchAsync(async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   const result = await reviewRepository.getProductReviews(id);
 
   sendResponse(res, {

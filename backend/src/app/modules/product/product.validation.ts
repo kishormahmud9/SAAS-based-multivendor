@@ -16,10 +16,10 @@ const getAllProducts = z.object({
 
 const createProduct = z.object({
   body: z.object({
-    name: z.string({ required_error: 'Product name is required' }),
-    categoryId: z.string({ required_error: 'Category is required' }),
+    name: z.string({ message: 'Product name is required' }),
+    categoryId: z.string({ message: 'Category is required' }),
     brandId: z.string().optional().nullable(),
-    description: z.string({ required_error: 'Description is required' }),
+    description: z.string({ message: 'Description is required' }),
     shortDescription: z.string().optional(),
     sku: z.string().optional(),
     productType: z.enum(['SIMPLE', 'VARIABLE']).default('SIMPLE'),

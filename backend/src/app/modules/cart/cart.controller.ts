@@ -26,7 +26,7 @@ const updateCart = catchAsync(async (req, res) => {
 });
 
 const updateQuantity = catchAsync(async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   const { quantity } = req.body;
   await cartRepository.updateQuantity(req.user!.id, id, quantity);
   const result = await cartRepository.getCart(req.user!.id);
@@ -39,7 +39,7 @@ const updateQuantity = catchAsync(async (req, res) => {
 });
 
 const removeItem = catchAsync(async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   await cartRepository.removeItem(req.user!.id, id);
   const result = await cartRepository.getCart(req.user!.id);
   sendResponse(res, {

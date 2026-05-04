@@ -4,7 +4,7 @@ import { BannerType } from '../../../generated/prisma/client';
 const createHomeBanner = z.object({
   body: z.object({
     title: z.string({
-      required_error: 'Title is required',
+      message: 'Title is required',
     }),
     subtitle: z.string().optional(),
     link: z.string().optional(),

@@ -426,7 +426,7 @@ const createCategory = catchAsync(async (req, res) => {
 });
 
 const updateCategory = catchAsync(async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   const result = await (prisma as any).category.update({
     where: { id },
     data: req.body,
@@ -440,7 +440,7 @@ const updateCategory = catchAsync(async (req, res) => {
 });
 
 const deleteCategory = catchAsync(async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   await (prisma as any).category.delete({ where: { id } });
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -474,7 +474,7 @@ const createBrand = catchAsync(async (req, res) => {
 });
 
 const updateBrand = catchAsync(async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   const result = await (prisma as any).brand.update({
     where: { id },
     data: req.body,
@@ -488,7 +488,7 @@ const updateBrand = catchAsync(async (req, res) => {
 });
 
 const deleteBrand = catchAsync(async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   await (prisma as any).brand.delete({ where: { id } });
   sendResponse(res, {
     statusCode: httpStatus.OK,
