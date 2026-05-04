@@ -3,18 +3,18 @@
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { 
-    ChevronLeft, 
-    User as UserIcon, 
-    Mail, 
-    Calendar, 
-    Shield, 
-    ShoppingBag, 
-    MapPin, 
-    Loader2, 
-    Eye, 
+import {
+    ChevronLeft,
+    User as UserIcon,
+    Mail,
+    Calendar,
+    Shield,
+    ShoppingBag,
+    MapPin,
+    Loader2,
+    Eye,
     EyeOff,
-    Phone, 
+    Phone,
     History,
     ShieldCheck,
     AlertCircle,
@@ -44,11 +44,11 @@ export default function AdminUserDetailsPage() {
     const [user, setUser] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [actionLoading, setActionLoading] = useState(false)
-    
+
     // Modals state
     const [showSuspendModal, setShowSuspendModal] = useState(false)
     const [showResetModal, setShowResetModal] = useState(false)
-    
+
     // Password reset state
     const [newPassword, setNewPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
@@ -162,9 +162,8 @@ export default function AdminUserDetailsPage() {
                             <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight">
                                 User Profile
                             </h1>
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                                user.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30' : 'bg-rose-100 text-rose-600 dark:bg-rose-900/30'
-                            }`}>
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${user.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30' : 'bg-rose-100 text-rose-600 dark:bg-rose-900/30'
+                                }`}>
                                 {user.status}
                             </span>
                         </div>
@@ -175,25 +174,24 @@ export default function AdminUserDetailsPage() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <Link 
+                    <Link
                         href={`/admin/users/${userId}/edit`}
                         className="px-6 py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl font-black text-[10px] uppercase tracking-widest text-gray-600 dark:text-gray-400 hover:border-orange-500 transition-all flex items-center gap-2"
                     >
                         <ShieldCheck size={14} /> Edit Profile
                     </Link>
-                    <button 
+                    <button
                         onClick={() => setShowResetModal(true)}
                         className="px-6 py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl font-black text-[10px] uppercase tracking-widest text-gray-600 dark:text-gray-400 hover:border-orange-500 transition-all flex items-center gap-2"
                     >
                         <Key size={14} /> Reset Password
                     </button>
-                    <button 
+                    <button
                         onClick={() => setShowSuspendModal(true)}
-                        className={`px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg flex items-center gap-2 ${
-                            user.status === 'ACTIVE' 
-                            ? 'bg-rose-500 text-white hover:bg-rose-600 shadow-rose-500/20' 
-                            : 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-emerald-500/20'
-                        }`}
+                        className={`px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg flex items-center gap-2 ${user.status === 'ACTIVE'
+                                ? 'bg-rose-500 text-white hover:bg-rose-600 shadow-rose-500/20'
+                                : 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-emerald-500/20'
+                            }`}
                     >
                         {user.status === 'ACTIVE' ? <><UserX size={14} /> Suspend User</> : <><UserCheck size={14} /> Activate User</>}
                     </button>
@@ -213,7 +211,7 @@ export default function AdminUserDetailsPage() {
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button 
+                        <button
                             onClick={() => setTempPassword(null)}
                             className="px-6 py-3 bg-black/20 hover:bg-black/30 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all"
                         >
@@ -224,19 +222,19 @@ export default function AdminUserDetailsPage() {
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                
+
                 {/* LEFT COLUMN - Personal Info & Status */}
                 <div className="space-y-8">
                     {/* Bio Card */}
                     <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-orange-500/10 transition-colors" />
-                        
+
                         <div className="flex flex-col items-center text-center space-y-4">
                             <div className="w-32 h-32 rounded-[2.5rem] overflow-hidden border-4 border-white dark:border-gray-800 shadow-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-gray-300">
                                 {user.avatar ? (
-                                    <img 
-                                        src={getImageUrl(user.avatar)} 
-                                        alt={user.name} 
+                                    <img
+                                        src={getImageUrl(user.avatar)}
+                                        alt={user.name}
                                         className="w-full h-full object-cover"
                                     />
                                 ) : (
@@ -309,7 +307,7 @@ export default function AdminUserDetailsPage() {
                             </div>
                             <Link href={`/admin/users/${userId}/edit`} className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline">Manage</Link>
                         </div>
-                        
+
                         <div className="flex flex-wrap gap-2">
                             {user.roleAssignments?.length > 0 ? (
                                 user.roleAssignments.map((ra: any) => (
@@ -326,7 +324,7 @@ export default function AdminUserDetailsPage() {
 
                 {/* MIDDLE & RIGHT - Stats, Activity, Orders */}
                 <div className="lg:col-span-2 space-y-8">
-                    
+
                     {/* Quick Stats Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="bg-white dark:bg-gray-900 p-8 rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-sm transition-all hover:border-orange-200">
@@ -448,8 +446,8 @@ export default function AdminUserDetailsPage() {
                                                 <p className="font-black text-gray-900 dark:text-white text-sm">${Number(order.totalAmount).toFixed(2)}</p>
                                                 <span className="text-[8px] font-black text-orange-500 uppercase tracking-widest">{order.status}</span>
                                             </div>
-                                            <Link 
-                                                href={`/admin/orders/${order.id}`} 
+                                            <Link
+                                                href={`/admin/orders/${order.id}`}
                                                 className="w-10 h-10 bg-gray-50 dark:bg-gray-800 rounded-xl flex items-center justify-center text-gray-400 hover:text-orange-500 transition-all active:scale-90"
                                             >
                                                 <Eye size={18} />
@@ -464,18 +462,18 @@ export default function AdminUserDetailsPage() {
             </div>
 
             {/* Modals */}
-            <ConfirmModal 
+            <ConfirmModal
                 isOpen={showSuspendModal}
                 onClose={() => setShowSuspendModal(false)}
                 onConfirm={handleToggleStatus}
                 title={user.status === 'ACTIVE' ? "Suspend User Access" : "Reactivate User Access"}
-                message={user.status === 'ACTIVE' 
+                message={user.status === 'ACTIVE'
                     ? `Are you sure you want to suspend ${user.name}? They will no longer be able to log in or perform any actions.`
                     : `Are you sure you want to reactivate ${user.name}? Their full access will be restored.`
                 }
                 confirmText={user.status === 'ACTIVE' ? "Suspend Now" : "Reactivate Now"}
                 variant={user.status === 'ACTIVE' ? "danger" : "primary"}
-                loading={actionLoading}
+                isLoading={actionLoading}
             />
 
             <Modal
@@ -500,7 +498,7 @@ export default function AdminUserDetailsPage() {
                         <div className="group">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-1 block">New Secure Password</label>
                             <div className="relative">
-                                <input 
+                                <input
                                     type={showPassword ? "text" : "password"}
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
@@ -508,14 +506,14 @@ export default function AdminUserDetailsPage() {
                                     className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all pr-24"
                                 />
                                 <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                                    <button 
+                                    <button
                                         onClick={() => setShowPassword(!showPassword)}
                                         className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors text-gray-400"
                                         title={showPassword ? "Hide Password" : "Show Password"}
                                     >
                                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={generatePassword}
                                         className="p-2 hover:bg-orange-100 dark:hover:bg-orange-900/30 rounded-lg transition-colors text-orange-600"
                                         title="Auto-Generate"
@@ -532,7 +530,7 @@ export default function AdminUserDetailsPage() {
                                     <Shield size={16} className="text-blue-600" />
                                     <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Strength Verified</span>
                                 </div>
-                                <button 
+                                <button
                                     onClick={() => copyToClipboard(newPassword)}
                                     className="text-[10px] font-black text-gray-500 hover:text-gray-900 dark:hover:text-white uppercase tracking-widest flex items-center gap-1"
                                 >
@@ -543,7 +541,7 @@ export default function AdminUserDetailsPage() {
                     </div>
 
                     <div className="flex items-center gap-3 pt-2">
-                        <button 
+                        <button
                             onClick={() => {
                                 setShowResetModal(false)
                                 setNewPassword("")
@@ -552,7 +550,7 @@ export default function AdminUserDetailsPage() {
                         >
                             Cancel
                         </button>
-                        <button 
+                        <button
                             onClick={handleResetPassword}
                             disabled={actionLoading || !newPassword}
                             className="flex-[2] py-4 bg-orange-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-orange-500/20 hover:bg-orange-600 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
