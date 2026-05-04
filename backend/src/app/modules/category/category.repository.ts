@@ -37,18 +37,26 @@ const getAllTree = async (filter: any = {}) => {
 };
 
 const getPaginated = async (query: any) => {
-  const { page = 1, limit = 10, search = '', isActive } = query;
+  const { page = 1, limit = 10, search = '', isActive, parentId } = query;
   const skip = (Number(page) - 1) * Number(limit);
 
   const where: any = {
-    OR: [
-      { name: { contains: search, mode: 'insensitive' } },
-      { slug: { contains: search, mode: 'insensitive' } }
+    AND: [
+      {
+        OR: [
+          { name: { contains: search, mode: 'insensitive' } },
+          { slug: { contains: search, mode: 'insensitive' } }
+        ]
+      }
     ]
   };
 
   if (isActive !== undefined) {
-    where.isActive = isActive === 'true';
+    where.AND.push({ isActive: isActive === 'true' });
+  }
+
+  if (parentId !== undefined) {
+    where.AND.push({ parentId: parentId === 'null' ? null : parentId });
   }
 
   const [data, total] = await Promise.all([

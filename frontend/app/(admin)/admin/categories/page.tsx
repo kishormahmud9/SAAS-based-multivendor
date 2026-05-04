@@ -33,6 +33,8 @@ export default function AdminCategoriesPage() {
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState("")
     const [isActiveFilter, setIsActiveFilter] = useState<string>("all")
+    const [parentIdFilter, setParentIdFilter] = useState<string>("all")
+    const [flatCategories, setFlatCategories] = useState<any[]>([])
     const [selectedIds, setSelectedIds] = useState<string[]>([])
     const [page, setPage] = useState(1)
     const [total, setTotal] = useState(0)
@@ -43,8 +45,23 @@ export default function AdminCategoriesPage() {
     const [isDeleting, setIsDeleting] = useState(false)
 
     useEffect(() => {
+        fetchFlatCategories()
+    }, [])
+
+    useEffect(() => {
         fetchCategories()
-    }, [page, search, isActiveFilter])
+    }, [page, search, isActiveFilter, parentIdFilter])
+
+    const fetchFlatCategories = async () => {
+        try {
+            const res = await adminService.getCategoryFlat()
+            if (res.success) {
+                setFlatCategories(res.data)
+            }
+        } catch (error) {
+            console.error("Failed to fetch flat categories")
+        }
+    }
 
     const fetchCategories = async () => {
         setLoading(true)
@@ -53,7 +70,8 @@ export default function AdminCategoriesPage() {
                 page: page.toString(),
                 limit: "10",
                 search,
-                ...(isActiveFilter !== "all" && { isActive: isActiveFilter })
+                ...(isActiveFilter !== "all" && { isActive: isActiveFilter }),
+                ...(parentIdFilter !== "all" && { parentId: parentIdFilter })
             }).toString()
             const res = await adminService.getCategories(params)
             if (res.success) {
@@ -182,6 +200,18 @@ export default function AdminCategoriesPage() {
                     />
                 </div>
                 <div className="flex items-center gap-2 w-full md:w-auto">
+                    <select 
+                        value={parentIdFilter}
+                        onChange={(e) => setParentIdFilter(e.target.value)}
+                        className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-2xl text-sm font-bold text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    >
+                        <option value="all">All Parent</option>
+                        <option value="null">Root Only</option>
+                        {flatCategories.map((cat: any) => (
+                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        ))}
+                    </select>
+
                     <select 
                         value={isActiveFilter}
                         onChange={(e) => setIsActiveFilter(e.target.value)}
