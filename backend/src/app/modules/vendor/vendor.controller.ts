@@ -1,10 +1,11 @@
+import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { vendorRepository } from './vendor.repository';
 import { prisma } from '../../db_connection';
 
-const getDashboardStats = catchAsync(async (req, res) => {
+const getDashboardStats = catchAsync(async (req: Request, res: Response) => {
   const result = await vendorRepository.getDashboardStats(req.tenant!.storeId!);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -14,7 +15,7 @@ const getDashboardStats = catchAsync(async (req, res) => {
   });
 });
 
-const getMyProducts = catchAsync(async (req, res) => {
+const getMyProducts = catchAsync(async (req: Request, res: Response) => {
   const result = await vendorRepository.getVendorProducts(req.tenant!.storeId!, req.query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -24,7 +25,7 @@ const getMyProducts = catchAsync(async (req, res) => {
   });
 });
 
-const getMyOrders = catchAsync(async (req, res) => {
+const getMyOrders = catchAsync(async (req: Request, res: Response) => {
   const result = await vendorRepository.getVendorOrders(req.tenant!.storeId!);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -34,7 +35,7 @@ const getMyOrders = catchAsync(async (req, res) => {
   });
 });
 
-const requestWithdrawal = catchAsync(async (req, res) => {
+const requestWithdrawal = catchAsync(async (req: Request, res: Response) => {
   const { amount, method, accountDetails } = req.body;
   const result = await vendorRepository.createWithdrawalRequest(req.tenant!.storeId!, amount, method, accountDetails);
   sendResponse(res, {
@@ -45,7 +46,7 @@ const requestWithdrawal = catchAsync(async (req, res) => {
   });
 });
 
-const setupStore = catchAsync(async (req, res) => {
+const setupStore = catchAsync(async (req: Request, res: Response) => {
   // logic to create store if not exists and update user systemRole to VENDOR
   const { name, slug, description } = req.body;
   const userId = req.user!.id;

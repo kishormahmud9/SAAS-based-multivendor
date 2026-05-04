@@ -1,9 +1,10 @@
+import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { marketingServices } from './marketing.service';
 
-const getBanners = catchAsync(async (req, res) => {
+const getBanners = catchAsync(async (req: Request, res: Response) => {
   const result = await marketingServices.getBanners();
 
   sendResponse(res, {
@@ -14,7 +15,7 @@ const getBanners = catchAsync(async (req, res) => {
   });
 });
 
-const getOffers = catchAsync(async (req, res) => {
+const getOffers = catchAsync(async (req: Request, res: Response) => {
   const result = await marketingServices.getOffers();
 
   sendResponse(res, {
@@ -25,7 +26,7 @@ const getOffers = catchAsync(async (req, res) => {
   });
 });
 
-const getUiSettings = catchAsync(async (req, res) => {
+const getUiSettings = catchAsync(async (req: Request, res: Response) => {
   const result = await marketingServices.getUiSettings();
 
   sendResponse(res, {

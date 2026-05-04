@@ -1,3 +1,4 @@
+import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
@@ -8,7 +9,7 @@ import { optimizeAndSaveImage } from '../../utils/uploadHandler';
 import slugify from 'slugify';
 import ApiError from '../../errors/ApiError';
 
-const getStats = catchAsync(async (req, res) => {
+const getStats = catchAsync(async (req: Request, res: Response) => {
   const result = await adminRepository.getDashboardStats();
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -18,7 +19,7 @@ const getStats = catchAsync(async (req, res) => {
   });
 });
 
-const getDashboardOverview = catchAsync(async (req, res) => {
+const getDashboardOverview = catchAsync(async (req: Request, res: Response) => {
   const stats = await adminRepository.getDashboardStats();
   const recentOrders = await adminRepository.getRecentOrders();
   const lowStock = await adminRepository.getLowStockProducts();
@@ -32,7 +33,7 @@ const getDashboardOverview = catchAsync(async (req, res) => {
 });
 
 // User Management
-const getAllUsers = catchAsync(async (req, res) => {
+const getAllUsers = catchAsync(async (req: Request, res: Response) => {
   const result = await (prisma as any).user.findMany({
     where: { isDeleted: false },
     include: {
@@ -52,7 +53,7 @@ const getAllUsers = catchAsync(async (req, res) => {
   });
 });
 
-const toggleUserStatus = catchAsync(async (req, res) => {
+const toggleUserStatus = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
   const { status } = req.body;
 
@@ -78,7 +79,7 @@ const toggleUserStatus = catchAsync(async (req, res) => {
   });
 });
 
-const assignUserRoles = catchAsync(async (req, res) => {
+const assignUserRoles = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
   const { roleIds } = req.body as { roleIds: string[] };
 
@@ -129,7 +130,7 @@ const assignUserRoles = catchAsync(async (req, res) => {
 });
 
 // Product Management
-const getAllProducts = catchAsync(async (req, res) => {
+const getAllProducts = catchAsync(async (req: Request, res: Response) => {
   const { 
     page = 1, 
     limit = 10, 
@@ -201,7 +202,7 @@ const getAllProducts = catchAsync(async (req, res) => {
   });
 });
 
-const getSingleProduct = catchAsync(async (req, res) => {
+const getSingleProduct = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
   
   try {
@@ -233,7 +234,7 @@ const getSingleProduct = catchAsync(async (req, res) => {
   }
 });
 
-const createProduct = catchAsync(async (req, res) => {
+const createProduct = catchAsync(async (req: Request, res: Response) => {
   let { storeId, attributes, variants, metaKeywords, ...productData } = req.body;
 
   // 1. Handle Images
@@ -302,7 +303,7 @@ const createProduct = catchAsync(async (req, res) => {
   });
 });
 
-const updateProduct = catchAsync(async (req, res) => {
+const updateProduct = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
   let { attributes, variants, metaKeywords, existingImages, ...productData } = req.body;
 
@@ -381,7 +382,7 @@ const updateProduct = catchAsync(async (req, res) => {
   });
 });
 
-const deleteProduct = catchAsync(async (req, res) => {
+const deleteProduct = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
   const result = await (prisma as any).product.update({
     where: { id },
@@ -403,7 +404,7 @@ const deleteProduct = catchAsync(async (req, res) => {
 });
 
 // Category Management
-const getAllCategories = catchAsync(async (req, res) => {
+const getAllCategories = catchAsync(async (req: Request, res: Response) => {
   const result = await (prisma as any).category.findMany({
     orderBy: { name: 'asc' },
   });
@@ -415,7 +416,7 @@ const getAllCategories = catchAsync(async (req, res) => {
   });
 });
 
-const createCategory = catchAsync(async (req, res) => {
+const createCategory = catchAsync(async (req: Request, res: Response) => {
   const result = await (prisma as any).category.create({ data: req.body });
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -425,7 +426,7 @@ const createCategory = catchAsync(async (req, res) => {
   });
 });
 
-const updateCategory = catchAsync(async (req, res) => {
+const updateCategory = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
   const result = await (prisma as any).category.update({
     where: { id },
@@ -439,7 +440,7 @@ const updateCategory = catchAsync(async (req, res) => {
   });
 });
 
-const deleteCategory = catchAsync(async (req, res) => {
+const deleteCategory = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
   await (prisma as any).category.delete({ where: { id } });
   sendResponse(res, {
@@ -451,7 +452,7 @@ const deleteCategory = catchAsync(async (req, res) => {
 });
 
 // Brand Management
-const getAllBrands = catchAsync(async (req, res) => {
+const getAllBrands = catchAsync(async (req: Request, res: Response) => {
   const result = await (prisma as any).brand.findMany({
     orderBy: { name: 'asc' },
   });
@@ -463,7 +464,7 @@ const getAllBrands = catchAsync(async (req, res) => {
   });
 });
 
-const createBrand = catchAsync(async (req, res) => {
+const createBrand = catchAsync(async (req: Request, res: Response) => {
   const result = await (prisma as any).brand.create({ data: req.body });
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -473,7 +474,7 @@ const createBrand = catchAsync(async (req, res) => {
   });
 });
 
-const updateBrand = catchAsync(async (req, res) => {
+const updateBrand = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
   const result = await (prisma as any).brand.update({
     where: { id },
@@ -487,7 +488,7 @@ const updateBrand = catchAsync(async (req, res) => {
   });
 });
 
-const deleteBrand = catchAsync(async (req, res) => {
+const deleteBrand = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
   await (prisma as any).brand.delete({ where: { id } });
   sendResponse(res, {

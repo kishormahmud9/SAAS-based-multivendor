@@ -1,9 +1,10 @@
+import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { roleServices } from './role.service';
 
-const createRole = catchAsync(async (req, res) => {
+const createRole = catchAsync(async (req: Request, res: Response) => {
   const result = await roleServices.createRole(req.body);
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -13,7 +14,7 @@ const createRole = catchAsync(async (req, res) => {
   });
 });
 
-const getRoles = catchAsync(async (req, res) => {
+const getRoles = catchAsync(async (req: Request, res: Response) => {
   const result = await roleServices.getRoles(req.query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -24,7 +25,7 @@ const getRoles = catchAsync(async (req, res) => {
   });
 });
 
-const getRoleById = catchAsync(async (req, res) => {
+const getRoleById = catchAsync(async (req: Request, res: Response) => {
   const result = await roleServices.getRoleById(req.params.id as string);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -34,7 +35,7 @@ const getRoleById = catchAsync(async (req, res) => {
   });
 });
 
-const updateRole = catchAsync(async (req, res) => {
+const updateRole = catchAsync(async (req: Request, res: Response) => {
   const result = await roleServices.updateRole(req.params.id as string, req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -44,7 +45,7 @@ const updateRole = catchAsync(async (req, res) => {
   });
 });
 
-const deleteRole = catchAsync(async (req, res) => {
+const deleteRole = catchAsync(async (req: Request, res: Response) => {
   await roleServices.deleteRole(req.params.id as string);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -54,7 +55,7 @@ const deleteRole = catchAsync(async (req, res) => {
   });
 });
 
-const getAllPermissions = catchAsync(async (req, res) => {
+const getAllPermissions = catchAsync(async (req: Request, res: Response) => {
   const result = await roleServices.getAllPermissions();
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -64,7 +65,7 @@ const getAllPermissions = catchAsync(async (req, res) => {
   });
 });
 
-const getRolePermissions = catchAsync(async (req, res) => {
+const getRolePermissions = catchAsync(async (req: Request, res: Response) => {
   const result = await roleServices.getRolePermissions(req.params.id as string);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -74,7 +75,7 @@ const getRolePermissions = catchAsync(async (req, res) => {
   });
 });
 
-const updateRolePermissions = catchAsync(async (req, res) => {
+const updateRolePermissions = catchAsync(async (req: Request, res: Response) => {
   const result = await roleServices.updateRolePermissions(req.params.id as string, req.body.permissionIds);
   sendResponse(res, {
     statusCode: httpStatus.OK,

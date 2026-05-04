@@ -3,9 +3,17 @@ import { JwtPayload } from 'jsonwebtoken';
 declare global {
   namespace Express {
     interface Request {
-      user?: JwtPayload | null;
-      file?: Multer.File;
-      files?: Multer.File[] | { [fieldname: string]: Multer.File[] };
+      user?: {
+        id: string;
+        email: string;
+        role: string;
+        name: string;
+        permissions: string[];
+        storeId: string | null;
+      };
+      tenant?: {
+        storeId: string | null;
+      };
     }
 
     namespace Multer {

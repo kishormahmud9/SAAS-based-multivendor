@@ -1,10 +1,11 @@
+import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { brandServices } from './brand.service';
 import { optimizeAndSaveImage } from '../../utils/uploadHandler';
 
-const createBrand = catchAsync(async (req, res) => {
+const createBrand = catchAsync(async (req: Request, res: Response) => {
   const brandData = req.body;
 
   if (req.file) {
@@ -21,7 +22,7 @@ const createBrand = catchAsync(async (req, res) => {
   });
 });
 
-const getPaginated = catchAsync(async (req, res) => {
+const getPaginated = catchAsync(async (req: Request, res: Response) => {
   const result = await brandServices.getPaginated(req.query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -32,7 +33,7 @@ const getPaginated = catchAsync(async (req, res) => {
   });
 });
 
-const getAllFlat = catchAsync(async (req, res) => {
+const getAllFlat = catchAsync(async (req: Request, res: Response) => {
   const result = await brandServices.getAllFlat();
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -42,7 +43,7 @@ const getAllFlat = catchAsync(async (req, res) => {
   });
 });
 
-const getSingleBrand = catchAsync(async (req, res) => {
+const getSingleBrand = catchAsync(async (req: Request, res: Response) => {
   const result = await brandServices.getSingleBrand(req.params.id as string);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -52,7 +53,7 @@ const getSingleBrand = catchAsync(async (req, res) => {
   });
 });
 
-const updateBrand = catchAsync(async (req, res) => {
+const updateBrand = catchAsync(async (req: Request, res: Response) => {
   const brandData = req.body;
 
   if (req.file) {
@@ -69,7 +70,7 @@ const updateBrand = catchAsync(async (req, res) => {
   });
 });
 
-const deleteBrand = catchAsync(async (req, res) => {
+const deleteBrand = catchAsync(async (req: Request, res: Response) => {
   await brandServices.deleteBrand(req.params.id as string);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -79,7 +80,7 @@ const deleteBrand = catchAsync(async (req, res) => {
   });
 });
 
-const bulkStatusUpdate = catchAsync(async (req, res) => {
+const bulkStatusUpdate = catchAsync(async (req: Request, res: Response) => {
   const { ids, isActive } = req.body;
   await brandServices.bulkStatusUpdate(ids, isActive);
   sendResponse(res, {
@@ -90,7 +91,7 @@ const bulkStatusUpdate = catchAsync(async (req, res) => {
   });
 });
 
-const bulkDelete = catchAsync(async (req, res) => {
+const bulkDelete = catchAsync(async (req: Request, res: Response) => {
   const { ids } = req.body;
   await brandServices.bulkDelete(ids);
   sendResponse(res, {
@@ -101,7 +102,7 @@ const bulkDelete = catchAsync(async (req, res) => {
   });
 });
 
-const checkName = catchAsync(async (req, res) => {
+const checkName = catchAsync(async (req: Request, res: Response) => {
   const { name } = req.query;
   const result = await brandServices.checkName(name as string);
   sendResponse(res, {

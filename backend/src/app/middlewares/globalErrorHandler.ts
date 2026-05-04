@@ -6,8 +6,7 @@ import ApiError from '../errors/ApiError';
 import { errorLogger } from '../../shared/logger';
 
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let statusCode: any = httpStatus.INTERNAL_SERVER_ERROR;
+  let statusCode: number = httpStatus.INTERNAL_SERVER_ERROR;
   let message = 'Something went wrong!';
   let errors: { field: string | number; message: string }[] = [];
 
@@ -38,7 +37,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
 
       errors = err?.message ? [{ field, message: err.message }] : [];
     }
-  } else if (err.constructor.name === 'PrismaClientKnownRequestError') {
+  } else if (err.name === 'PrismaClientKnownRequestError' || (err as any).code?.startsWith('P')) {
     statusCode = httpStatus.BAD_REQUEST;
     if (err.code === 'P2002') {
       message = 'Unique constraint violation';

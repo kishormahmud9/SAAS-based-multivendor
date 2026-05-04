@@ -1,3 +1,4 @@
+import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
@@ -5,7 +6,7 @@ import { userRepository } from './user.repository';
 import { userServices } from './user.service';
 import { optimizeAndSaveImage } from '../../utils/uploadHandler';
 
-const getProfile = catchAsync(async (req, res) => {
+const getProfile = catchAsync(async (req: Request, res: Response) => {
   const result = await userRepository.getProfile(req.user!.id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -15,7 +16,7 @@ const getProfile = catchAsync(async (req, res) => {
   });
 });
 
-const updateProfile = catchAsync(async (req, res) => {
+const updateProfile = catchAsync(async (req: Request, res: Response) => {
   const result = await userRepository.updateProfile(req.user!.id, req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -25,7 +26,7 @@ const updateProfile = catchAsync(async (req, res) => {
   });
 });
 
-const getAddresses = catchAsync(async (req, res) => {
+const getAddresses = catchAsync(async (req: Request, res: Response) => {
   const result = await userRepository.getAddresses(req.user!.id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -35,7 +36,7 @@ const getAddresses = catchAsync(async (req, res) => {
   });
 });
 
-const createAddress = catchAsync(async (req, res) => {
+const createAddress = catchAsync(async (req: Request, res: Response) => {
   const result = await userRepository.createAddress(req.user!.id, req.body);
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -45,7 +46,7 @@ const createAddress = catchAsync(async (req, res) => {
   });
 });
 
-const updateAddress = catchAsync(async (req, res) => {
+const updateAddress = catchAsync(async (req: Request, res: Response) => {
   const result = await userRepository.updateAddress(req.params.id as string, req.user!.id, req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -55,7 +56,7 @@ const updateAddress = catchAsync(async (req, res) => {
   });
 });
 
-const deleteAddress = catchAsync(async (req, res) => {
+const deleteAddress = catchAsync(async (req: Request, res: Response) => {
   await userRepository.deleteAddress(req.params.id as string, req.user!.id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -65,7 +66,7 @@ const deleteAddress = catchAsync(async (req, res) => {
   });
 });
 
-const getUsers = catchAsync(async (req, res) => {
+const getUsers = catchAsync(async (req: Request, res: Response) => {
   const result = await userServices.getUsers(req.query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -76,7 +77,7 @@ const getUsers = catchAsync(async (req, res) => {
   });
 });
 
-const createUser = catchAsync(async (req, res) => {
+const createUser = catchAsync(async (req: Request, res: Response) => {
   // Parse addresses if sent as string (from FormData)
   if (typeof req.body.addresses === 'string') {
     req.body.addresses = JSON.parse(req.body.addresses);
@@ -115,7 +116,7 @@ const createUser = catchAsync(async (req, res) => {
   });
 });
 
-const getUserById = catchAsync(async (req, res) => {
+const getUserById = catchAsync(async (req: Request, res: Response) => {
   const result = await userServices.getUserById(req.params.id as string);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -125,7 +126,7 @@ const getUserById = catchAsync(async (req, res) => {
   });
 });
 
-const updateUser = catchAsync(async (req, res) => {
+const updateUser = catchAsync(async (req: Request, res: Response) => {
   // Parse addresses if sent as string (from FormData)
   if (typeof req.body.addresses === 'string') {
     req.body.addresses = JSON.parse(req.body.addresses);
@@ -164,7 +165,7 @@ const updateUser = catchAsync(async (req, res) => {
   });
 });
 
-const updateStatus = catchAsync(async (req, res) => {
+const updateStatus = catchAsync(async (req: Request, res: Response) => {
   const result = await userServices.updateStatus(req.params.id as string, req.body.status);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -174,7 +175,7 @@ const updateStatus = catchAsync(async (req, res) => {
   });
 });
 
-const resetPassword = catchAsync(async (req, res) => {
+const resetPassword = catchAsync(async (req: Request, res: Response) => {
   const result = await userServices.resetPassword(req.params.id as string, req.body.password);
   sendResponse(res, {
     statusCode: httpStatus.OK,

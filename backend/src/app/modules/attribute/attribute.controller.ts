@@ -1,10 +1,11 @@
+import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { AttributeService } from './attribute.service';
 import pick from '../../utils/pick';
 
-const createAttribute = catchAsync(async (req, res) => {
+const createAttribute = catchAsync(async (req: Request, res: Response) => {
   const result = await AttributeService.createAttribute(req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -14,7 +15,7 @@ const createAttribute = catchAsync(async (req, res) => {
   });
 });
 
-const getAllAttributes = catchAsync(async (req, res) => {
+const getAllAttributes = catchAsync(async (req: Request, res: Response) => {
   const filters = pick(req.query, ['search', 'isActive']);
   const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
   const result = await AttributeService.getAllAttributes(filters, options);
@@ -27,7 +28,7 @@ const getAllAttributes = catchAsync(async (req, res) => {
   });
 });
 
-const getAttributeById = catchAsync(async (req, res) => {
+const getAttributeById = catchAsync(async (req: Request, res: Response) => {
   const result = await AttributeService.getAttributeById(req.params.id as string);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -37,7 +38,7 @@ const getAttributeById = catchAsync(async (req, res) => {
   });
 });
 
-const updateAttribute = catchAsync(async (req, res) => {
+const updateAttribute = catchAsync(async (req: Request, res: Response) => {
   const result = await AttributeService.updateAttribute(req.params.id as string, req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -47,7 +48,7 @@ const updateAttribute = catchAsync(async (req, res) => {
   });
 });
 
-const deleteAttribute = catchAsync(async (req, res) => {
+const deleteAttribute = catchAsync(async (req: Request, res: Response) => {
   const result = await AttributeService.deleteAttribute(req.params.id as string);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -57,7 +58,7 @@ const deleteAttribute = catchAsync(async (req, res) => {
   });
 });
 
-const checkName = catchAsync(async (req, res) => {
+const checkName = catchAsync(async (req: Request, res: Response) => {
   const result = await AttributeService.checkName(req.query.name as string);
   sendResponse(res, {
     statusCode: httpStatus.OK,

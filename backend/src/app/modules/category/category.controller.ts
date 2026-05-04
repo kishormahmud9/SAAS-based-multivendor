@@ -1,3 +1,4 @@
+import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
@@ -5,7 +6,7 @@ import { categoryServices } from './category.service';
 import { prisma } from '../../db_connection';
 import { optimizeAndSaveImage } from '../../utils/uploadHandler';
 
-const createCategory = catchAsync(async (req, res) => {
+const createCategory = catchAsync(async (req: Request, res: Response) => {
   const categoryData = req.body;
 
   if (req.file) {
@@ -22,7 +23,7 @@ const createCategory = catchAsync(async (req, res) => {
   });
 });
 
-const getAllTree = catchAsync(async (req, res) => {
+const getAllTree = catchAsync(async (req: Request, res: Response) => {
   const result = await categoryServices.getAllTree(req.query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -32,7 +33,7 @@ const getAllTree = catchAsync(async (req, res) => {
   });
 });
 
-const getPaginated = catchAsync(async (req, res) => {
+const getPaginated = catchAsync(async (req: Request, res: Response) => {
   const result = await categoryServices.getPaginated(req.query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -43,7 +44,7 @@ const getPaginated = catchAsync(async (req, res) => {
   });
 });
 
-const getAllFlat = catchAsync(async (req, res) => {
+const getAllFlat = catchAsync(async (req: Request, res: Response) => {
   const result = await categoryServices.getAllFlat();
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -53,7 +54,7 @@ const getAllFlat = catchAsync(async (req, res) => {
   });
 });
 
-const getSingleCategory = catchAsync(async (req, res) => {
+const getSingleCategory = catchAsync(async (req: Request, res: Response) => {
   const result = await categoryServices.getSingleCategory(req.params.id as string);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -63,7 +64,7 @@ const getSingleCategory = catchAsync(async (req, res) => {
   });
 });
 
-const updateCategory = catchAsync(async (req, res) => {
+const updateCategory = catchAsync(async (req: Request, res: Response) => {
   const categoryData = req.body;
 
   if (req.file) {
@@ -80,7 +81,7 @@ const updateCategory = catchAsync(async (req, res) => {
   });
 });
 
-const deleteCategory = catchAsync(async (req, res) => {
+const deleteCategory = catchAsync(async (req: Request, res: Response) => {
   await categoryServices.deleteCategory(req.params.id as string);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -90,7 +91,7 @@ const deleteCategory = catchAsync(async (req, res) => {
   });
 });
 
-const bulkStatusUpdate = catchAsync(async (req, res) => {
+const bulkStatusUpdate = catchAsync(async (req: Request, res: Response) => {
   const { ids, isActive } = req.body;
   await categoryServices.bulkStatusUpdate(ids, isActive);
   sendResponse(res, {
@@ -101,7 +102,7 @@ const bulkStatusUpdate = catchAsync(async (req, res) => {
   });
 });
 
-const bulkDelete = catchAsync(async (req, res) => {
+const bulkDelete = catchAsync(async (req: Request, res: Response) => {
   const { ids } = req.body;
   await categoryServices.bulkDelete(ids);
   sendResponse(res, {
@@ -112,7 +113,7 @@ const bulkDelete = catchAsync(async (req, res) => {
   });
 });
 
-const updateSortOrder = catchAsync(async (req, res) => {
+const updateSortOrder = catchAsync(async (req: Request, res: Response) => {
   const { items } = req.body;
   await categoryServices.updateSortOrder(items);
   sendResponse(res, {
@@ -123,7 +124,7 @@ const updateSortOrder = catchAsync(async (req, res) => {
   });
 });
 
-const getNextOrder = catchAsync(async (req, res) => {
+const getNextOrder = catchAsync(async (req: Request, res: Response) => {
   const result = await categoryServices.getNextSortOrder();
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -145,7 +146,7 @@ export const categoryControllers = {
   bulkDelete,
   updateSortOrder,
   getNextOrder,
-  checkName: catchAsync(async (req, res) => {
+  checkName: catchAsync(async (req: Request, res: Response) => {
     const { name } = req.query;
     if (!name) {
       return sendResponse(res, {

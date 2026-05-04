@@ -1,3 +1,4 @@
+import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
@@ -5,7 +6,7 @@ import { setAuthCookies, clearAuthCookies } from '../../utils/cookieHelper';
 import { authServices } from './auth.service';
 
 // ─── POST /api/v1/auth/register ───────────────────────────────────────────────
-const register = catchAsync(async (req, res) => {
+const register = catchAsync(async (req: Request, res: Response) => {
   const result = await authServices.register(req.body);
 
   sendResponse(res, {
@@ -17,7 +18,7 @@ const register = catchAsync(async (req, res) => {
 });
 
 // ─── POST /api/v1/auth/login ──────────────────────────────────────────────────
-const login = catchAsync(async (req, res) => {
+const login = catchAsync(async (req: Request, res: Response) => {
   const meta = {
     ip: req.ip || req.headers['x-forwarded-for']?.toString(),
     userAgent: req.headers['user-agent'],
@@ -40,7 +41,7 @@ const login = catchAsync(async (req, res) => {
 });
 
 // ─── POST /api/v1/auth/logout ─────────────────────────────────────────────────
-const logout = catchAsync(async (req, res) => {
+const logout = catchAsync(async (req: Request, res: Response) => {
   clearAuthCookies(res);
 
   sendResponse(res, {
@@ -52,7 +53,7 @@ const logout = catchAsync(async (req, res) => {
 });
 
 // ─── POST /api/v1/auth/refresh-token ─────────────────────────────────────────
-const refreshToken = catchAsync(async (req, res) => {
+const refreshToken = catchAsync(async (req: Request, res: Response) => {
   const token = req.cookies?.refreshToken || req.body?.refreshToken;
 
   const { accessToken } = await authServices.refreshAccessToken(token);
@@ -71,7 +72,7 @@ const refreshToken = catchAsync(async (req, res) => {
 });
 
 // ─── GET /api/v1/auth/me ──────────────────────────────────────────────────────
-const getMe = catchAsync(async (req, res) => {
+const getMe = catchAsync(async (req: Request, res: Response) => {
   const user = await authServices.getMe(req.user!.id as string);
 
   sendResponse(res, {
@@ -83,7 +84,7 @@ const getMe = catchAsync(async (req, res) => {
 });
 
 // ─── POST /api/v1/auth/forgot-password ───────────────────────────────────────
-const forgotPassword = catchAsync(async (req, res) => {
+const forgotPassword = catchAsync(async (req: Request, res: Response) => {
   await authServices.forgotPassword(req.body.email);
 
   // Always respond 200 to prevent email enumeration
@@ -96,7 +97,7 @@ const forgotPassword = catchAsync(async (req, res) => {
 });
 
 // ─── POST /api/v1/auth/verify-otp ────────────────────────────────────────────
-const verifyOtp = catchAsync(async (req, res) => {
+const verifyOtp = catchAsync(async (req: Request, res: Response) => {
   const result = await authServices.verifyOtp(req.body);
 
   sendResponse(res, {
@@ -108,7 +109,7 @@ const verifyOtp = catchAsync(async (req, res) => {
 });
 
 // ─── POST /api/v1/auth/reset-password ────────────────────────────────────────
-const resetPassword = catchAsync(async (req, res) => {
+const resetPassword = catchAsync(async (req: Request, res: Response) => {
   await authServices.resetPassword(req.body);
 
   sendResponse(res, {
@@ -120,7 +121,7 @@ const resetPassword = catchAsync(async (req, res) => {
 });
 
 // ─── PATCH /api/v1/auth/change-password ──────────────────────────────────────
-const changePassword = catchAsync(async (req, res) => {
+const changePassword = catchAsync(async (req: Request, res: Response) => {
   await authServices.changePassword(req.user!.id as string, req.body);
 
   // Invalidate cookies — user must re-login

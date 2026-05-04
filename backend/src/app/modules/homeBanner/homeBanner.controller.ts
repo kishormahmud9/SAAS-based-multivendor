@@ -1,9 +1,10 @@
+import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { homeBannerServices } from './homeBanner.service';
 
-const createHomeBanner = catchAsync(async (req, res) => {
+const createHomeBanner = catchAsync(async (req: Request, res: Response) => {
   const result = await homeBannerServices.createHomeBanner(req.body, req.file);
 
   sendResponse(res, {
@@ -14,7 +15,7 @@ const createHomeBanner = catchAsync(async (req, res) => {
   });
 });
 
-const getAllBanners = catchAsync(async (req, res) => {
+const getAllBanners = catchAsync(async (req: Request, res: Response) => {
   const result = await homeBannerServices.getAllBanners(req.query);
 
   sendResponse(res, {
@@ -25,7 +26,7 @@ const getAllBanners = catchAsync(async (req, res) => {
   });
 });
 
-const getSingleBanner = catchAsync(async (req, res) => {
+const getSingleBanner = catchAsync(async (req: Request, res: Response) => {
   const result = await homeBannerServices.getSingleBanner(req.params.id as string);
 
   sendResponse(res, {
@@ -36,7 +37,7 @@ const getSingleBanner = catchAsync(async (req, res) => {
   });
 });
 
-const updateHomeBanner = catchAsync(async (req, res) => {
+const updateHomeBanner = catchAsync(async (req: Request, res: Response) => {
   const result = await homeBannerServices.updateHomeBanner(req.params.id as string, req.body, req.file);
 
   sendResponse(res, {
@@ -47,7 +48,7 @@ const updateHomeBanner = catchAsync(async (req, res) => {
   });
 });
 
-const deleteHomeBanner = catchAsync(async (req, res) => {
+const deleteHomeBanner = catchAsync(async (req: Request, res: Response) => {
   const result = await homeBannerServices.deleteHomeBanner(req.params.id as string);
 
   sendResponse(res, {

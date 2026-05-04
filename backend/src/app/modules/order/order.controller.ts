@@ -1,9 +1,10 @@
+import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { orderRepository } from './order.repository';
 
-const getOrderHistory = catchAsync(async (req, res) => {
+const getOrderHistory = catchAsync(async (req: Request, res: Response) => {
   const result = await orderRepository.getOrderHistory(req.user!.id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -13,7 +14,7 @@ const getOrderHistory = catchAsync(async (req, res) => {
   });
 });
 
-const getOrderDetails = catchAsync(async (req, res) => {
+const getOrderDetails = catchAsync(async (req: Request, res: Response) => {
   const result = await orderRepository.getOrderDetails(req.params.id as string, req.user!.id);
   sendResponse(res, {
     statusCode: httpStatus.OK,

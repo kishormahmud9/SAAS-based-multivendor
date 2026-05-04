@@ -1,9 +1,10 @@
+import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { subscriptionServices } from './subscription.service';
 
-const getAllPlans = catchAsync(async (req, res) => {
+const getAllPlans = catchAsync(async (req: Request, res: Response) => {
   const result = await subscriptionServices.getPlans();
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -13,7 +14,7 @@ const getAllPlans = catchAsync(async (req, res) => {
   });
 });
 
-const buySubscription = catchAsync(async (req, res) => {
+const buySubscription = catchAsync(async (req: Request, res: Response) => {
   const { planId } = req.body;
   const result = await subscriptionServices.subscribe(req.tenant!.storeId!, planId);
   sendResponse(res, {
@@ -24,7 +25,7 @@ const buySubscription = catchAsync(async (req, res) => {
   });
 });
 
-const getMySub = catchAsync(async (req, res) => {
+const getMySub = catchAsync(async (req: Request, res: Response) => {
   const result = await subscriptionServices.getMySubscription(req.tenant!.storeId!);
   sendResponse(res, {
     statusCode: httpStatus.OK,
