@@ -3,7 +3,7 @@ import ApiError from '../../errors/ApiError';
 import { homeBannerRepository } from './homeBanner.repository';
 import { optimizeAndSaveImage } from '../../utils/uploadHandler';
 
-const createHomeBanner = async (data: any, file: Express.Multer.File | undefined) => {
+const createHomeBanner = async (data: any, file: any) => {
   let imageUrl = data.image;
 
   if (file) {
@@ -42,7 +42,7 @@ const getSingleBanner = async (id: string) => {
   return banner;
 };
 
-const updateHomeBanner = async (id: string, data: any, file: Express.Multer.File | undefined) => {
+const updateHomeBanner = async (id: string, data: any, file: any) => {
   const isExist = await homeBannerRepository.getById(id);
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Banner not found');

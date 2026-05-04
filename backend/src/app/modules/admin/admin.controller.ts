@@ -239,7 +239,7 @@ const createProduct = catchAsync(async (req, res) => {
   // 1. Handle Images
   const images: string[] = [];
   if (req.files && Array.isArray(req.files)) {
-    for (const file of req.files as Express.Multer.File[]) {
+    for (const file of req.files as any[]) {
       const url = await optimizeAndSaveImage(file, 'products');
       images.push(url);
     }
@@ -321,7 +321,7 @@ const updateProduct = catchAsync(async (req, res) => {
   
   if (req.files && Array.isArray(req.files) && (req.files as any[]).length > 0) {
     const newImages: string[] = [];
-    for (const file of req.files as Express.Multer.File[]) {
+    for (const file of req.files as any[]) {
       const url = await optimizeAndSaveImage(file, 'products');
       newImages.push(url);
     }
