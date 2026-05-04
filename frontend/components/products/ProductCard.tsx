@@ -111,15 +111,15 @@ export default function ProductCard({ id, name, price, salePrice, image, categor
                         {salePrice ? (
                             <>
                                 <span className="text-xl font-bold text-gray-900 leading-none">
-                                    ${salePrice}
+                                    ৳{salePrice}
                                 </span>
                                 <span className="text-xs text-gray-400 line-through mt-1">
-                                    ${price}
+                                    ৳{price}
                                 </span>
                             </>
                         ) : (
                             <span className="text-xl font-bold text-gray-900 leading-none">
-                                ${price}
+                                ৳{price}
                             </span>
                         )}
                     </div>

@@ -86,9 +86,36 @@ const syncGuestCart = async (userId: string, guestItems: any[]) => {
   }
 };
 
+const updateQuantity = async (userId: string, itemId: string, quantity: number) => {
+  const cart = await (prisma as any).cart.findUnique({ where: { userId } });
+  if (!cart) throw new Error('Cart not found');
+
+  if (quantity <= 0) {
+    return await (prisma as any).cartItem.delete({
+      where: { id: itemId, cartId: cart.id },
+    });
+  }
+
+  return await (prisma as any).cartItem.update({
+    where: { id: itemId, cartId: cart.id },
+    data: { quantity },
+  });
+};
+
+const removeItem = async (userId: string, itemId: string) => {
+  const cart = await (prisma as any).cart.findUnique({ where: { userId } });
+  if (!cart) throw new Error('Cart not found');
+
+  return await (prisma as any).cartItem.delete({
+    where: { id: itemId, cartId: cart.id },
+  });
+};
+
 export const cartRepository = {
   getCart,
   updateCartItem,
   clearCart,
   syncGuestCart,
+  updateQuantity,
+  removeItem,
 };

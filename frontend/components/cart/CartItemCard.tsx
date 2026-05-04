@@ -6,6 +6,7 @@ import Link from "next/link"
 import { Trash2, Plus, Minus } from "lucide-react"
 import { toast } from "react-hot-toast"
 import ConfirmModal from "../ui/ConfirmModal"
+import { getImageUrl } from "@/src/lib/image-utils"
 
 interface CartItem {
     id: string
@@ -26,8 +27,8 @@ interface CartItem {
 
 interface CartItemCardProps {
     item: any // Use any to bypass strict type check for now or import unified type
-    onUpdate: (productId: string, quantity: number) => Promise<void>
-    onRemove: (productId: string) => Promise<void>
+    onUpdate: (itemId: string, quantity: number) => Promise<void>
+    onRemove: (itemId: string) => Promise<void>
 }
 
 export default function CartItemCard({ item, onUpdate, onRemove }: CartItemCardProps) {
@@ -44,7 +45,7 @@ export default function CartItemCard({ item, onUpdate, onRemove }: CartItemCardP
 
         setUpdating(true)
         try {
-            await onUpdate(item.productId, newQuantity)
+            await onUpdate(item.id, newQuantity)
         } catch (error) {
             toast.error("Failed to update quantity")
         } finally {
@@ -56,7 +57,7 @@ export default function CartItemCard({ item, onUpdate, onRemove }: CartItemCardP
         setIsConfirmModalOpen(false)
         setRemoving(true)
         try {
-            await onRemove(item.productId)
+            await onRemove(item.id)
             toast.success("Item removed from cart")
         } catch (error) {
             toast.error("Failed to remove item")
@@ -65,123 +66,113 @@ export default function CartItemCard({ item, onUpdate, onRemove }: CartItemCardP
     }
 
     return (
-        <div className={`bg-white rounded-xl shadow-md p-4 md:p-6 transition-all ${removing ? 'opacity-50' : 'hover:shadow-lg border border-transparent hover:border-orange-100'}`}>
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-                {/* Product Image & Title Row (Mobile) / Left Column (Desktop) */}
-                <div className="flex gap-4 sm:block flex-shrink-0">
-                    <Link href={`/product/${item.product.slug}`} className="flex-shrink-0">
-                        <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden border border-gray-100">
+        <div className={`group relative bg-white rounded-2xl p-3 sm:p-4 transition-all duration-300 ${removing ? 'opacity-50 grayscale' : 'hover:shadow-xl hover:shadow-orange-100/30 border border-gray-100 hover:border-orange-200'}`}>
+            {/* Unique Decorative Element */}
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-orange-50 to-transparent rounded-tr-2xl -z-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+            <div className="relative z-10 flex flex-col sm:flex-row gap-4">
+                {/* Image Section */}
+                <div className="relative flex-shrink-0">
+                    <Link href={`/product/${item.product.slug}`} className="block">
+                        <div className="relative w-20 h-20 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 shadow-inner">
                             <Image
-                                src={item.product.images[0] || "/placeholder.png"}
+                                src={getImageUrl(item.product.images[0])}
                                 alt={item.product.name}
                                 fill
-                                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                unoptimized
+                                className="object-cover transition-transform duration-500 group-hover:scale-110"
                             />
                         </div>
                     </Link>
-                    
-                    {/* Mobile Only: Title & Info next to image */}
-                    <div className="sm:hidden flex-1 min-w-0">
-                        <div className="flex justify-between items-start gap-2">
-                            <Link
-                                href={`/product/${item.product.slug}`}
-                                className="font-bold text-gray-900 hover:text-orange-600 transition-colors line-clamp-2 leading-tight"
-                            >
-                                {item.product.name}
-                            </Link>
-                            <button
-                                onClick={() => setIsConfirmModalOpen(true)}
-                                disabled={removing}
-                                className="text-gray-400 hover:text-red-500 p-1.5 bg-gray-50 rounded-lg transition-colors flex-shrink-0"
-                                aria-label="Remove item"
-                            >
-                                <Trash2 size={18} />
-                            </button>
+                    {item.product.salePrice && (
+                        <div className="absolute -top-1 -left-1 bg-orange-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md shadow-lg uppercase tracking-wider">
+                            Sale
                         </div>
-                        <p className="text-xs text-gray-500 mt-1 truncate">
-                            {item.product.category?.name || "Uncategorized"}
-                            {item.product.brand && ` • ${item.product.brand.name}`}
-                        </p>
-                    </div>
+                    )}
                 </div>
 
-                {/* Right Content Area */}
-                <div className="flex-1 flex flex-col justify-between">
-                    {/* Desktop Only: Title Row */}
-                    <div className="hidden sm:flex justify-between items-start gap-4 mb-2">
-                        <div className="min-w-0">
+                {/* Content Section */}
+                <div className="flex-1 flex flex-col">
+                    <div className="flex justify-between items-start gap-4">
+                        <div className="space-y-0.5">
                             <Link
                                 href={`/product/${item.product.slug}`}
-                                className="text-lg font-bold text-gray-900 hover:text-orange-600 transition-colors truncate block"
+                                className="text-base sm:text-lg font-bold text-gray-900 hover:text-orange-600 transition-colors line-clamp-1"
                             >
                                 {item.product.name}
                             </Link>
-                            <p className="text-sm text-gray-600">
-                                {item.product.category?.name || "Uncategorized"}
-                                {item.product.brand && ` • ${item.product.brand.name}`}
-                            </p>
+                            <div className="flex items-center gap-2">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-50 text-blue-700">
+                                    {item.product.category?.name || "Uncategorized"}
+                                </span>
+                                {item.product.brand && (
+                                    <span className="text-[10px] text-gray-400 font-medium">
+                                        by {item.product.brand.name}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                         <button
                             onClick={() => setIsConfirmModalOpen(true)}
                             disabled={removing}
-                            className="text-gray-400 hover:text-red-500 p-2 bg-gray-50 hover:bg-red-50 rounded-xl transition-all"
+                            className="text-gray-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-all duration-200"
                             aria-label="Remove item"
                         >
-                            <Trash2 size={20} />
+                            <Trash2 size={18} />
                         </button>
                     </div>
 
-                    {/* Pricing & Controls Row */}
-                    <div className="flex flex-wrap items-end justify-between gap-4">
-                        {/* Unit Price & Quantity */}
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-2">
-                                <span className="text-lg font-bold text-orange-600">
-                                    ${Number(currentPrice).toFixed(2)}
+                    <div className="mt-auto pt-3 flex flex-wrap items-end justify-between gap-3">
+                        <div className="flex flex-col gap-2">
+                            {/* Price Display */}
+                            <div className="flex items-baseline gap-1.5">
+                                <span className="text-xl font-black text-gray-900">
+                                    ৳{Number(currentPrice).toFixed(2)}
                                 </span>
                                 {item.product.salePrice && (
-                                    <span className="text-sm text-gray-400 line-through">
-                                        ${Number(item.product.price).toFixed(2)}
+                                    <span className="text-[11px] text-gray-400 line-through font-medium">
+                                        ৳{Number(item.product.price).toFixed(2)}
                                     </span>
                                 )}
                             </div>
 
+                            {/* Quantity Controls */}
                             <div className="flex items-center gap-3">
-                                <div className="flex items-center p-1 bg-gray-50 rounded-xl border border-gray-100">
+                                <div className="flex items-center bg-gray-50 rounded-xl p-0.5 border border-gray-100 shadow-sm">
                                     <button
                                         onClick={() => handleQuantityChange(item.quantity - 1)}
                                         disabled={updating || item.quantity <= 1}
-                                        className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white hover:text-orange-600 hover:shadow-sm disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                        className="w-7 h-7 rounded-lg flex items-center justify-center bg-white text-gray-600 hover:text-orange-600 shadow-sm hover:shadow-md disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95"
                                     >
-                                        <Minus size={14} />
+                                        <Minus size={12} />
                                     </button>
 
-                                    <span className="w-8 text-center font-bold text-gray-700">
+                                    <span className="w-8 text-center font-bold text-gray-800 text-sm">
                                         {item.quantity}
                                     </span>
 
                                     <button
                                         onClick={() => handleQuantityChange(item.quantity + 1)}
                                         disabled={updating || item.quantity >= item.product.stock}
-                                        className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white hover:text-orange-600 hover:shadow-sm disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                        className="w-7 h-7 rounded-lg flex items-center justify-center bg-white text-gray-600 hover:text-orange-600 shadow-sm hover:shadow-md disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95"
                                     >
-                                        <Plus size={14} />
+                                        <Plus size={12} />
                                     </button>
                                 </div>
                                 
                                 {item.product.stock < 10 && (
-                                    <span className="text-[10px] sm:text-xs font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded-full uppercase tracking-tighter sm:tracking-normal">
-                                        Only {item.product.stock} Left
+                                    <span className="text-[9px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full uppercase tracking-widest">
+                                        Low Stock
                                     </span>
                                 )}
                             </div>
                         </div>
 
-                        {/* Line Subtotal */}
+                        {/* Subtotal Section */}
                         <div className="text-right">
-                            <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-0.5">Subtotal</p>
-                            <p className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
-                                ${itemTotal.toFixed(2)}
+                            <p className="text-[9px] text-gray-400 uppercase font-bold tracking-[0.15em] mb-0.5">Subtotal</p>
+                            <p className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 tracking-tighter">
+                                ৳{itemTotal.toFixed(2)}
                             </p>
                         </div>
                     </div>
@@ -193,7 +184,7 @@ export default function CartItemCard({ item, onUpdate, onRemove }: CartItemCardP
                 onClose={() => setIsConfirmModalOpen(false)}
                 onConfirm={handleRemove}
                 title="Remove Item"
-                message="Are you sure you want to remove this item from your cart?"
+                message={`Are you sure you want to remove ${item.product.name} from your cart?`}
                 confirmText="Remove"
                 variant="danger"
             />

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { apiClient } from "@/src/lib/api-client"
 import { Save, X, Loader2, Upload, Trash2 } from "lucide-react"
 import { toast } from "react-hot-toast"
 
@@ -31,6 +32,7 @@ export default function BannerModal({ isOpen, onClose, onSuccess, initialData }:
         targetDate: "",
         image: "",
         type: "CAROUSEL",
+        order: 0,
     })
     const [selectedFile, setSelectedFile] = useState<{ file: File; preview: string } | null>(null)
     const [uploading, setUploading] = useState(false)
@@ -45,6 +47,7 @@ export default function BannerModal({ isOpen, onClose, onSuccess, initialData }:
                 targetDate: initialData.targetDate ? new Date(initialData.targetDate).toISOString().split('T')[0] : "",
                 image: initialData.image || "",
                 type: initialData.type || "CAROUSEL",
+                order: initialData.order || 0,
             })
         } else {
             setFormData({
@@ -55,6 +58,7 @@ export default function BannerModal({ isOpen, onClose, onSuccess, initialData }:
                 targetDate: "",
                 image: "",
                 type: "CAROUSEL",
+                order: 0,
             })
         }
         setSelectedFile(null)
@@ -76,58 +80,40 @@ export default function BannerModal({ isOpen, onClose, onSuccess, initialData }:
         })
     }
 
-    const uploadFile = async (file: File) => {
-        setUploading(true)
-        try {
-            const formData = new FormData()
-            formData.append("file", file)
-            const res = await fetch("/api/upload", {
-                method: "POST",
-                body: formData,
-                credentials: 'include',
-            })
-            const data = await res.json()
-            return data.success ? data.url : null
-        } catch (error) {
-            toast.error("Upload failed")
-            return null
-        } finally {
-            setUploading(false)
-        }
-    }
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
 
         try {
-            let imageUrl = formData.image
-            if (selectedFile) {
-                const uploadedUrl = await uploadFile(selectedFile.file)
-                if (!uploadedUrl) return
-                imageUrl = uploadedUrl
-            }
-
-            const url = initialData ? `/api/admin/banners/${initialData.id}` : "/api/admin/banners"
-            const method = initialData ? "PATCH" : "POST"
-
-            const response = await fetch(url, {
-                method,
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ...formData, image: imageUrl }),
-                credentials: 'include',
+            const submitData = new FormData()
+            
+            // Append all form fields
+            Object.entries(formData).forEach(([key, value]) => {
+                if (value !== null && value !== undefined) {
+                    submitData.append(key, value.toString())
+                }
             })
 
-            const data = await response.json()
+            // Append file if selected
+            if (selectedFile) {
+                submitData.append('image', selectedFile.file)
+            }
+
+            const endpoint = initialData ? `/home-banners/${initialData.id}` : "/home-banners"
+            const method = initialData ? "PATCH" : "POST"
+
+            const data = await apiClient(endpoint, {
+                method,
+                body: submitData
+            })
+
             if (data.success) {
                 toast.success(initialData ? "Banner updated" : "Banner created")
                 onSuccess()
                 onClose()
-            } else {
-                toast.error(data.error || "Error saving banner")
             }
-        } catch (error) {
-            toast.error("Network error")
+        } catch (error: any) {
+            toast.error(error.message || "Error saving banner")
         } finally {
             setLoading(false)
         }
@@ -198,6 +184,17 @@ export default function BannerModal({ isOpen, onClose, onSuccess, initialData }:
                                 <option value="SOLID">Solid Color Gradient</option>
                                 <option value="IMAGE">Image Background</option>
                             </select>
+                        </div>
+                        <div className="col-span-2 md:col-span-1">
+                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500 mb-2 ml-1">Display Order</label>
+                            <input
+                                type="number"
+                                name="order"
+                                value={formData.order}
+                                onChange={handleChange}
+                                className="w-full border border-gray-200 dark:border-gray-800 rounded-2xl p-3.5 focus:ring-2 focus:ring-blue-600 outline-none bg-white dark:bg-gray-900/50 text-gray-900 dark:text-white font-medium transition-all"
+                                min="0"
+                            />
                         </div>
                     </div>
 

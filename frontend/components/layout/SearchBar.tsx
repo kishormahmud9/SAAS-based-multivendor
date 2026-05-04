@@ -3,10 +3,12 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Search, Loader2, Package, ChevronRight } from "lucide-react"
 import Image from "next/image"
 import { getImageUrl } from "@/src/lib/image-utils"
+import { apiClient } from "@/src/lib/api-client"
 
 interface Product {
     id: string;
     name: string;
+    slug: string;
     price: number;
     images?: string[];
     category?: {
@@ -17,7 +19,7 @@ interface Product {
 export default function SearchBar() {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const [query, setQuery] = useState(searchParams.get("q") || "")
+    const [query, setQuery] = useState(searchParams.get("searchTerm") || "")
     const [suggestions, setSuggestions] = useState<Product[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const [showSuggestions, setShowSuggestions] = useState(false)
@@ -29,8 +31,7 @@ export default function SearchBar() {
             if (query.trim().length >= 2) {
                 setIsLoading(true)
                 try {
-                    const res = await fetch(`/api/products/search?q=${encodeURIComponent(query)}&limit=6`)
-                    const result = await res.json()
+                    const result = await apiClient(`/products?searchTerm=${encodeURIComponent(query)}&limit=6`)
                     if (result.success) {
                         setSuggestions(result.data)
                         setShowSuggestions(true)
@@ -64,13 +65,13 @@ export default function SearchBar() {
         e?.preventDefault()
         if (query.trim()) {
             setShowSuggestions(false)
-            router.push(`/search?q=${encodeURIComponent(query.trim())}`)
+            router.push(`/shop?searchTerm=${encodeURIComponent(query.trim())}`)
         }
     }
 
-    const handleSuggestionClick = (productId: string) => {
+    const handleSuggestionClick = (slug: string) => {
         setShowSuggestions(false)
-        router.push(`/products/${productId}`)
+        router.push(`/product/${slug}`)
     }
 
     return (
@@ -100,7 +101,7 @@ export default function SearchBar() {
                         {suggestions.map((product) => (
                             <button
                                 key={product.id}
-                                onClick={() => handleSuggestionClick(product.id)}
+                                onClick={() => handleSuggestionClick(product.slug)}
                                 className="w-full flex items-center p-2.5 hover:bg-orange-50 rounded-xl transition-all duration-200 group text-left"
                             >
                                 <div className="w-12 h-12 rounded-lg bg-gray-100 flex-shrink-0 overflow-hidden border border-gray-100 relative">
@@ -121,7 +122,7 @@ export default function SearchBar() {
                                             {product.category?.name || "General"}
                                         </span>
                                         <span className="text-xs font-bold text-gray-400">
-                                            ${product.price}
+                                            ৳{product.price}
                                         </span>
                                     </div>
                                 </div>

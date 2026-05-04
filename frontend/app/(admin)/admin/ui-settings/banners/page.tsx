@@ -4,7 +4,8 @@ import { useState, useEffect } from "react"
 import BannerModal from "@/components/admin/modals/BannerModal"
 import { toast } from "react-hot-toast"
 import { Edit, Trash2, Plus, Image as ImageIcon } from "lucide-react"
-import { fetchWithAuth } from "@/lib/api/fetchWithAuth"
+import { adminService } from "@/src/services/admin.service"
+import { getImageUrl } from "@/src/lib/image-utils"
 import ConfirmModal from "@/components/ui/ConfirmModal"
 
 export default function BannersPage() {
@@ -16,11 +17,9 @@ export default function BannersPage() {
 
     const fetchBanners = async () => {
         try {
-            const res = await fetchWithAuth("/api/admin/banners")
-            const data = await res.json()
-            if (data.success) {
-                const carouselItems = data.data.filter((b: any) => b.type === "CAROUSEL")
-                setBanners(carouselItems)
+            const res = await adminService.getBanners()
+            if (res.success) {
+                setBanners(res.data)
             }
         } catch (error) {
             toast.error("Failed to load banners")
@@ -46,9 +45,8 @@ export default function BannersPage() {
     const handleDelete = async (id: string) => {
         setBannerToDelete(null)
         try {
-            const res = await fetchWithAuth(`/api/admin/banners/${id}`, { method: "DELETE" })
-            const data = await res.json()
-            if (data.success) {
+            const res = await adminService.deleteBanner(id)
+            if (res.success) {
                 toast.success("Banner deleted")
                 fetchBanners()
             }
@@ -98,7 +96,7 @@ export default function BannersPage() {
                                     <td className="p-4">
                                         <div className="w-16 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
                                             {banner.backgroundType === "IMAGE" && banner.image && !banner.image.includes("bg-") ? (
-                                                <img src={banner.image} alt="Preview" className="w-full h-full object-cover" />
+                                                <img src={getImageUrl(banner.image)} alt="Preview" className="w-full h-full object-cover" />
                                             ) : (
                                                 <div className={`w-full h-full flex items-center justify-center text-[8px] text-white/70 font-bold ${banner.image || 'bg-gray-200 dark:bg-gray-800'}`}>
                                                     {banner.backgroundType === "SOLID" ? "COLOR" : banner.backgroundType}

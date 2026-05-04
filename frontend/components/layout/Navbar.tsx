@@ -79,7 +79,7 @@ export default function Navbar() {
                             </button>
                             <button 
                                 onClick={toggleMenu}
-                                className="md:hidden p-2 hover:bg-orange-50 dark:hover:bg-gray-800 rounded-xl transition text-gray-500 active:scale-95"
+                                className="md:hidden p-2 hover:bg-orange-50 rounded-xl transition text-gray-500 active:scale-95"
                             >
                                 {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
                             </button>
@@ -116,11 +116,11 @@ export default function Navbar() {
             )}
 
             {/* Mobile Drawer */}
-            <div className={`fixed top-0 left-0 bottom-0 w-80 bg-white dark:bg-gray-950 z-[999] md:hidden transform transition-transform duration-300 ease-in-out shadow-2xl ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+            <div className={`fixed top-0 left-0 bottom-0 w-80 bg-white z-[999] md:hidden transform transition-transform duration-300 ease-in-out shadow-2xl ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
                 <div className="p-6 h-full flex flex-col">
                     <div className="flex items-center justify-between mb-8">
-                        <span className="text-2xl font-bold text-gray-900 dark:text-white font-display">Menu</span>
-                        <button onClick={toggleMenu} className="p-2 bg-gray-50 dark:bg-gray-900 rounded-xl text-gray-500">
+                        <span className="text-2xl font-bold text-gray-900 font-display">Menu</span>
+                        <button onClick={toggleMenu} className="p-2 bg-gray-50 rounded-xl text-gray-500">
                             <X size={20} />
                         </button>
                     </div>
@@ -136,8 +136,8 @@ export default function Navbar() {
                                         onClick={toggleMenu}
                                         className={`flex items-center justify-between p-3.5 rounded-2xl transition-all active:scale-[0.98] ${
                                             cat.special 
-                                                ? "bg-orange-50 dark:bg-orange-500/10 text-orange-600 font-bold" 
-                                                : "hover:bg-gray-50 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-300"
+                                                ? "bg-orange-50 text-orange-600 font-bold" 
+                                                : "hover:bg-gray-50 text-gray-700"
                                         }`}
                                     >
                                         <span className="text-sm">{cat.name}</span>
@@ -150,11 +150,11 @@ export default function Navbar() {
                         <div>
                             <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Need Help?</h3>
                             <div className="space-y-1">
-                                <Link onClick={toggleMenu} href="/track-order" className="flex items-center justify-between p-3.5 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-900 text-sm text-gray-700 dark:text-gray-300 transition-all">
+                                <Link onClick={toggleMenu} href="/track-order" className="flex items-center justify-between p-3.5 rounded-2xl hover:bg-gray-50 text-sm text-gray-700 transition-all">
                                     <span>Track Your Order</span>
                                     <ChevronRight size={16} className="opacity-40" />
                                 </Link>
-                                <Link onClick={toggleMenu} href="/about" className="flex items-center justify-between p-3.5 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-900 text-sm text-gray-700 dark:text-gray-300 transition-all">
+                                <Link onClick={toggleMenu} href="/about" className="flex items-center justify-between p-3.5 rounded-2xl hover:bg-gray-50 text-sm text-gray-700 transition-all">
                                     <span>About {process.env.NEXT_PUBLIC_APP_NAME || 'ReadyMart'}</span>
                                     <ChevronRight size={16} className="opacity-40" />
                                 </Link>
@@ -162,7 +162,7 @@ export default function Navbar() {
                         </div>
                     </div>
 
-                    <div className="pt-6 border-t border-gray-100 dark:border-gray-900 mt-auto">
+                    <div className="pt-6 border-t border-gray-100 mt-auto">
                         <Link 
                             href="/" 
                             onClick={toggleMenu}

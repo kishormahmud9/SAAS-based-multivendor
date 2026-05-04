@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { Minus, Plus } from "lucide-react"
 
 interface QuantitySelectorProps {
@@ -38,14 +37,14 @@ export default function QuantitySelector({
     }
 
     return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-100">
             <button
                 onClick={handleDecrement}
                 disabled={disabled || value <= min}
-                className="w-10 h-10 rounded-lg border-2 border-gray-300 flex items-center justify-center hover:border-orange-600 hover:text-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-50 hover:text-orange-600 disabled:opacity-20 disabled:cursor-not-allowed transition-all"
                 aria-label="Decrease quantity"
             >
-                <Minus size={18} />
+                <Minus size={14} />
             </button>
 
             <input
@@ -55,19 +54,17 @@ export default function QuantitySelector({
                 value={value}
                 onChange={handleInputChange}
                 disabled={disabled}
-                className="w-16 h-10 text-center border-2 border-gray-300 rounded-lg font-semibold text-lg focus:border-orange-600 focus:outline-none disabled:opacity-50"
+                className="w-10 h-7 text-center font-bold text-xs bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
 
             <button
                 onClick={handleIncrement}
                 disabled={disabled || value >= max}
-                className="w-10 h-10 rounded-lg border-2 border-gray-300 flex items-center justify-center hover:border-orange-600 hover:text-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-50 hover:text-orange-600 disabled:opacity-20 disabled:cursor-not-allowed transition-all"
                 aria-label="Increase quantity"
             >
-                <Plus size={18} />
+                <Plus size={14} />
             </button>
-
-            <span className="text-sm text-gray-500 ml-2">Max: {max}</span>
         </div>
     )
 }

@@ -2,7 +2,7 @@ import { apiClient } from '../lib/api-client';
 
 export const marketingService = {
   getBanners: async (): Promise<any> => {
-    return apiClient('/marketing/banners', {
+    return apiClient('/home-banners?isActive=true', {
       method: 'GET',
     });
   },

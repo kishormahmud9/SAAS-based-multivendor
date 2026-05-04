@@ -16,6 +16,7 @@ import { vendorRoutes } from '../modules/vendor/vendor.routes';
 import { subscriptionRoutes } from '../modules/subscription/subscription.routes';
 import { AttributeRoutes } from '../modules/attribute/attribute.routes';
 import { roleRoutes } from '../modules/role/role.routes';
+import { homeBannerRoutes } from '../modules/homeBanner/homeBanner.routes';
 
 const router = Router();
 
@@ -27,6 +28,7 @@ const moduleRoutes = [
   { path: '/payments', route: paymentRoutes },
   { path: '/products', route: productRoutes },
   { path: '/attributes', route: AttributeRoutes },
+  { path: '/home-banners', route: homeBannerRoutes },
 
 
 

@@ -98,11 +98,11 @@ export default function OrderSummary({
                                         {item.product.name}
                                     </h4>
                                     <p className="text-sm text-gray-500">
-                                        ${Number(item.product.salePrice || item.product.price).toFixed(2)}
+                                        ৳{Number(item.product.salePrice || item.product.price).toFixed(2)}
                                     </p>
                                 </div>
                                 <div className="text-sm font-semibold text-gray-900">
-                                    ${(Number(item.product.salePrice || item.product.price) * item.quantity).toFixed(2)}
+                                    ৳{(Number(item.product.salePrice || item.product.price) * item.quantity).toFixed(2)}
                                 </div>
                             </div>
                         ))}
@@ -167,16 +167,16 @@ export default function OrderSummary({
                 <div className="space-y-3 text-sm">
                     <div className="flex justify-between text-gray-600">
                         <span>Subtotal</span>
-                        <span>${subtotal.toFixed(2)}</span>
+                        <span>৳{subtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-gray-600">
                         <span>Shipping</span>
-                        <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
+                        <span>{shipping === 0 ? "Free" : `৳${shipping.toFixed(2)}`}</span>
                     </div>
                     {appliedCoupon && (
                         <div className="flex justify-between text-green-600 font-medium">
                             <span>Discount ({appliedCoupon.code})</span>
-                            <span>-${appliedCoupon.discountAmount.toFixed(2)}</span>
+                            <span>-৳{appliedCoupon.discountAmount.toFixed(2)}</span>
                         </div>
                     )}
                 </div>
@@ -185,7 +185,7 @@ export default function OrderSummary({
                     <div className="flex justify-between items-end">
                         <span className="text-base font-bold text-gray-900">Total</span>
                         <span className="text-2xl font-bold text-orange-600">
-                            ${Math.max(0, finalTotal).toFixed(2)}
+                            ৳{Math.max(0, finalTotal).toFixed(2)}
                         </span>
                     </div>
                 </div>

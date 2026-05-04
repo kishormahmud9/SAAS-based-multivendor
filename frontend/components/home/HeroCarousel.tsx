@@ -9,19 +9,15 @@ import { getImageUrl } from "@/src/lib/image-utils";
 const fallbackSlides = [
     {
         id: "1",
-        title: "Summer Collection 2024",
-        subtitle: "Experience the warmth with our vibrant new arrivals.",
-        link: "/shop?category=summer",
-        backgroundType: "SOLID",
-        gradient: "bg-gradient-to-r from-orange-400 to-red-500",
+        title: "Welcome to ReadyMart",
+        image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070",
+        link: "/shop",
     },
     {
         id: "2",
-        title: "Premium Men's Wear",
-        subtitle: "Sophistication meets comfort. Elevate your wardrobe.",
-        link: "/shop?category=men",
-        backgroundType: "SOLID",
-        gradient: "bg-gradient-to-r from-blue-900 to-blue-600",
+        title: "New Summer Arrivals",
+        image: "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?q=80&w=2070",
+        link: "/shop",
     }
 ];
 
@@ -33,10 +29,8 @@ export default function HeroCarousel() {
     const fetchSlides = async () => {
         try {
             const res = await marketingService.getBanners()
-            if (res.success) {
-                // Ensure we access data.data as per backend response format
-                const carouselItems = res.data.filter((b: any) => b.type === "CAROUSEL")
-                setSlides(carouselItems.length > 0 ? carouselItems : fallbackSlides)
+            if (res.success && res.data.length > 0) {
+                setSlides(res.data)
             } else {
                 setSlides(fallbackSlides)
             }
@@ -69,92 +63,75 @@ export default function HeroCarousel() {
 
     if (loading) {
         return (
-            <div className="w-full h-[500px] md:h-[600px] flex items-center justify-center bg-gray-50 border-b border-gray-100">
+            <div className="w-full h-[400px] md:h-[600px] flex items-center justify-center bg-gray-50 border-b border-gray-100">
                 <Loader2 className="animate-spin text-orange-500" size={40} />
             </div>
         )
     }
 
     return (
-        <div className="relative w-full h-[500px] md:h-[600px] overflow-hidden shadow-2xl bg-gray-900">
-            {slides.map((slide, index) => {
-                const isImageBg = slide.backgroundType === 'IMAGE';
-                const hasImage = !!slide.image;
-                const gradients = [
-                    "bg-gradient-to-r from-orange-400 to-red-500",
-                    "bg-gradient-to-r from-blue-900 to-blue-600",
-                    "bg-gradient-to-r from-pink-500 to-purple-600",
-                    "bg-gradient-to-r from-emerald-500 to-teal-700"
-                ];
-                const bgGradient = (slide.image && slide.image.startsWith('bg-')) ? slide.image : gradients[index % gradients.length];
-                
-                return (
-                    <div
-                        key={slide.id}
-                        className={`absolute top-0 left-0 w-full h-full flex items-center justify-center transition-all duration-1000 ease-in-out transform ${index === current ? "opacity-100 scale-100" : "opacity-0 scale-105"
-                            } ${!isImageBg ? bgGradient : ""}`}
-                        style={isImageBg && hasImage ? { backgroundImage: `url(${getImageUrl(slide.image)})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+        <div className="relative w-full h-[400px] md:h-[600px] overflow-hidden bg-gray-900 group">
+            {slides.map((slide, index) => (
+                <div
+                    key={slide.id}
+                    className={`absolute inset-0 w-full h-full transition-all duration-1000 ease-in-out transform ${
+                        index === current ? "opacity-100 scale-100" : "opacity-0 scale-105 pointer-events-none"
+                    }`}
+                >
+                    {/* Background Image */}
+                    <div 
+                        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                        style={{ backgroundImage: `url(${getImageUrl(slide.image)})` }}
                     >
-                        {/* Overlay Pattern for Solid BG */}
-                        {!isImageBg && (
-                            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-                        )}
-
-                        {/* Content logic: Hide text if IMAGE type */}
-                        {!isImageBg ? (
-                            <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-                                <h2 className={`text-5xl md:text-7xl font-extrabold mb-6 tracking-tight drop-shadow-lg text-white animate-fade-in-up`}>
-                                    {slide.title}
-                                </h2>
-                                <p className={`text-xl md:text-3xl mb-10 font-light tracking-wide drop-shadow-md text-white animate-fade-in-up delay-100`}>
-                                    {slide.subtitle}
-                                </p>
-                                {slide.link && (
-                                    <Link
-                                        href={slide.link}
-                                        className="group bg-white text-gray-900 px-10 py-4 rounded-full font-bold text-lg shadow-xl hover:shadow-2xl hover:bg-gray-100 transition duration-300 inline-flex items-center space-x-2 animate-bounce-subtle"
-                                    >
-                                        <span>Shop Now</span>
-                                        <ArrowRight className="group-hover:translate-x-1 transition duration-300" size={20} />
-                                    </Link>
-                                )}
-                            </div>
-                        ) : (
-                            /* If Image BG, we might still want the link if clickable */
-                            slide.link && (
-                                <Link href={slide.link} className="absolute inset-0 z-10 cursor-pointer">
-                                    <span className="sr-only">Go to offer</span>
-                                </Link>
-                            )
-                        )}
+                        {/* Dark Overlay for text readability */}
+                        <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors duration-500"></div>
                     </div>
-                )
-            })}
+
+                    {/* Content */}
+                    <div className="relative h-full container mx-auto px-6 flex flex-col justify-center items-start">
+                        <div className="max-w-2xl space-y-6">
+                             <h2 className={`text-4xl md:text-7xl font-black text-white leading-tight drop-shadow-2xl animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300`}>
+                                {slide.title}
+                            </h2>
+                            {slide.link && (
+                                <Link
+                                    href={slide.link}
+                                    className="inline-flex items-center gap-3 px-8 py-4 bg-orange-600 hover:bg-orange-500 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-orange-600/20 transition-all hover:scale-105 active:scale-95 animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-500"
+                                >
+                                    Shop Collection
+                                    <ArrowRight size={20} />
+                                </Link>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            ))}
 
             {/* Controls */}
             {slides.length > 1 && (
                 <>
                     <button
                         onClick={prevSlide}
-                        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm p-3 rounded-full hover:bg-white/40 text-white transition duration-300 border border-white/30"
+                        className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0"
                     >
-                        <ChevronLeft size={32} />
+                        <ChevronLeft size={24} />
                     </button>
                     <button
                         onClick={nextSlide}
-                        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm p-3 rounded-full hover:bg-white/40 text-white transition duration-300 border border-white/30"
+                        className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0"
                     >
-                        <ChevronRight size={32} />
+                        <ChevronRight size={24} />
                     </button>
 
                     {/* Indicators */}
-                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex space-x-3">
+                    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-3 px-4 py-2 bg-black/20 backdrop-blur-sm rounded-full border border-white/10">
                         {slides.map((_, index) => (
                             <button
                                 key={index}
                                 onClick={() => setCurrent(index)}
-                                className={`w-3 h-3 md:w-4 md:h-4 rounded-full transition-all duration-300 shadow-lg ${index === current ? "bg-white scale-125" : "bg-white/50 hover:bg-white/80"
-                                    }`}
+                                className={`h-1.5 rounded-full transition-all duration-500 ${
+                                    index === current ? "w-8 bg-orange-500" : "w-2 bg-white/40 hover:bg-white/60"
+                                }`}
                             />
                         ))}
                     </div>

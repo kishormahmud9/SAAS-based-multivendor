@@ -86,12 +86,34 @@ export const adminService = {
   },
 
   // ── Banners ────────────────────────────────────────────────────────────────
-  getBanners: async (): Promise<any> => {
-    return apiClient('/admin/banners', { method: 'GET' });
+  getBanners: async (params: string = ''): Promise<any> => {
+    return apiClient(`/home-banners${params ? `?${params}` : ''}`, { method: 'GET' });
+  },
+
+  getBannerById: async (id: string): Promise<any> => {
+    return apiClient(`/home-banners/${id}`, { method: 'GET' });
+  },
+
+  createBanner: async (data: any): Promise<any> => {
+    const isFormData = data instanceof FormData;
+    return apiClient('/home-banners', { 
+      method: 'POST', 
+      body: data,
+      headers: isFormData ? {} : { 'Content-Type': 'application/json' }
+    });
+  },
+
+  updateBanner: async (id: string, data: any): Promise<any> => {
+    const isFormData = data instanceof FormData;
+    return apiClient(`/home-banners/${id}`, { 
+      method: 'PATCH', 
+      body: data,
+      headers: isFormData ? {} : { 'Content-Type': 'application/json' }
+    });
   },
 
   deleteBanner: async (id: string): Promise<any> => {
-    return apiClient(`/admin/banners/${id}`, { method: 'DELETE' });
+    return apiClient(`/home-banners/${id}`, { method: 'DELETE' });
   },
 
   // ── Refunds ────────────────────────────────────────────────────────────────

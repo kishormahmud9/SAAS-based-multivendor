@@ -15,7 +15,7 @@ const faqData = [
             },
             {
                 q: "What are your shipping rates and delivery times?",
-                a: "Shipping is free for orders over $150. For other orders, rates depend on your location. Standard delivery takes 3-5 business days, while express shipping takes 1-2 business days."
+                a: "Shipping is free for orders over ৳150. For other orders, rates depend on your location. Standard delivery takes 3-5 business days, while express shipping takes 1-2 business days."
             },
             {
                 q: "Do you ship internationally?",
@@ -116,7 +116,7 @@ export default function FAQPage() {
     })).filter(group => group.questions.length > 0)
 
     return (
-        <div className="flex flex-col min-h-screen bg-white dark:bg-gray-950">
+        <div className="flex flex-col min-h-screen bg-white">
             {/* Header Section */}
             <section className="pt-20 pb-12 px-6">
                 <div className="container mx-auto text-center max-w-3xl">
@@ -124,10 +124,10 @@ export default function FAQPage() {
                         <HelpCircle size={16} />
                         <span className="text-xs font-black uppercase tracking-widest">Support Center</span>
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tighter mb-6 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
+                    <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter mb-6 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
                         Frequently Asked Questions
                     </h1>
-                    <p className="text-gray-500 dark:text-gray-400 font-medium text-lg leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+                    <p className="text-gray-500 font-medium text-lg leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
                         Everything you need to know about your ReadyMart experience. Find answers to common questions about orders, shipping, and more.
                     </p>
                 </div>
@@ -143,7 +143,7 @@ export default function FAQPage() {
                         <input 
                             type="text" 
                             placeholder="Search for answers..."
-                            className="w-full pl-14 pr-6 py-5 bg-white dark:bg-gray-900 rounded-[2rem] border-2 border-gray-100 dark:border-gray-800 focus:border-orange-600 dark:focus:border-orange-600 outline-none transition-all font-medium text-gray-900 dark:text-white shadow-xl shadow-gray-200/20 dark:shadow-none"
+                            className="w-full pl-14 pr-6 py-5 bg-white rounded-[2rem] border-2 border-gray-100 focus:border-orange-600 outline-none transition-all font-medium text-gray-900 shadow-xl shadow-gray-200/20"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -159,10 +159,10 @@ export default function FAQPage() {
                             {filteredData.map((group, groupIdx) => (
                                 <div key={groupIdx} className="space-y-6">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
+                                        <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center">
                                             {group.icon}
                                         </div>
-                                        <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight leading-none uppercase tracking-widest text-sm">
+                                        <h3 className="text-xl font-black text-gray-900 tracking-tight leading-none uppercase tracking-widest text-sm">
                                             {group.category}
                                         </h3>
                                     </div>
@@ -177,25 +177,25 @@ export default function FAQPage() {
                                                     className={`group transition-all duration-300 rounded-[2rem] border-2 ${
                                                         isOpen 
                                                         ? "bg-orange-600/5 border-orange-600/20" 
-                                                        : "bg-white dark:bg-gray-900/50 border-gray-50 dark:border-gray-800 hover:border-gray-100 dark:hover:border-gray-700"
+                                                        : "bg-white border-gray-50 hover:border-gray-100"
                                                     }`}
                                                 >
                                                     <button 
                                                         onClick={() => toggleAccordion(id)}
                                                         className="w-full flex items-center justify-between p-6 md:p-8 text-left"
                                                     >
-                                                        <span className="font-black text-gray-900 dark:text-white pr-8">
+                                                        <span className="font-black text-gray-900 pr-8">
                                                             {item.q}
                                                         </span>
                                                         <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-                                                            isOpen ? "bg-orange-600 text-white rotate-180" : "bg-gray-100 dark:bg-gray-800 text-gray-500"
+                                                            isOpen ? "bg-orange-600 text-white rotate-180" : "bg-gray-100 text-gray-500"
                                                         }`}>
                                                             {isOpen ? <Minus size={16} /> : <Plus size={16} />}
                                                         </div>
                                                     </button>
                                                     
                                                     <div className={`overflow-hidden transition-all duration-300 ${isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}`}>
-                                                        <div className="p-6 md:px-8 md:pb-8 pt-0 text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
+                                                        <div className="p-6 md:px-8 md:pb-8 pt-0 text-gray-500 font-medium leading-relaxed">
                                                             {item.a}
                                                         </div>
                                                     </div>
@@ -208,10 +208,10 @@ export default function FAQPage() {
                         </div>
                     ) : (
                         <div className="py-20 text-center">
-                            <div className="w-20 h-20 bg-gray-50 dark:bg-gray-900 rounded-[2rem] flex items-center justify-center text-gray-300 dark:text-gray-700 mx-auto mb-6">
+                            <div className="w-20 h-20 bg-gray-50 rounded-[2rem] flex items-center justify-center text-gray-300 mx-auto mb-6">
                                 <Search size={40} />
                             </div>
-                            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2 underline decoration-orange-600">No results found</h3>
+                            <h3 className="text-xl font-black text-gray-900 mb-2 underline decoration-orange-600">No results found</h3>
                             <p className="text-gray-500 font-medium">Try searching for different keywords or check out our popular topics.</p>
                             <button 
                                 onClick={() => setSearchTerm("")}

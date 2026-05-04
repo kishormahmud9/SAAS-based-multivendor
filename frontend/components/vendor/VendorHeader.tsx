@@ -9,7 +9,7 @@ import Link from "next/link"
 
 const MOCK_NOTIFICATIONS = [
     { id: 1, title: "New Order Received", desc: "Order #ORD-2241 was placed by a customer.", time: "5 mins ago", type: "order", icon: ShoppingBag, color: "text-blue-600 bg-blue-50 dark:bg-blue-900/20" },
-    { id: 2, title: "Withdrawal Approved", desc: "Your withdrawal request for $500 was approved.", time: "2 hours ago", type: "system", icon: Check, color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20" },
+    { id: 2, title: "Withdrawal Approved", desc: "Your withdrawal request for ৳500 was approved.", time: "2 hours ago", type: "system", icon: Check, color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20" },
     { id: 3, title: "Low Stock Alert", desc: "Wireless Headphones are running low (2 left).", time: "5 hours ago", type: "security", icon: AlertCircle, color: "text-orange-600 bg-orange-50 dark:bg-orange-900/20" },
 ]
 

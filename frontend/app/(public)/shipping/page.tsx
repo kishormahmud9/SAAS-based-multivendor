@@ -8,25 +8,25 @@ const shippingRates = [
         method: "Standard Shipping",
         time: "3-5 Business Days",
         cost: "FREE",
-        condition: "On orders over $150"
+        condition: "On orders over ৳150"
     },
     {
         method: "Standard Shipping",
         time: "3-5 Business Days",
-        cost: "$9.95",
-        condition: "On orders under $150"
+        cost: "৳9.95",
+        condition: "On orders under ৳150"
     },
     {
         method: "Express Shipping",
         time: "1-2 Business Days",
-        cost: "$19.95",
+        cost: "৳19.95",
         condition: "Available at checkout"
     },
     {
         method: "Next Day Delivery",
         time: "1 Business Day",
-        cost: "$29.95",
-        condition: "Order by 2PM EST"
+        cost: "৳29.95",
+        condition: "Order by 2PM BST"
     }
 ]
 

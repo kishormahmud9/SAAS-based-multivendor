@@ -92,10 +92,10 @@ export default function FeaturedProductCard({ id, name, price, salePrice, image,
                         <span className="text-xs text-gray-400 mb-0.5">Price</span>
                         <div className="flex items-baseline gap-2">
                             <span className="text-2xl font-black text-gray-900">
-                                ${salePrice || price}
+                                ৳{salePrice || price}
                             </span>
                             {salePrice && (
-                                <span className="text-sm text-gray-400 line-through">${price}</span>
+                                <span className="text-sm text-gray-400 line-through">৳{price}</span>
                             )}
                         </div>
                     </div>

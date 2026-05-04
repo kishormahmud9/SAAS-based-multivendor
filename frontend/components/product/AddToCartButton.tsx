@@ -35,7 +35,6 @@ export default function AddToCartButton({
     const handleAddToCart = async () => {
         setLoading(true)
         try {
-            // Prepare product data for guest cart
             const productData = {
                 id: productId,
                 name: productName,
@@ -65,29 +64,29 @@ export default function AddToCartButton({
             onClick={handleAddToCart}
             disabled={isDisabled}
             className={`
-                w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all flex items-center justify-center gap-3
+                w-full py-3.5 px-6 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2.5
                 ${added
-                    ? "bg-green-600 hover:bg-green-700 text-white"
-                    : "bg-orange-600 hover:bg-orange-700 text-white"
+                    ? "bg-emerald-600 text-white"
+                    : "bg-orange-600 text-white hover:bg-orange-700"
                 }
                 disabled:opacity-50 disabled:cursor-not-allowed
-                shadow-lg hover:shadow-xl
+                shadow-sm active:scale-[0.98]
             `}
         >
             {loading ? (
                 <>
-                    <Loader2 size={24} className="animate-spin" />
-                    Adding to Cart...
+                    <Loader2 size={16} className="animate-spin" />
+                    Processing...
                 </>
             ) : added ? (
                 <>
-                    <Check size={24} />
-                    Added to Cart
+                    <Check size={16} />
+                    Added to Bag
                 </>
             ) : (
                 <>
-                    <ShoppingCart size={24} />
-                    Add to Cart
+                    <ShoppingCart size={16} />
+                    Add to Bag
                 </>
             )}
         </button>

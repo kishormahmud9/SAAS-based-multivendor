@@ -33,13 +33,13 @@ export default function ConfirmModal({
                 {/* Icon Container */}
                 <div className={`mb-6 p-4 rounded-full ${
                     variant === "danger" 
-                        ? "bg-red-50 dark:bg-red-900/20 text-red-600" 
-                        : "bg-blue-50 dark:bg-blue-900/20 text-blue-600"
+                        ? "bg-red-50 text-red-600" 
+                        : "bg-blue-50 text-blue-600"
                 }`}>
                     <div className={`p-3 rounded-full ${
                         variant === "danger"
-                            ? "bg-red-100 dark:bg-red-900/40"
-                            : "bg-blue-100 dark:bg-blue-900/40"
+                            ? "bg-red-100"
+                            : "bg-blue-100"
                     }`}>
                         <AlertTriangle size={36} strokeWidth={2.5} />
                     </div>
@@ -47,7 +47,7 @@ export default function ConfirmModal({
                 
                 {/* Message */}
                 <div className="mb-8 px-2">
-                    <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
+                    <p className="text-gray-600 text-lg leading-relaxed">
                         {message}
                     </p>
                 </div>
@@ -58,7 +58,7 @@ export default function ConfirmModal({
                         variant="outline"
                         onClick={onClose}
                         disabled={isLoading}
-                        className="py-4 rounded-xl border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-bold transition-all"
+                        className="py-4 rounded-xl border-gray-200 text-gray-700 hover:bg-gray-50 font-bold transition-all"
                     >
                         {cancelText}
                     </Button>

@@ -15,11 +15,37 @@ const getCart = catchAsync(async (req, res) => {
 
 const updateCart = catchAsync(async (req, res) => {
   const { productId, variantId, quantity } = req.body;
-  const result = await cartRepository.updateCartItem(req.user!.id, productId, variantId || null, quantity);
+  await cartRepository.updateCartItem(req.user!.id, productId, variantId || null, quantity);
+  const result = await cartRepository.getCart(req.user!.id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Cart updated successfully',
+    data: result,
+  });
+});
+
+const updateQuantity = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { quantity } = req.body;
+  await cartRepository.updateQuantity(req.user!.id, id, quantity);
+  const result = await cartRepository.getCart(req.user!.id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Quantity updated successfully',
+    data: result,
+  });
+});
+
+const removeItem = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  await cartRepository.removeItem(req.user!.id, id);
+  const result = await cartRepository.getCart(req.user!.id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Item removed successfully',
     data: result,
   });
 });
@@ -38,4 +64,6 @@ export const cartControllers = {
   getCart,
   updateCart,
   syncCart,
+  updateQuantity,
+  removeItem,
 };
