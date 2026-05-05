@@ -96,8 +96,8 @@ export const adminService = {
 
   createBanner: async (data: any): Promise<any> => {
     const isFormData = data instanceof FormData;
-    return apiClient('/home-banners', { 
-      method: 'POST', 
+    return apiClient('/home-banners', {
+      method: 'POST',
       body: data,
       headers: isFormData ? {} : { 'Content-Type': 'application/json' }
     });
@@ -105,8 +105,8 @@ export const adminService = {
 
   updateBanner: async (id: string, data: any): Promise<any> => {
     const isFormData = data instanceof FormData;
-    return apiClient(`/home-banners/${id}`, { 
-      method: 'PATCH', 
+    return apiClient(`/home-banners/${id}`, {
+      method: 'PATCH',
       body: data,
       headers: isFormData ? {} : { 'Content-Type': 'application/json' }
     });
@@ -140,8 +140,8 @@ export const adminService = {
 
   createCategory: async (data: any): Promise<any> => {
     const isFormData = data instanceof FormData;
-    return apiClient('/categories', { 
-      method: 'POST', 
+    return apiClient('/categories', {
+      method: 'POST',
       body: data,
       headers: isFormData ? {} : { 'Content-Type': 'application/json' }
     });
@@ -149,8 +149,8 @@ export const adminService = {
 
   updateCategory: async (id: string, data: any): Promise<any> => {
     const isFormData = data instanceof FormData;
-    return apiClient(`/categories/${id}`, { 
-      method: 'PATCH', 
+    return apiClient(`/categories/${id}`, {
+      method: 'PATCH',
       body: data,
       headers: isFormData ? {} : { 'Content-Type': 'application/json' }
     });
@@ -161,23 +161,23 @@ export const adminService = {
   },
 
   bulkUpdateCategoryStatus: async (ids: string[], isActive: boolean): Promise<any> => {
-    return apiClient('/categories/bulk-status', { 
-      method: 'PATCH', 
-      body: { ids, isActive } 
+    return apiClient('/categories/bulk-status', {
+      method: 'PATCH',
+      body: { ids, isActive }
     });
   },
 
   bulkDeleteCategories: async (ids: string[]): Promise<any> => {
-    return apiClient('/categories/bulk-delete', { 
-      method: 'POST', 
-      body: { ids } 
+    return apiClient('/categories/bulk-delete', {
+      method: 'POST',
+      body: { ids }
     });
   },
 
   updateCategorySortOrder: async (items: { id: string, sortOrder: number }[]): Promise<any> => {
-    return apiClient('/categories/sort-order', { 
-      method: 'PATCH', 
-      body: { items } 
+    return apiClient('/categories/sort-order', {
+      method: 'PATCH',
+      body: { items }
     });
   },
 
@@ -187,6 +187,10 @@ export const adminService = {
 
   checkCategoryName: async (name: string): Promise<any> => {
     return apiClient(`/categories/check-name?name=${encodeURIComponent(name)}`, { method: 'GET' });
+  },
+
+  getAllCategories: async (): Promise<any> => {
+    return apiClient('/categories/get-all-categories', { method: 'GET' });
   },
 
   // ── Brands ─────────────────────────────────────────────────────────────────
@@ -204,8 +208,8 @@ export const adminService = {
 
   createBrand: async (data: any): Promise<any> => {
     const isFormData = data instanceof FormData;
-    return apiClient('/brands', { 
-      method: 'POST', 
+    return apiClient('/brands', {
+      method: 'POST',
       body: data,
       headers: isFormData ? {} : { 'Content-Type': 'application/json' }
     });
@@ -213,8 +217,8 @@ export const adminService = {
 
   updateBrand: async (id: string, data: any): Promise<any> => {
     const isFormData = data instanceof FormData;
-    return apiClient(`/brands/${id}`, { 
-      method: 'PATCH', 
+    return apiClient(`/brands/${id}`, {
+      method: 'PATCH',
       body: data,
       headers: isFormData ? {} : { 'Content-Type': 'application/json' }
     });
@@ -225,16 +229,16 @@ export const adminService = {
   },
 
   bulkUpdateBrandStatus: async (ids: string[], isActive: boolean): Promise<any> => {
-    return apiClient('/brands/bulk-status', { 
-      method: 'PATCH', 
-      body: { ids, isActive } 
+    return apiClient('/brands/bulk-status', {
+      method: 'PATCH',
+      body: { ids, isActive }
     });
   },
 
   bulkDeleteBrands: async (ids: string[]): Promise<any> => {
-    return apiClient('/brands/bulk-delete', { 
-      method: 'POST', 
-      body: { ids } 
+    return apiClient('/brands/bulk-delete', {
+      method: 'POST',
+      body: { ids }
     });
   },
 

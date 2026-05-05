@@ -105,7 +105,7 @@ const bulkDelete = async (ids: string[]) => {
   // Or just try and let it fail if constraints exist.
   // A safer way is to delete those with 0 products.
   return await (prisma as any).category.deleteMany({
-    where: { 
+    where: {
       id: { in: ids },
       products: { none: {} },
       children: { none: {} }
@@ -115,7 +115,7 @@ const bulkDelete = async (ids: string[]) => {
 
 const updateSortOrder = async (items: { id: string, sortOrder: number }[]) => {
   return await Promise.all(
-    items.map(item => 
+    items.map(item =>
       (prisma as any).category.update({
         where: { id: item.id },
         data: { sortOrder: item.sortOrder }
@@ -129,6 +129,10 @@ const getNextSortOrder = async () => {
   return maxOrder + 1;
 };
 
+const getAll = async () => {
+  return await categoryRepository.getAll();
+};
+
 export const categoryServices = {
   createCategory,
   updateCategory,
@@ -140,5 +144,6 @@ export const categoryServices = {
   bulkStatusUpdate,
   bulkDelete,
   updateSortOrder,
-  getNextSortOrder
+  getNextSortOrder,
+  getAll
 };

@@ -134,6 +134,16 @@ const getNextOrder = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAll = catchAsync(async (req: Request, res: Response) => {
+  const result = await categoryServices.getAll();
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Categories fetched successfully',
+    data: result,
+  });
+});
+
 export const categoryControllers = {
   createCategory,
   getAllTree,
@@ -146,6 +156,7 @@ export const categoryControllers = {
   bulkDelete,
   updateSortOrder,
   getNextOrder,
+  getAll,
   checkName: catchAsync(async (req: Request, res: Response) => {
     const { name } = req.query;
     if (!name) {
@@ -160,7 +171,7 @@ export const categoryControllers = {
       .replace(/[^\w\s-]/g, '')
       .replace(/[\s_]+/g, '-')
       .replace(/^-+|-+$/g, '');
-    
+
     const existing = await (prisma as any).category.findUnique({
       where: { slug }
     });

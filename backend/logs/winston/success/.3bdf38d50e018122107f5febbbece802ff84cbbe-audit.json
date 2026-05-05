@@ -154,6 +154,16 @@
             "date": 1777937423445,
             "name": "D:\\Kishor\\Others\\AI Powerd E-com\\backend\\logs\\winston\\success\\success-2026-05-05-05.log",
             "hash": "abcc8fde49ced5e851d0d2853366a2558f7d502044e9194d4814989ad677899e"
+        },
+        {
+            "date": 1777942138285,
+            "name": "D:\\Kishor\\Others\\AI Powerd E-com\\backend\\logs\\winston\\success\\success-2026-05-05-06.log",
+            "hash": "8dbb35bafdda900742d404f65c1a650174e89cb8a660ad2a0579d864dead01f9"
+        },
+        {
+            "date": 1777942959745,
+            "name": "D:\\Kishor\\Others\\AI Powerd E-com\\backend\\logs\\winston\\success\\success-2026-05-05-07.log",
+            "hash": "fd03ea314cf077fe31da948ec69a5221f8f99514fc46124ece90b5bb75d1f541"
         }
     ],
     "hashType": "sha256"

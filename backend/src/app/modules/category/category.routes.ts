@@ -15,6 +15,7 @@ router.get('/check-name', categoryControllers.checkName);
 router.get('/next-order', categoryControllers.getNextOrder);
 router.get('/', categoryControllers.getPaginated);
 router.get('/:id', categoryControllers.getSingleCategory);
+router.get('/get-all', categoryControllers.getAll);
 
 // ── Admin Protected Routes ────────────────────────────────────────────────────
 router.post(
@@ -65,5 +66,10 @@ router.delete(
   permission('categories:delete'),
   categoryControllers.deleteCategory
 );
+
+router.get('/get-all-categories',
+  requireAuth('ADMIN', 'SUPER_ADMIN'),
+  permission('categories:view'),
+  categoryControllers.getAll);
 
 export const categoryRoutes = router;

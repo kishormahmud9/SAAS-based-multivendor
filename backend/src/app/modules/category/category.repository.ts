@@ -99,7 +99,7 @@ const getDescendants = async (id: string): Promise<string[]> => {
   if (!category || !category.children.length) return [];
 
   let descendantIds: string[] = category.children.map((c: any) => c.id);
-  
+
   for (const child of category.children) {
     const subDescendants = await getDescendants(child.id);
     descendantIds = [...descendantIds, ...subDescendants];
@@ -117,6 +117,13 @@ const getMaxSortOrder = async () => {
   return result._max.sortOrder || 0;
 };
 
+const getAll = async () => {
+  const result = await (prisma as any).category.findMany({
+    orderBy: { sortOrder: 'asc' }
+  });
+  return result;
+};
+
 export const categoryRepository = {
   findById,
   findBySlug,
@@ -124,5 +131,6 @@ export const categoryRepository = {
   getPaginated,
   getAllFlat,
   getDescendants,
-  getMaxSortOrder
+  getMaxSortOrder,
+  getAll
 };

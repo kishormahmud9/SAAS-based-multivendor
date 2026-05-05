@@ -6,11 +6,11 @@ import Image from "next/image"
 import { useForm, useFieldArray, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { 
-    Plus, 
-    Save, 
-    Loader2, 
-    Type, 
+import {
+    Plus,
+    Save,
+    Loader2,
+    Type,
     X,
     Activity,
     AlertCircle,
@@ -68,24 +68,24 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
     const [categories, setCategories] = useState<any[]>([])
     const [brands, setBrands] = useState<any[]>([])
     const [allAttributes, setAllAttributes] = useState<any[]>([])
-    
+
     // Media State
     const [imageFiles, setImageFiles] = useState<File[]>([])
     const [imagePreviews, setImagePreviews] = useState<string[]>(initialData?.images || [])
-    
+
     // Variant State
     const [selectedAttributes, setSelectedAttributes] = useState<any[]>([]) // [{id, name, values: []}]
     const [variants, setVariants] = useState<any[]>(initialData?.variants || [])
 
-    const { 
-        register, 
-        handleSubmit, 
-        setValue, 
-        watch, 
-        setError, 
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        watch,
+        setError,
         clearErrors,
         control,
-        formState: { errors } 
+        formState: { errors }
     } = useForm<ProductFormValues>({
         resolver: zodResolver(productSchema),
         defaultValues: {
@@ -129,8 +129,8 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
     const fetchData = async () => {
         try {
             const [catRes, brandRes, attrRes] = await Promise.all([
-                adminService.getCategories(),
-                adminService.getBrands(),
+                adminService.getAllCategories(),
+                adminService.getBrandsFlat(),
                 adminService.getAttributes()
             ])
             if (catRes.success) setCategories(catRes.data)
@@ -140,6 +140,8 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
             console.error("Failed to fetch form data")
         }
     }
+
+    console.log("categories", categories);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || [])
@@ -152,7 +154,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
         })
 
         setImageFiles(prev => [...prev, ...validFiles])
-        
+
         validFiles.forEach(file => {
             const reader = new FileReader()
             reader.onloadend = () => {
@@ -178,9 +180,9 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
             if (attr.selectedValues.length === 0) return acc
             const newAcc: any[] = []
             if (acc.length === 0) {
-                return attr.selectedValues.map((val: string) => ({ 
+                return attr.selectedValues.map((val: string) => ({
                     [attr.name.toLowerCase()]: val,
-                    name: val 
+                    name: val
                 }))
             }
             acc.forEach((combo: any) => {
@@ -211,7 +213,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
         setLoading(true)
         try {
             const formData = new FormData()
-            
+
             // Append basic fields
             Object.entries(values).forEach(([key, value]) => {
                 if (value !== null && value !== undefined) {
@@ -229,7 +231,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
             }
 
             // Append flattened attributes for filtering
-            const flattenedAttributes = selectedAttributes.flatMap(attr => 
+            const flattenedAttributes = selectedAttributes.flatMap(attr =>
                 attr.selectedValues.map(val => ({ name: attr.name, value: val }))
             )
             if (flattenedAttributes.length > 0) {
@@ -247,10 +249,10 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                 formData.append('existingImages', JSON.stringify(existingImages))
             }
 
-            const res = isEdit 
+            const res = isEdit
                 ? await adminService.updateProduct(initialData.id, formData)
                 : await adminService.createProduct(formData)
-            
+
             if (res.success) {
                 toast.success(`Product ${isEdit ? 'updated' : 'created'} successfully`)
                 onSuccess?.(res.data?.id)
@@ -269,10 +271,10 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
     return (
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-10 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                
+
                 {/* Left Side: Product Content */}
                 <div className="lg:col-span-2 space-y-8">
-                    
+
                     {/* section: Basic Info */}
                     <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 border border-gray-100 dark:border-gray-800 shadow-sm space-y-8">
                         <div className="flex items-center gap-4">
@@ -286,7 +288,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                         </div>
 
                         <div className="space-y-6">
-                            <AdminInput 
+                            <AdminInput
                                 label="Product Name"
                                 placeholder="e.g. Nike Air Max 270"
                                 {...register("name")}
@@ -294,14 +296,14 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                             />
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <AdminInput 
+                                <AdminInput
                                     label="Slug (URL Identifier)"
                                     placeholder="auto-generated-slug"
                                     {...register("slug")}
                                     error={errors.slug?.message}
                                     readOnly
                                 />
-                                <AdminInput 
+                                <AdminInput
                                     label="Base SKU"
                                     placeholder="e.g. NIKE-AM270"
                                     {...register("sku")}
@@ -309,7 +311,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                                 />
                             </div>
 
-                            <AdminInput 
+                            <AdminInput
                                 label="Short Description"
                                 as="textarea"
                                 placeholder="A brief summary for listings..."
@@ -319,7 +321,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                                 className="resize-none"
                             />
 
-                            <AdminInput 
+                            <AdminInput
                                 label="Full Description"
                                 as="textarea"
                                 placeholder="Detailed product features and information..."
@@ -347,7 +349,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                             {imagePreviews.map((src, idx) => (
                                 <div key={idx} className="relative aspect-square rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 group shadow-sm">
                                     <Image src={getImageUrl(src)} alt="Preview" fill unoptimized className="w-full h-full object-cover transition-transform group-hover:scale-110" />
-                                    <button 
+                                    <button
                                         type="button"
                                         onClick={() => removeImage(idx)}
                                         className="absolute top-2 right-2 p-1.5 bg-rose-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:bg-rose-600 scale-75 group-hover:scale-100"
@@ -361,7 +363,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                                     )}
                                 </div>
                             ))}
-                            
+
                             {imagePreviews.length < 10 && (
                                 <label className="aspect-square rounded-2xl border-2 border-dashed border-gray-100 dark:border-gray-800 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-orange-500 hover:bg-orange-50/50 dark:hover:bg-orange-900/10 transition-all group">
                                     <Upload className="text-gray-300 group-hover:text-orange-500 transition-colors" size={24} />
@@ -385,7 +387,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                                 </div>
                             </div>
 
-                            <select 
+                            <select
                                 {...register("productType")}
                                 className="px-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-xs font-black uppercase tracking-widest text-gray-600 focus:ring-2 focus:ring-orange-500"
                             >
@@ -401,7 +403,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                                     <div className="flex items-center justify-between">
                                         <h4 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">Selected Attributes</h4>
                                         <div className="flex items-center gap-2">
-                                            <select 
+                                            <select
                                                 onChange={(e) => {
                                                     const attr = allAttributes.find(a => a.id === e.target.value)
                                                     if (attr && !selectedAttributes.find(a => a.id === attr.id)) {
@@ -424,8 +426,8 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                                                 <div className="flex-1 space-y-2">
                                                     <div className="flex items-center justify-between">
                                                         <span className="text-xs font-black text-gray-400 uppercase tracking-widest">{attr.name}</span>
-                                                        <button 
-                                                            type="button" 
+                                                        <button
+                                                            type="button"
                                                             onClick={() => setSelectedAttributes(prev => prev.filter((_, i) => i !== idx))}
                                                             className="text-rose-500 hover:bg-rose-50 p-1 rounded-lg transition-colors"
                                                         >
@@ -447,11 +449,10 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                                                                     }
                                                                     setSelectedAttributes(updated)
                                                                 }}
-                                                                className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all ${
-                                                                    attr.selectedValues.includes(v.value)
-                                                                        ? 'bg-orange-500 text-white shadow-sm'
-                                                                        : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
-                                                                }`}
+                                                                className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all ${attr.selectedValues.includes(v.value)
+                                                                    ? 'bg-orange-500 text-white shadow-sm'
+                                                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
+                                                                    }`}
                                                             >
                                                                 {v.value}
                                                             </button>
@@ -460,9 +461,9 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                                                 </div>
                                             </div>
                                         ))}
-                                        
+
                                         {selectedAttributes.length > 0 && (
-                                            <button 
+                                            <button
                                                 type="button"
                                                 onClick={generateVariants}
                                                 className="w-full py-3 bg-gray-900 dark:bg-orange-500 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:opacity-90 transition-all shadow-md"
@@ -493,7 +494,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                                                             <span className="text-xs font-black text-gray-900 dark:text-white">{v.name}</span>
                                                         </td>
                                                         <td className="px-6 py-4">
-                                                            <input 
+                                                            <input
                                                                 type="number"
                                                                 value={v.price}
                                                                 onChange={(e) => {
@@ -505,7 +506,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                                                             />
                                                         </td>
                                                         <td className="px-6 py-4">
-                                                            <input 
+                                                            <input
                                                                 type="number"
                                                                 value={v.stock}
                                                                 onChange={(e) => {
@@ -517,7 +518,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                                                             />
                                                         </td>
                                                         <td className="px-6 py-4">
-                                                            <input 
+                                                            <input
                                                                 type="text"
                                                                 value={v.sku}
                                                                 onChange={(e) => {
@@ -529,8 +530,8 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                                                             />
                                                         </td>
                                                         <td className="px-4 py-4">
-                                                            <button 
-                                                                type="button" 
+                                                            <button
+                                                                type="button"
                                                                 onClick={() => setVariants(prev => prev.filter((_, i) => i !== idx))}
                                                                 className="text-gray-300 hover:text-rose-500 transition-colors"
                                                             >
@@ -546,21 +547,21 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8 bg-emerald-50/20 dark:bg-emerald-900/5 rounded-3xl border border-emerald-100/50 dark:border-emerald-900/10">
-                                <AdminInput 
+                                <AdminInput
                                     label="Regular Price ($)"
                                     type="number"
                                     {...register("price", { valueAsNumber: true })}
                                     error={errors.price?.message}
                                     containerClassName="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-800"
                                 />
-                                <AdminInput 
+                                <AdminInput
                                     label="Sale Price ($)"
                                     type="number"
                                     {...register("salePrice", { valueAsNumber: true })}
                                     error={errors.salePrice?.message}
                                     containerClassName="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-800"
                                 />
-                                <AdminInput 
+                                <AdminInput
                                     label="Current Stock"
                                     type="number"
                                     {...register("stock", { valueAsNumber: true })}
@@ -580,7 +581,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
 
                 {/* Right Side: Settings & Status */}
                 <div className="space-y-8 sticky top-8">
-                    
+
                     {/* section: Status & Visibility */}
                     <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 border border-gray-100 dark:border-gray-800 shadow-sm space-y-6">
                         <div className="flex items-center gap-3 text-orange-500 mb-2">
@@ -588,7 +589,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                             <span className="text-[10px] font-black uppercase tracking-widest">Status & Visibility</span>
                         </div>
 
-                        <AdminInput 
+                        <AdminInput
                             label="Listing Status"
                             as="select"
                             {...register("status")}
@@ -619,7 +620,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                             <span className="text-[10px] font-black uppercase tracking-widest">Classification</span>
                         </div>
 
-                        <AdminInput 
+                        <AdminInput
                             label="Category"
                             as="select"
                             {...register("categoryId")}
@@ -631,7 +632,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                             ))}
                         </AdminInput>
 
-                        <AdminInput 
+                        <AdminInput
                             label="Brand"
                             as="select"
                             {...register("brandId")}
@@ -651,12 +652,12 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                             <span className="text-[10px] font-black uppercase tracking-widest">Marketplace SEO</span>
                         </div>
 
-                        <AdminInput 
+                        <AdminInput
                             label="Meta Title"
                             placeholder="Optimized product title..."
                             {...register("metaTitle")}
                         />
-                        <AdminInput 
+                        <AdminInput
                             label="Meta Description"
                             as="textarea"
                             rows={3}
@@ -668,7 +669,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
 
                     {/* Submit Actions */}
                     <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none space-y-4">
-                        <button 
+                        <button
                             type="submit"
                             disabled={loading}
                             className="w-full py-5 bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-[2rem] font-black shadow-xl shadow-orange-500/25 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 disabled:opacity-50"
@@ -677,7 +678,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                             {isEdit ? 'Save Product Changes' : 'Launch New Product'}
                         </button>
                         {onCancel && (
-                            <button 
+                            <button
                                 type="button"
                                 onClick={onCancel}
                                 className="w-full py-5 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded-[2rem] font-black hover:bg-gray-200 transition-all text-xs uppercase tracking-widest"
