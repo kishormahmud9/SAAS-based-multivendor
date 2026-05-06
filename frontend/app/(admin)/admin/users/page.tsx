@@ -65,7 +65,7 @@ export default function AdminUsersPage() {
                 status: statusFilter,
                 systemRole: systemRoleFilter
             }).toString()
-            
+
             const data = await adminService.getUsers(params)
             if (data.success) {
                 setUsers(data.data)
@@ -134,7 +134,7 @@ export default function AdminUsersPage() {
                     </h1>
                     <p className="text-sm text-gray-500 font-medium">Manage registered users and assign custom RBAC roles</p>
                 </div>
-                <Link 
+                <Link
                     href="/admin/users/create"
                     className="bg-orange-500 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-orange-600 transition-all flex items-center gap-2 shadow-xl shadow-orange-500/20 active:scale-95"
                 >
@@ -158,7 +158,7 @@ export default function AdminUsersPage() {
                     </div>
 
                     {/* Status Filter */}
-                    <select 
+                    <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
                         className="px-5 py-4 bg-gray-50 dark:bg-gray-800/50 border-2 border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium text-gray-700 dark:text-gray-300 transition-all appearance-none"
@@ -171,7 +171,7 @@ export default function AdminUsersPage() {
                     </select>
 
                     {/* Role Filter */}
-                    <select 
+                    <select
                         value={systemRoleFilter}
                         onChange={(e) => setSystemRoleFilter(e.target.value)}
                         className="px-5 py-4 bg-gray-50 dark:bg-gray-800/50 border-2 border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium text-gray-700 dark:text-gray-300 transition-all appearance-none"
@@ -218,12 +218,12 @@ export default function AdminUsersPage() {
                                             <div className="flex items-center gap-4">
                                                 <div className="relative w-12 h-12">
                                                     {user.avatar ? (
-                                                        <Image 
-                                                            src={getImageUrl(user.avatar)} 
-                                                            alt={user.name || ""} 
+                                                        <Image
+                                                            src={getImageUrl(user.avatar)}
+                                                            alt={user.name || ""}
                                                             fill
                                                             unoptimized
-                                                            className="rounded-2xl object-cover ring-2 ring-gray-100 dark:ring-gray-800 group-hover:scale-110 transition-transform duration-300" 
+                                                            className="rounded-2xl object-cover ring-2 ring-gray-100 dark:ring-gray-800 group-hover:scale-110 transition-transform duration-300"
                                                         />
                                                     ) : (
                                                         <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-2xl flex items-center justify-center text-gray-400 group-hover:scale-110 transition-transform duration-300">
@@ -243,11 +243,10 @@ export default function AdminUsersPage() {
                                         </td>
                                         <td className="px-6 py-5">
                                             <div className="space-y-1.5">
-                                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
-                                                    user.systemRole === 'SUPER_ADMIN' ? 'bg-rose-50 text-rose-600 dark:bg-rose-900/20' :
-                                                    user.systemRole === 'ADMIN' ? 'bg-purple-50 text-purple-600 dark:bg-purple-900/20' : 
-                                                    user.systemRole === 'VENDOR' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20' :
-                                                    'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20'
+                                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${user.systemRole === 'SUPER_ADMIN' ? 'bg-rose-50 text-rose-600 dark:bg-rose-900/20' :
+                                                        user.systemRole === 'ADMIN' ? 'bg-purple-50 text-purple-600 dark:bg-purple-900/20' :
+                                                            user.systemRole === 'VENDOR' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20' :
+                                                                'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20'
                                                     }`}>
                                                     <Shield size={10} />
                                                     {user.systemRole}
@@ -262,11 +261,10 @@ export default function AdminUsersPage() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-5">
-                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
-                                                user.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20' :
-                                                user.status === 'SUSPENDED' ? 'bg-rose-50 text-rose-600 dark:bg-rose-900/20' :
-                                                'bg-orange-50 text-orange-600 dark:bg-orange-900/20'
-                                            }`}>
+                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${user.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20' :
+                                                    user.status === 'SUSPENDED' ? 'bg-rose-50 text-rose-600 dark:bg-rose-900/20' :
+                                                        'bg-orange-50 text-orange-600 dark:bg-orange-900/20'
+                                                }`}>
                                                 <div className={`w-1 h-1 rounded-full ${user.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-current'}`} />
                                                 {user.status.replace('_', ' ')}
                                             </span>
@@ -339,25 +337,25 @@ export default function AdminUsersPage() {
 
             <Modal isOpen={assignModalOpen} onClose={() => setAssignModalOpen(false)} title={`Assign Roles to ${selectedUser?.name || 'User'}`} maxWidth="md">
                 {selectedUser?.systemRole === 'SUPER_ADMIN' ? (
-                     <div className="p-4 text-center">
-                         <Shield className="mx-auto text-red-500 mb-2" size={48} />
-                         <p className="text-gray-700 dark:text-gray-300 font-bold mb-1">Super Admin Account</p>
-                         <p className="text-sm text-gray-500">Super Admins inherently possess all permissions. Custom role assignments are bypassed.</p>
-                     </div>
+                    <div className="p-4 text-center">
+                        <Shield className="mx-auto text-red-500 mb-2" size={48} />
+                        <p className="text-gray-700 dark:text-gray-300 font-bold mb-1">Super Admin Account</p>
+                        <p className="text-sm text-gray-500">Super Admins inherently possess all permissions. Custom role assignments are bypassed.</p>
+                    </div>
                 ) : (
                     <div className="space-y-4">
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                             Select the custom RBAC roles you want to assign to this user. This will grant them the specific permissions associated with each role.
                         </p>
-                        
+
                         <div className="max-h-60 overflow-y-auto space-y-2 border border-gray-200 dark:border-gray-800 rounded-xl p-2 bg-gray-50 dark:bg-gray-900/50">
                             {allRoles.length === 0 ? (
                                 <p className="p-4 text-sm text-center text-gray-500">No custom roles found. Create roles in the Roles & Permissions page first.</p>
                             ) : (
                                 allRoles.map(role => (
                                     <label key={role.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-white dark:hover:bg-gray-800 cursor-pointer transition-colors border border-transparent hover:border-gray-200 dark:hover:border-gray-700 shadow-sm">
-                                        <input 
-                                            type="checkbox" 
+                                        <input
+                                            type="checkbox"
                                             checked={selectedRoleIds.has(role.id)}
                                             onChange={() => toggleRole(role.id)}
                                             className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
@@ -370,9 +368,9 @@ export default function AdminUsersPage() {
 
                         <div className="flex justify-end gap-3 pt-4">
                             <button onClick={() => setAssignModalOpen(false)} className="px-4 py-2 font-bold text-gray-500 hover:text-gray-700">Cancel</button>
-                            <button 
+                            <button
                                 onClick={handleAssignRoles}
-                                disabled={assigning || selectedUser?.systemRole === 'SUPER_ADMIN'}
+                                disabled={assigning}
                                 className="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold shadow-lg shadow-blue-600/20 disabled:opacity-50"
                             >
                                 {assigning ? "Saving..." : "Save Assignments"}
