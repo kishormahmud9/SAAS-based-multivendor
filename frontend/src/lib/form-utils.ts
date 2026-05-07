@@ -1,4 +1,5 @@
 import { UseFormSetError, FieldValues, Path } from "react-hook-form"
+import toast from "react-hot-toast"
 
 /**
  * Maps backend structured errors to React Hook Form errors.
@@ -18,11 +19,13 @@ export const handleBackendErrors = <T extends FieldValues>(
                 type: "server",
                 message: error.message
             })
+        } else {
+            toast.error(error.message)
         }
     })
 
     // Focus first error
-    const firstError = backendErrors[0]
+    const firstError = backendErrors.find(e => e.field)
     if (firstError?.field) {
         const element = document.querySelector(`[name="${firstError.field}"]`) as HTMLElement
         if (element) {

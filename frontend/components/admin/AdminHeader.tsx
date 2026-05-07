@@ -5,6 +5,8 @@ import { Bell, Search, User, Clock, Check, AlertCircle, ShoppingBag, ArrowRight,
 import { useAuth } from "@/lib/contexts/AuthContext"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import Link from "next/link"
+import toast from "react-hot-toast"
+import { useRouter } from "next/navigation"
 
 const MOCK_NOTIFICATIONS = [
     { id: 1, title: "New Order Received", desc: "Order #ORD-9923 was placed successfully.", time: "2 mins ago", type: "order", icon: ShoppingBag, color: "text-blue-600 bg-blue-50 dark:bg-blue-900/20" },
@@ -13,7 +15,8 @@ const MOCK_NOTIFICATIONS = [
 ]
 
 export default function AdminHeader() {
-    const { user } = useAuth()
+    const { user, logout } = useAuth()
+    const router = useRouter()
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
     const dropdownRef = useRef<HTMLDivElement>(null)
@@ -31,7 +34,18 @@ export default function AdminHeader() {
         document.addEventListener("mousedown", handleClickOutside)
         return () => document.removeEventListener("mousedown", handleClickOutside)
     }, [])
-    
+
+
+    const handleLogout = async () => {
+        try {
+            await logout()
+            toast.success("Successfully logged out")
+            router.push("/login")
+        } catch (error) {
+            toast.error("Logout failed")
+        }
+    }
+
     return (
         <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm sticky top-0 z-40 transition-colors duration-300">
             <div className="flex items-center justify-between px-8 py-4">
@@ -53,7 +67,7 @@ export default function AdminHeader() {
 
                     {/* Notifications */}
                     <div className="relative" ref={dropdownRef}>
-                        <button 
+                        <button
                             onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                             className={`relative p-2 rounded-xl transition-all duration-200 ${isNotificationsOpen ? 'text-orange-600 bg-orange-50 dark:bg-gray-800 shadow-sm' : 'text-gray-600 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-gray-800'}`}
                         >
@@ -91,7 +105,7 @@ export default function AdminHeader() {
                                     })}
                                 </div>
 
-                                <Link 
+                                <Link
                                     href="/admin/notifications"
                                     onClick={() => setIsNotificationsOpen(false)}
                                     className="p-4 bg-gray-50 dark:bg-gray-900/50 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-orange-600 transition-colors group"
@@ -104,7 +118,7 @@ export default function AdminHeader() {
                     </div>
 
                     <div className="flex items-center space-x-3 pl-4 border-l border-gray-200 dark:border-gray-700 relative" ref={userMenuRef}>
-                        <button 
+                        <button
                             onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                             className="flex items-center space-x-3 hover:bg-gray-50 dark:hover:bg-gray-800 p-1.5 rounded-2xl transition-all duration-200 group"
                         >
@@ -130,7 +144,7 @@ export default function AdminHeader() {
                                 </div>
 
                                 <div className="p-2">
-                                    <Link 
+                                    <Link
                                         href="/admin/settings/general"
                                         onClick={() => setIsUserMenuOpen(false)}
                                         className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-gray-800 hover:text-orange-600 transition-all group"
@@ -140,7 +154,7 @@ export default function AdminHeader() {
                                         </div>
                                         Profile Settings
                                     </Link>
-                                    <Link 
+                                    <Link
                                         href="/admin/settings/security"
                                         onClick={() => setIsUserMenuOpen(false)}
                                         className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-gray-800 hover:text-orange-600 transition-all group"
@@ -150,7 +164,7 @@ export default function AdminHeader() {
                                         </div>
                                         Account Security
                                     </Link>
-                                    <button 
+                                    <button
                                         className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-gray-800 hover:text-orange-600 transition-all group"
                                     >
                                         <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-950 flex items-center justify-center shadow-sm border border-gray-100 dark:border-gray-800 group-hover:bg-orange-600 group-hover:text-white transition-all">
@@ -161,7 +175,8 @@ export default function AdminHeader() {
                                 </div>
 
                                 <div className="p-2 border-t border-gray-50 dark:border-gray-900 bg-gray-50/30 dark:bg-gray-900/10">
-                                    <button 
+                                    <button
+                                        onClick={handleLogout}
                                         className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-black text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all group"
                                     >
                                         <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-950 flex items-center justify-center shadow-sm border border-gray-100 dark:border-gray-800 group-hover:bg-red-500 group-hover:text-white transition-all">

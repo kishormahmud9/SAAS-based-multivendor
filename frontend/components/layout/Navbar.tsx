@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { Search, ShoppingCart, User, Menu, X, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SearchBar from "./SearchBar";
+import { productService } from "@/src/services/product.service";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { useCart } from "@/lib/contexts/CartContext";
 import { getRedirectPath } from "@/lib/auth/authRedirect";
@@ -17,12 +18,30 @@ export default function Navbar() {
 
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
+    const [navCategories, setNavCategories] = useState<{name: string, href: string}[]>([]);
+
+    useEffect(() => {
+        const fetchNavCategories = async () => {
+            try {
+                // Fetch up to 7 categories flagged for navbar
+                const res = await productService.getCategories('navStatus=true&limit=7');
+                if (res.success && res.data) {
+                    const dynamicCats = res.data.map((c: any) => ({
+                        name: c.name,
+                        href: `/shop?category=${c.slug}`
+                    }));
+                    setNavCategories(dynamicCats);
+                }
+            } catch (error) {
+                console.error("Failed to fetch nav categories", error);
+            }
+        };
+        fetchNavCategories();
+    }, []);
+
     const categories = [
         { name: "All Categories", href: "/categories" },
-        { name: "Men", href: "/shop?category=men" },
-        { name: "Women", href: "/shop?category=women" },
-        { name: "Kids", href: "/shop?category=kids" },
-        { name: "Accessories", href: "/shop?category=accessories" },
+        ...navCategories,
         { name: "Flash Sale 🔥", href: "/shop?category=sale", special: true },
     ];
 
@@ -96,12 +115,15 @@ export default function Navbar() {
                 <div className="bg-white border-t border-gray-100 hidden md:block shadow-sm">
                     <div className="container mx-auto px-4">
                         <div className="flex justify-center space-x-10 py-4 text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                            <Link href="/categories" className="hover:text-orange-500 hover:scale-105 transition duration-300">All Categories</Link>
-                            <Link href="/shop?category=men" className="hover:text-orange-500 hover:scale-105 transition duration-300">Men</Link>
-                            <Link href="/shop?category=women" className="hover:text-orange-500 hover:scale-105 transition duration-300">Women</Link>
-                            <Link href="/shop?category=kids" className="hover:text-orange-500 hover:scale-105 transition duration-300">Kids</Link>
-                            <Link href="/shop?category=accessories" className="hover:text-orange-500 hover:scale-105 transition duration-300">Accessories</Link>
-                            <Link href="/shop?category=sale" className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600 font-bold hover:scale-110 transition duration-300">Flash Sale 🔥</Link>
+                            {categories.map((cat, index) => (
+                                <Link 
+                                    key={index} 
+                                    href={cat.href} 
+                                    className={`${cat.special ? 'text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600 font-bold hover:scale-110' : 'hover:text-orange-500 hover:scale-105'} transition duration-300`}
+                                >
+                                    {cat.name}
+                                </Link>
+                            ))}
                         </div>
                     </div>
                 </div>

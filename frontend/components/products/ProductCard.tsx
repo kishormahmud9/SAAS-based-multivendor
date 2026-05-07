@@ -7,6 +7,8 @@ import Link from "next/link";
 import { ShoppingCart, Heart, Eye } from "lucide-react";
 import Image from "next/image";
 import { getImageUrl } from "@/src/lib/image-utils";
+import { useAuth } from "@/lib/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 interface ProductCardProps {
     id: string;
@@ -21,7 +23,51 @@ interface ProductCardProps {
 
 export default function ProductCard({ id, name, price, salePrice, image, category, slug, stock = 10 }: ProductCardProps) {
     const { addItem } = useCart();
+    const { isAuthenticated } = useAuth();
+    const router = useRouter();
     const [isAdding, setIsAdding] = useState(false);
+    const [isWishlisting, setIsWishlisting] = useState(false);
+
+    const handleWishlistClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!isAuthenticated) {
+            // Save pending action
+            localStorage.setItem("pendingAction", JSON.stringify({
+                type: "ADD_WISHLIST",
+                payload: { productId: id, productName: name }
+            }));
+            
+            toast.error("Please login to add to wishlist");
+            router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+            return;
+        }
+
+        // If authenticated, perform the action
+        toggleWishlist();
+    };
+
+    const toggleWishlist = async () => {
+        setIsWishlisting(true);
+        try {
+            const response = await fetch("/api/wishlist", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ productId: id }),
+            });
+            const data = await response.json();
+            if (data.success) {
+                toast.success(`${name} added to wishlist!`);
+            } else {
+                toast.error(data.message || "Failed to add to wishlist");
+            }
+        } catch (error) {
+            toast.error("Something went wrong");
+        } finally {
+            setIsWishlisting(false);
+        }
+    };
 
     const handleAddToCart = async (e: React.MouseEvent) => {
         e.preventDefault();
@@ -49,9 +95,9 @@ export default function ProductCard({ id, name, price, salePrice, image, categor
         <div className="group bg-white rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 border border-gray-100/50 relative flex flex-col h-full">
             {/* Badges */}
             <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
-                {salePrice && (
+                {salePrice && price > 0 && (
                     <span className="bg-gradient-to-r from-orange-500 to-red-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg shadow-lg uppercase tracking-wider animate-pulse">
-                        Sale
+                        {Math.round(((price - salePrice) / price) * 100)}% OFF
                     </span>
                 )}
                 {stock && stock < 5 && (
@@ -62,8 +108,12 @@ export default function ProductCard({ id, name, price, salePrice, image, categor
             </div>
 
             {/* Favorite Button */}
-            <button className="absolute top-4 right-4 bg-white/80 backdrop-blur-md p-2.5 rounded-xl shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 hover:bg-red-50 hover:text-red-500 transform translate-y-[-10px] group-hover:translate-y-0">
-                <Heart size={18} />
+            <button 
+                onClick={handleWishlistClick}
+                disabled={isWishlisting}
+                className={`absolute top-4 right-4 bg-white/80 backdrop-blur-md p-2.5 rounded-xl shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 hover:bg-red-50 hover:text-red-500 transform translate-y-[-10px] group-hover:translate-y-0 ${isWishlisting ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+                <Heart size={18} className={isWishlisting ? "animate-pulse" : ""} />
             </button>
 
             {/* Image Container */}

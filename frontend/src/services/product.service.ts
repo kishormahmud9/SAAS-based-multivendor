@@ -20,6 +20,12 @@ export const productService = {
     });
   },
 
+  getAllCategories: async (): Promise<any> => {
+    return apiClient('/categories/get-all', {
+      method: 'GET',
+    });
+  },
+
   getBrands: async (): Promise<any> => {
     return apiClient('/brands', {
       method: 'GET',

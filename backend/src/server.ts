@@ -2,11 +2,15 @@ import { Server } from 'http';
 import app from './app';
 import config from './app/config';
 import { errorLogger, logger } from './shared/logger';
+import { startCleanupScheduler } from './app/utils/cleanupScheduler';
 
 async function main() {
   const server: Server = app.listen(config.port, () => {
     logger.info(`🚀 Server is running on http://localhost:${config.port}`);
   });
+
+  // Start the background OTP / token cleanup scheduler
+  startCleanupScheduler();
 
   const exitHandler = () => {
     if (server) {

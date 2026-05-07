@@ -24,12 +24,14 @@ import { adminService } from "@/src/services/admin.service"
 import { toast } from "react-hot-toast"
 import ConfirmModal from "@/components/ui/ConfirmModal"
 import { getImageUrl } from "@/src/lib/image-utils"
+import DynamicPagination from "@/components/admin/DynamicPagination"
 
 export default function AdminProductListPage() {
     const [products, setProducts] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [selectedProducts, setSelectedProducts] = useState<string[]>([])
     const [page, setPage] = useState(1)
+    const [limit, setLimit] = useState(10)
     const [search, setSearch] = useState("")
     const [category, setCategory] = useState("")
     const [brand, setBrand] = useState("")
@@ -49,7 +51,7 @@ export default function AdminProductListPage() {
 
     useEffect(() => {
         fetchProducts()
-    }, [page, search, category, brand, status])
+    }, [page, limit, search, category, brand, status])
 
     const fetchInitialData = async () => {
         try {
@@ -69,7 +71,7 @@ export default function AdminProductListPage() {
         try {
             const params = new URLSearchParams({
                 page: page.toString(),
-                limit: "10",
+                limit: limit.toString(),
                 search: search,
                 category: category,
                 brand: brand,
@@ -353,37 +355,18 @@ export default function AdminProductListPage() {
                         </div>
 
                         {/* Pagination */}
-                        {meta && meta.totalPage > 1 && (
-                            <div className="px-6 py-6 border-t border-gray-50 dark:border-gray-800 flex items-center justify-between">
-                                <p className="text-xs font-bold text-gray-500">
-                                    Showing <span className="text-gray-900 dark:text-white">{(meta.page - 1) * meta.limit + 1}</span> to <span className="text-gray-900 dark:text-white">{Math.min(meta.page * meta.limit, meta.total)}</span> of <span className="text-gray-900 dark:text-white">{meta.total}</span> products
-                                </p>
-                                <div className="flex items-center gap-2">
-                                    <button 
-                                        disabled={meta.page === 1}
-                                        onClick={() => setPage(meta.page - 1)}
-                                        className="px-4 py-2 text-xs font-black bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-xl disabled:opacity-50 hover:bg-gray-100 transition-all border border-gray-100 dark:border-gray-700"
-                                    >
-                                        Previous
-                                    </button>
-                                    {[...Array(meta.totalPage)].map((_, i) => (
-                                        <button
-                                            key={i}
-                                            onClick={() => setPage(i + 1)}
-                                            className={`w-9 h-9 flex items-center justify-center rounded-xl text-xs font-black transition-all ${meta.page === i + 1 ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/30' : 'bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100'}`}
-                                        >
-                                            {i + 1}
-                                        </button>
-                                    ))}
-                                    <button 
-                                        disabled={meta.page === meta.totalPage}
-                                        onClick={() => setPage(meta.page + 1)}
-                                        className="px-4 py-2 text-xs font-black bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-xl disabled:opacity-50 hover:bg-gray-100 transition-all border border-gray-100 dark:border-gray-700"
-                                    >
-                                        Next
-                                    </button>
-                                </div>
-                            </div>
+                        {meta && (
+                            <DynamicPagination
+                                page={page}
+                                totalPages={meta.totalPage}
+                                limit={limit}
+                                totalItems={meta.total}
+                                onPageChange={setPage}
+                                onLimitChange={(l) => {
+                                    setLimit(l)
+                                    setPage(1)
+                                }}
+                            />
                         )}
                     </>
                 )}

@@ -13,9 +13,9 @@ router.get('/tree', categoryControllers.getAllTree);
 router.get('/flat', categoryControllers.getAllFlat);
 router.get('/check-name', categoryControllers.checkName);
 router.get('/next-order', categoryControllers.getNextOrder);
+router.get('/get-all', categoryControllers.getAll);
 router.get('/', categoryControllers.getPaginated);
 router.get('/:id', categoryControllers.getSingleCategory);
-router.get('/get-all', categoryControllers.getAll);
 
 // ── Admin Protected Routes ────────────────────────────────────────────────────
 router.post(

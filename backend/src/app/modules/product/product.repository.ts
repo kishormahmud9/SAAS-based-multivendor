@@ -21,17 +21,23 @@ const findAll = async (filters: any, options: IPaginationOptions) => {
   }
 
   if (category) {
+    const categorySlugs = category.split(',');
     andConditions.push({
       category: {
-        slug: category,
+        slug: {
+          in: categorySlugs,
+        },
       },
     });
   }
 
   if (brand) {
+    const brandSlugs = brand.split(',');
     andConditions.push({
       brand: {
-        slug: brand,
+        slug: {
+          in: brandSlugs,
+        },
       },
     });
   }

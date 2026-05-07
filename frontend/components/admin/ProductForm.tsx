@@ -87,7 +87,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
         control,
         formState: { errors }
     } = useForm<ProductFormValues>({
-        resolver: zodResolver(productSchema),
+        resolver: zodResolver(productSchema) as any,
         defaultValues: {
             name: initialData?.name || "",
             slug: initialData?.slug || "",
@@ -195,7 +195,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                 })
             })
             return newAcc
-        }, [])
+        }, [] as any[])
 
         const newVariants = combinations.map((combo: any) => ({
             name: combo.name,
@@ -232,7 +232,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
 
             // Append flattened attributes for filtering
             const flattenedAttributes = selectedAttributes.flatMap(attr =>
-                attr.selectedValues.map(val => ({ name: attr.name, value: val }))
+                attr.selectedValues.map((val: any) => ({ name: attr.name, value: val }))
             )
             if (flattenedAttributes.length > 0) {
                 formData.append('attributes', JSON.stringify(flattenedAttributes))
@@ -258,7 +258,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
                 onSuccess?.(res.data?.id)
             }
         } catch (error: any) {
-            if (error.errors) {
+            if (error.errors && error.errors.length > 0) {
                 handleBackendErrors<ProductFormValues>(error.errors, setError)
             } else {
                 toast.error(error.message || "Something went wrong")
@@ -269,7 +269,7 @@ export default function ProductForm({ initialData, isEdit, onSuccess, onCancel }
     }
 
     return (
-        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-10 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <form onSubmit={handleSubmit(onFormSubmit as any)} className="space-y-10 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
 
                 {/* Left Side: Product Content */}

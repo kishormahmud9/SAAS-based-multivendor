@@ -9,6 +9,7 @@ import { adminService } from "@/src/services/admin.service"
 import { apiClient } from "@/src/lib/api-client"
 import { getImageUrl } from "@/src/lib/image-utils"
 import Modal from "@/components/ui/Modal"
+import DynamicPagination from "@/components/admin/DynamicPagination"
 
 interface User {
     id: string
@@ -39,6 +40,8 @@ export default function AdminUsersPage() {
     const [systemRoleFilter, setSystemRoleFilter] = useState("")
     const [page, setPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
+    const [limit, setLimit] = useState(10)
+    const [totalItems, setTotalItems] = useState(0)
 
     // Roles assignment
     const [allRoles, setAllRoles] = useState<Role[]>([])
@@ -53,14 +56,14 @@ export default function AdminUsersPage() {
             fetchUsers()
         }, 300)
         return () => clearTimeout(timer)
-    }, [page, search, statusFilter, systemRoleFilter])
+    }, [page, limit, search, statusFilter, systemRoleFilter])
 
     const fetchUsers = async () => {
         setLoading(true)
         try {
             const params = new URLSearchParams({
                 page: page.toString(),
-                limit: "10",
+                limit: limit.toString(),
                 search: search,
                 status: statusFilter,
                 systemRole: systemRoleFilter
@@ -71,6 +74,7 @@ export default function AdminUsersPage() {
                 setUsers(data.data)
                 if (data.meta) {
                     setTotalPages(data.meta.totalPage)
+                    setTotalItems(data.meta.totalItems || data.meta.total || 0)
                 }
             }
         } catch (err) {
@@ -310,28 +314,18 @@ export default function AdminUsersPage() {
                 </div>
 
                 {/* Pagination */}
-                {totalPages > 1 && (
-                    <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-800">
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Page {page} of {totalPages}
-                        </p>
-                        <div className="flex space-x-2">
-                            <button
-                                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                                disabled={page === 1}
-                                className="p-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50"
-                            >
-                                <ChevronLeft size={20} />
-                            </button>
-                            <button
-                                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                                disabled={page === totalPages}
-                                className="p-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50"
-                            >
-                                <ChevronRight size={20} />
-                            </button>
-                        </div>
-                    </div>
+                {totalPages > 0 && (
+                    <DynamicPagination
+                        page={page}
+                        totalPages={totalPages}
+                        limit={limit}
+                        totalItems={totalItems}
+                        onPageChange={setPage}
+                        onLimitChange={(l) => {
+                            setLimit(l)
+                            setPage(1)
+                        }}
+                    />
                 )}
             </div>
 

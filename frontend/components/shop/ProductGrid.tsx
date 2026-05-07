@@ -25,13 +25,19 @@ export default function ProductGrid({ products, loading }: ProductGridProps) {
     if (loading) {
         return (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {Array.from({ length: 8 }).map((_, i) => (
-                    <div key={i} className="bg-white rounded-xl shadow-md overflow-hidden animate-pulse">
-                        <div className="w-full h-64 bg-gray-200" />
-                        <div className="p-4 space-y-3">
-                            <div className="h-4 bg-gray-200 rounded w-3/4" />
-                            <div className="h-4 bg-gray-200 rounded w-1/2" />
-                            <div className="h-6 bg-gray-200 rounded w-1/3" />
+                {Array.from({ length: 12 }).map((_, i) => (
+                    <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100/50 flex flex-col h-full animate-pulse">
+                        <div className="relative aspect-[4/5] w-full bg-gray-200" />
+                        <div className="p-5 flex flex-col flex-grow">
+                            <div className="mb-auto">
+                                <div className="h-3 w-1/3 bg-gray-200 rounded mb-3" />
+                                <div className="h-5 w-3/4 bg-gray-200 rounded mb-2" />
+                                <div className="h-5 w-1/2 bg-gray-200 rounded mb-2" />
+                            </div>
+                            <div className="mt-6 flex items-center justify-between">
+                                <div className="h-6 w-1/3 bg-gray-200 rounded" />
+                                <div className="h-3 w-1/4 bg-gray-200 rounded" />
+                            </div>
                         </div>
                     </div>
                 ))}

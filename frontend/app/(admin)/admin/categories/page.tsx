@@ -20,13 +20,15 @@ import {
     ChevronRight,
     ArrowUpDown,
     CheckSquare,
-    Square
+    Square,
+    X
 } from "lucide-react"
 import { adminService } from "@/src/services/admin.service"
 import { toast } from "react-hot-toast"
 import { getImageUrl } from "@/src/lib/image-utils"
 import Image from "next/image"
 import ConfirmModal from "@/components/ui/ConfirmModal"
+import DynamicPagination from "@/components/admin/DynamicPagination"
 
 export default function AdminCategoriesPage() {
     const [categories, setCategories] = useState<any[]>([])
@@ -34,10 +36,14 @@ export default function AdminCategoriesPage() {
     const [search, setSearch] = useState("")
     const [isActiveFilter, setIsActiveFilter] = useState<string>("all")
     const [parentIdFilter, setParentIdFilter] = useState<string>("all")
+    const [navStatusFilter, setNavStatusFilter] = useState<string>("all")
+    const [isHomepageViewFilter, setIsHomepageViewFilter] = useState<string>("all")
     const [flatCategories, setFlatCategories] = useState<any[]>([])
     const [selectedIds, setSelectedIds] = useState<string[]>([])
     const [page, setPage] = useState(1)
     const [total, setTotal] = useState(0)
+    const [limit, setLimit] = useState(10)
+    const totalPages = Math.ceil(total / limit)
 
     // Modal States
     const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null)
@@ -50,7 +56,7 @@ export default function AdminCategoriesPage() {
 
     useEffect(() => {
         fetchCategories()
-    }, [page, search, isActiveFilter, parentIdFilter])
+    }, [page, limit, search, isActiveFilter, parentIdFilter, navStatusFilter, isHomepageViewFilter])
 
     const fetchFlatCategories = async () => {
         try {
@@ -68,10 +74,12 @@ export default function AdminCategoriesPage() {
         try {
             const params = new URLSearchParams({
                 page: page.toString(),
-                limit: "10",
+                limit: limit.toString(),
                 search,
                 ...(isActiveFilter !== "all" && { isActive: isActiveFilter }),
-                ...(parentIdFilter !== "all" && { parentId: parentIdFilter })
+                ...(parentIdFilter !== "all" && { parentId: parentIdFilter }),
+                ...(navStatusFilter !== "all" && { navStatus: navStatusFilter }),
+                ...(isHomepageViewFilter !== "all" && { isHomepageView: isHomepageViewFilter })
             }).toString()
             const res = await adminService.getCategories(params)
             if (res.success) {
@@ -167,6 +175,17 @@ export default function AdminCategoriesPage() {
         }
     }
 
+    const hasActiveFilters = search !== "" || isActiveFilter !== "all" || parentIdFilter !== "all" || navStatusFilter !== "all" || isHomepageViewFilter !== "all";
+
+    const clearFilters = () => {
+        setSearch("")
+        setIsActiveFilter("all")
+        setParentIdFilter("all")
+        setNavStatusFilter("all")
+        setIsHomepageViewFilter("all")
+        setPage(1)
+    }
+
     return (
         <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header */}
@@ -218,9 +237,39 @@ export default function AdminCategoriesPage() {
                         className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-2xl text-sm font-bold text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
                     >
                         <option value="all">All Status</option>
-                        <option value="true">Active Only</option>
-                        <option value="false">Inactive Only</option>
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
                     </select>
+
+                    <select 
+                        value={navStatusFilter}
+                        onChange={(e) => setNavStatusFilter(e.target.value)}
+                        className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-2xl text-sm font-bold text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    >
+                        <option value="all">Navbar: All</option>
+                        <option value="true">Navbar: Yes</option>
+                        <option value="false">Navbar: No</option>
+                    </select>
+
+                    <select 
+                        value={isHomepageViewFilter}
+                        onChange={(e) => setIsHomepageViewFilter(e.target.value)}
+                        className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-2xl text-sm font-bold text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    >
+                        <option value="all">Homepage: All</option>
+                        <option value="true">Homepage: Yes</option>
+                        <option value="false">Homepage: No</option>
+                    </select>
+
+                    {hasActiveFilters && (
+                        <button
+                            onClick={clearFilters}
+                            className="px-4 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 border border-red-100 dark:border-red-900/50 rounded-2xl text-sm font-bold hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors flex items-center gap-2"
+                        >
+                            <X size={16} />
+                            Clear Filters
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -287,7 +336,11 @@ export default function AdminCategoriesPage() {
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-black text-gray-900 dark:text-white leading-tight">{category.name}</p>
-                                                    <p className="text-[10px] text-gray-400 font-bold uppercase mt-1 tracking-widest">{category.slug}</p>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase mt-1 tracking-widest flex items-center gap-2">
+                                                        {category.slug}
+                                                        {category.navStatus && <span className="px-1.5 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[8px] rounded">NAV</span>}
+                                                        {category.isHomepageView && <span className="px-1.5 py-0.5 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-[8px] rounded">HOME</span>}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </td>
@@ -340,17 +393,19 @@ export default function AdminCategoriesPage() {
                 )}
             </div>
 
-            {/* Pagination (Simplified) */}
-            {total > 10 && (
-                <div className="flex items-center justify-center gap-2">
-                    <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-2 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 disabled:opacity-50">
-                        <ChevronLeft size={20} />
-                    </button>
-                    <span className="text-sm font-black text-gray-500">Page {page}</span>
-                    <button onClick={() => setPage(p => p + 1)} disabled={categories.length < 10} className="p-2 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 disabled:opacity-50">
-                        <ChevronRight size={20} />
-                    </button>
-                </div>
+            {/* Pagination */}
+            {total > 0 && (
+                <DynamicPagination
+                    page={page}
+                    totalPages={totalPages}
+                    limit={limit}
+                    totalItems={total}
+                    onPageChange={setPage}
+                    onLimitChange={(l) => {
+                        setLimit(l)
+                        setPage(1)
+                    }}
+                />
             )}
 
             {/* Delete Confirmation Modals */}

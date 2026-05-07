@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { Heart } from "lucide-react"
 import { toast } from "react-hot-toast"
+import { useAuth } from "@/lib/contexts/AuthContext"
+import { useRouter } from "next/navigation"
 
 interface WishlistButtonProps {
     productId: string
@@ -15,10 +17,23 @@ export default function WishlistButton({
     productName,
     initialInWishlist = false
 }: WishlistButtonProps) {
+    const { isAuthenticated } = useAuth()
+    const router = useRouter()
     const [inWishlist, setInWishlist] = useState(initialInWishlist)
     const [loading, setLoading] = useState(false)
 
     const handleToggle = async () => {
+        if (!isAuthenticated) {
+            localStorage.setItem("pendingAction", JSON.stringify({
+                type: "ADD_WISHLIST",
+                payload: { productId, productName }
+            }));
+            
+            toast.error("Please login to add to wishlist");
+            router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+            return;
+        }
+
         setLoading(true)
         try {
             if (inWishlist) {

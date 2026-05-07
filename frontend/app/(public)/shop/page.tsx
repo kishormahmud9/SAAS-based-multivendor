@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import FilterSidebar from "@/components/shop/FilterSidebar"
 import SortDropdown from "@/components/shop/SortDropdown"
@@ -14,16 +14,21 @@ type Product = IProduct;
 interface Category {
     id: string
     name: string
+    slug: string
 }
 
 interface Brand {
     id: string
     name: string
+    slug: string
 }
 
 export default function ShopPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
+    
+    const urlSearchTerm = searchParams.get("searchTerm") || ""
+    const urlCategorySlug = searchParams.get("category") || ""
 
     const [products, setProducts] = useState<Product[]>([])
     const [categories, setCategories] = useState<Category[]>([])
@@ -37,16 +42,35 @@ export default function ShopPage() {
     const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000])
     const [sortBy, setSortBy] = useState("latest")
     const [currentPage, setCurrentPage] = useState(1)
+    const [isInitialized, setIsInitialized] = useState(false)
 
     // Fetch categories and brands on mount
     useEffect(() => {
         fetchFilters()
     }, [])
 
-    // Fetch products when filters change
+    // Sync URL params to state once filters are loaded
     useEffect(() => {
-        fetchProducts()
-    }, [selectedCategories, selectedBrands, priceRange, sortBy, currentPage])
+        if (categories.length > 0) {
+            let initialCategories = [...selectedCategories];
+            
+            if (urlCategorySlug) {
+                const cat = categories.find(c => c.slug === urlCategorySlug)
+                if (cat && !initialCategories.includes(cat.id)) {
+                    initialCategories = [cat.id]
+                    setSelectedCategories(initialCategories)
+                }
+            }
+            setIsInitialized(true)
+        }
+    }, [urlCategorySlug, categories])
+
+    // Fetch products when filters or URL params change
+    useEffect(() => {
+        if (isInitialized) {
+            fetchProducts()
+        }
+    }, [selectedCategories, selectedBrands, priceRange, sortBy, currentPage, urlSearchTerm, isInitialized])
 
     const fetchFilters = async () => {
         try {
@@ -63,15 +87,28 @@ export default function ShopPage() {
     }
 
     const fetchProducts = async () => {
-        setLoading(true)
+        // Only show loading state if it's the first page (so we don't clear the screen during infinite scroll)
+        if (currentPage === 1) setLoading(true)
+        
         try {
             const params = new URLSearchParams()
 
+            if (urlSearchTerm) {
+                params.append("searchTerm", urlSearchTerm)
+            }
             if (selectedCategories.length > 0) {
-                params.append("categoryId", selectedCategories.join(","))
+                const categorySlugs = selectedCategories
+                    .map(id => categories.find(c => c.id === id)?.slug)
+                    .filter(Boolean)
+                    .join(",")
+                if (categorySlugs) params.append("category", categorySlugs)
             }
             if (selectedBrands.length > 0) {
-                params.append("brandId", selectedBrands.join(","))
+                const brandSlugs = selectedBrands
+                    .map(id => brands.find(b => b.id === id)?.slug)
+                    .filter(Boolean)
+                    .join(",")
+                if (brandSlugs) params.append("brand", brandSlugs)
             }
             if (priceRange[0] > 0) {
                 params.append("minPrice", priceRange[0].toString())
@@ -104,8 +141,12 @@ export default function ShopPage() {
             const response = await productService.getProducts(params.toString())
 
             if (response.success) {
-                setProducts(response.data)
-                setTotalPages(response.pagination?.totalPages || 1)
+                if (currentPage === 1) {
+                    setProducts(response.data)
+                } else {
+                    setProducts(prev => [...prev, ...response.data])
+                }
+                setTotalPages(response.meta?.totalPage || 1)
             }
         } catch (error) {
             console.error("Error fetching products:", error)
@@ -114,12 +155,43 @@ export default function ShopPage() {
         }
     }
 
+    const observerTarget = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting && currentPage < totalPages && !loading) {
+                    setCurrentPage(prev => prev + 1)
+                }
+            },
+            { threshold: 0.1 }
+        )
+
+        if (observerTarget.current) {
+            observer.observe(observerTarget.current)
+        }
+
+        return () => {
+            if (observerTarget.current) {
+                observer.unobserve(observerTarget.current)
+            }
+        }
+    }, [observerTarget, currentPage, totalPages, loading])
+
+    const handleCategoryChange = (c: string[]) => { setSelectedCategories(c); setCurrentPage(1); }
+    const handleBrandChange = (b: string[]) => { setSelectedBrands(b); setCurrentPage(1); }
+    const handlePriceChange = (p: [number, number]) => { setPriceRange(p); setCurrentPage(1); }
+    const handleSortChange = (s: string) => { setSortBy(s); setCurrentPage(1); }
+
     const handleClearFilters = () => {
         setSelectedCategories([])
         setSelectedBrands([])
         setPriceRange([0, 10000])
         setSortBy("latest")
         setCurrentPage(1)
+        if (urlSearchTerm || urlCategorySlug) {
+            router.push('/shop') // Clears URL parameters
+        }
     }
 
     return (
@@ -128,10 +200,10 @@ export default function ShopPage() {
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-900 to-blue-600 mb-2">
-                        Shop
+                        {urlSearchTerm ? `Search Results for "${urlSearchTerm}"` : 'Shop'}
                     </h1>
                     <p className="text-gray-600">
-                        Discover our amazing collection of products
+                        {urlSearchTerm ? 'Discover exactly what you are looking for.' : 'Discover our amazing collection of products'}
                     </p>
                 </div>
 
@@ -147,9 +219,9 @@ export default function ShopPage() {
                             minPrice={0}
                             maxPrice={10000}
                             priceRange={priceRange}
-                            onCategoryChange={setSelectedCategories}
-                            onBrandChange={setSelectedBrands}
-                            onPriceChange={setPriceRange}
+                            onCategoryChange={handleCategoryChange}
+                            onBrandChange={handleBrandChange}
+                            onPriceChange={handlePriceChange}
                             onClearFilters={handleClearFilters}
                         />
                     </aside>
@@ -161,19 +233,17 @@ export default function ShopPage() {
                             <p className="text-sm text-gray-600">
                                 {loading ? "Loading..." : `${products.length} products found`}
                             </p>
-                            <SortDropdown value={sortBy} onChange={setSortBy} />
+                            <SortDropdown value={sortBy} onChange={handleSortChange} />
                         </div>
 
                         {/* Product Grid */}
-                        <ProductGrid products={products} loading={loading} />
+                        <ProductGrid products={products} loading={loading && currentPage === 1} />
 
-                        {/* Pagination */}
-                        {!loading && products.length > 0 && (
-                            <Pagination
-                                currentPage={currentPage}
-                                totalPages={totalPages}
-                                onPageChange={setCurrentPage}
-                            />
+                        {/* Infinite Scroll Observer */}
+                        {currentPage < totalPages && (
+                            <div ref={observerTarget} className="flex justify-center items-center py-8">
+                                <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                            </div>
                         )}
                     </main>
                 </div>

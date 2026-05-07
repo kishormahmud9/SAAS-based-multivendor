@@ -33,7 +33,7 @@ export default function RoleForm({ initialData, isEdit }: RoleFormProps) {
         setError, 
         formState: { errors } 
     } = useForm<RoleFormValues>({
-        resolver: zodResolver(roleSchema),
+        resolver: zodResolver(roleSchema) as any,
         defaultValues: {
             name: initialData?.name || "",
             description: initialData?.description || "",
@@ -52,7 +52,7 @@ export default function RoleForm({ initialData, isEdit }: RoleFormProps) {
                 router.push("/admin/users/roles")
             }
         } catch (error: any) {
-            if (error.errors) {
+            if (error.errors && error.errors.length > 0) {
                 handleBackendErrors<RoleFormValues>(error.errors, setError)
             } else {
                 toast.error(error.message || "Something went wrong")
@@ -63,7 +63,7 @@ export default function RoleForm({ initialData, isEdit }: RoleFormProps) {
     }
 
     return (
-        <form onSubmit={handleSubmit(onFormSubmit)} className="max-w-4xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <form onSubmit={handleSubmit(onFormSubmit as any)} className="max-w-4xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 border border-gray-100 dark:border-gray-800 shadow-sm space-y-8">
                 
                 <div className="flex items-center gap-3 border-b border-gray-50 dark:border-gray-800 pb-6">

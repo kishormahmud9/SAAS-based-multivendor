@@ -31,22 +31,30 @@ const updateCartItem = async (userId: string, productId: string, variantId: stri
     });
   }
 
-  return await (prisma as any).cartItem.upsert({
+  // Use findFirst + create/update instead of upsert to handle nullable variantId in unique constraint
+  const existingItem = await (prisma as any).cartItem.findFirst({
     where: {
-      cartId_productId_variantId: {
-        cartId: cart.id,
-        productId,
-        variantId,
-      },
-    },
-    update: { quantity },
-    create: {
       cartId: cart.id,
       productId,
       variantId,
-      quantity,
     },
   });
+
+  if (existingItem) {
+    return await (prisma as any).cartItem.update({
+      where: { id: existingItem.id },
+      data: { quantity },
+    });
+  } else {
+    return await (prisma as any).cartItem.create({
+      data: {
+        cartId: cart.id,
+        productId,
+        variantId,
+        quantity,
+      },
+    });
+  }
 };
 
 const clearCart = async (userId: string) => {
@@ -65,24 +73,33 @@ const syncGuestCart = async (userId: string, guestItems: any[]) => {
   }
 
   for (const item of guestItems) {
-    await (prisma as any).cartItem.upsert({
+    const vId = item.variantId || null;
+    
+    const existingItem = await (prisma as any).cartItem.findFirst({
       where: {
-        cartId_productId_variantId: {
-          cartId: cart.id,
-          productId: item.productId,
-          variantId: item.variantId || null,
-        },
-      },
-      update: {
-        quantity: { increment: item.quantity },
-      },
-      create: {
         cartId: cart.id,
         productId: item.productId,
-        variantId: item.variantId || null,
-        quantity: item.quantity,
+        variantId: vId,
       },
     });
+
+    if (existingItem) {
+      await (prisma as any).cartItem.update({
+        where: { id: existingItem.id },
+        data: {
+          quantity: { increment: item.quantity },
+        },
+      });
+    } else {
+      await (prisma as any).cartItem.create({
+        data: {
+          cartId: cart.id,
+          productId: item.productId,
+          variantId: vId,
+          quantity: item.quantity,
+        },
+      });
+    }
   }
 };
 

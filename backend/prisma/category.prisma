@@ -11,8 +11,10 @@ model Category {
   parent      Category?  @relation("CategoryTree", fields: [parentId], references: [id])
   children    Category[] @relation("CategoryTree")
   sortOrder   Int        @default(0)
-  isActive    Boolean    @default(true)
-  metaTitle   String?
+  isActive       Boolean    @default(true)
+  navStatus      Boolean    @default(false)
+  isHomepageView Boolean    @default(false)
+  metaTitle      String?
   metaDesc    String?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt

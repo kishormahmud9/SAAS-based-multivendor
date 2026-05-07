@@ -100,11 +100,28 @@ const forgotPassword = catchAsync(async (req: Request, res: Response) => {
 const verifyOtp = catchAsync(async (req: Request, res: Response) => {
   const result = await authServices.verifyOtp(req.body);
 
+  // If auto-login happened (accessToken & refreshToken returned)
+  if (result?.accessToken && result?.refreshToken) {
+    setAuthCookies(res, result.accessToken, result.refreshToken);
+  }
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'OTP verified successfully',
-    data: result, // contains resetToken if purpose === PASSWORD_RESET
+    data: result, // contains user/tokens if EMAIL_VERIFY, or resetToken if purpose === PASSWORD_RESET
+  });
+});
+
+// ─── POST /api/v1/auth/resend-otp ────────────────────────────────────
+const resendOtp = catchAsync(async (req: Request, res: Response) => {
+  await authServices.resendVerificationOtp(req.body.email);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Verification OTP resent successfully. Please check your email.',
+    data: null,
   });
 });
 
@@ -143,6 +160,7 @@ export const authControllers = {
   getMe,
   forgotPassword,
   verifyOtp,
+  resendOtp,
   resetPassword,
   changePassword,
 };

@@ -248,14 +248,27 @@ const verifyOtp = async (payload: {
 
   if (purpose === 'EMAIL_VERIFY') {
     const user = await authRepository.findUserByEmail(email);
-    if (user && !user.emailVerified) {
+    if (!user) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+    }
+
+    if (!user.emailVerified) {
       await authRepository.updateUser(user.id, {
         status: 'ACTIVE',
         emailVerified: new Date(),
       });
       logger.info(`Email verified for: ${email}`);
     }
-    return { message: 'Email verified successfully' };
+
+    // Auto-login: generate tokens
+    const { accessToken, refreshToken } = generateTokenPair(user);
+
+    return {
+      message: 'Email verified successfully',
+      accessToken,
+      refreshToken,
+      user: safeUser(user),
+    };
   }
 
   if (purpose === 'PASSWORD_RESET') {
@@ -281,6 +294,38 @@ const verifyOtp = async (payload: {
 
     return { resetToken };
   }
+};
+
+// ─── Resend Verification OTP ─────────────────────────────────────────────────
+
+const resendVerificationOtp = async (email: string) => {
+  const user = await authRepository.findUserByEmail(email);
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'No account found with this email address');
+  }
+
+  if (user.emailVerified) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'This email is already verified');
+  }
+
+  const otp = crypto.randomInt(100000, 999999).toString();
+  await authRepository.deleteOtps(email, 'EMAIL_VERIFY');
+  await authRepository.createOtp({
+    target: email,
+    otp,
+    purpose: 'EMAIL_VERIFY',
+    expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 min
+  });
+
+  sendEmail({
+    to: email,
+    subject: 'Verify Your Email – ReadyMart',
+    tempName: 'otp',
+    tempData: { name: user.name, otp, purpose: 'Email Verification' },
+  });
+
+  logger.info(`Verification OTP resent to: ${email}`);
 };
 
 // ─── Reset Password ───────────────────────────────────────────────────────────
@@ -373,6 +418,7 @@ export const authServices = {
   getMe,
   forgotPassword,
   verifyOtp,
+  resendVerificationOtp,
   resetPassword,
   changePassword,
 };

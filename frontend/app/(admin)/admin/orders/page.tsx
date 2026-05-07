@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Search, Filter, Eye, ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
 import { toast } from "react-hot-toast"
 import { adminService } from "@/src/services/admin.service"
+import DynamicPagination from "@/components/admin/DynamicPagination"
 
 interface Order {
     id: string
@@ -29,15 +30,17 @@ export default function AdminOrdersPage() {
     const [statusFilter, setStatusFilter] = useState("")
     const [page, setPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
+    const [limit, setLimit] = useState(20)
+    const [totalItems, setTotalItems] = useState(0)
 
     useEffect(() => {
         fetchOrders()
-    }, [page, statusFilter]) // Search triggered manually or debounced
+    }, [page, limit, statusFilter]) // Search triggered manually or debounced
 
     const fetchOrders = async () => {
         setLoading(true)
         try {
-            const params = new URLSearchParams({ page: page.toString(), limit: "20" })
+            const params = new URLSearchParams({ page: page.toString(), limit: limit.toString() })
             if (search) params.append("search", search)
             if (statusFilter) params.append("status", statusFilter)
 
@@ -45,6 +48,7 @@ export default function AdminOrdersPage() {
             if (data.success) {
                 setOrders(data.data)
                 setTotalPages(data.pagination?.totalPages || 1)
+                setTotalItems(data.pagination?.totalItems || 0)
             }
         } catch (error) {
             toast.error("Failed to load orders")
@@ -181,28 +185,18 @@ export default function AdminOrdersPage() {
                 </div>
 
                 {/* Pagination */}
-                {totalPages > 1 && (
-                    <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-800">
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Page {page} of {totalPages}
-                        </p>
-                        <div className="flex space-x-2">
-                            <button
-                                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                                disabled={page === 1}
-                                className="p-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50"
-                            >
-                                <ChevronLeft size={20} />
-                            </button>
-                            <button
-                                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                                disabled={page === totalPages}
-                                className="p-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50"
-                            >
-                                <ChevronRight size={20} />
-                            </button>
-                        </div>
-                    </div>
+                {totalPages > 0 && (
+                    <DynamicPagination
+                        page={page}
+                        totalPages={totalPages}
+                        limit={limit}
+                        totalItems={totalItems}
+                        onPageChange={setPage}
+                        onLimitChange={(l) => {
+                            setLimit(l)
+                            setPage(1)
+                        }}
+                    />
                 )}
             </div>
         </div>

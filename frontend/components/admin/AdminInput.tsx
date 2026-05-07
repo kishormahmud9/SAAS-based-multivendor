@@ -3,7 +3,7 @@
 import React from "react"
 import { Loader2 } from "lucide-react"
 
-interface AdminInputProps extends React.InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> {
+interface AdminInputProps extends React.AllHTMLAttributes<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> {
     label: string
     error?: string
     isChecking?: boolean

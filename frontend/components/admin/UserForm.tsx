@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { useForm, Controller } from "react-hook-form"
+import { useForm, Controller, SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import BirthdayPicker from "./BirthdayPicker"
@@ -114,7 +114,7 @@ export default function UserForm({ initialData, isEdit }: UserFormProps) {
         control,
         formState: { errors } 
     } = useForm<UserFormValues>({
-        resolver: zodResolver(userSchema),
+        resolver: zodResolver(userSchema) as any,
         defaultValues: {
             name: initialData?.name || "",
             email: initialData?.email || "",
@@ -146,7 +146,7 @@ export default function UserForm({ initialData, isEdit }: UserFormProps) {
         }
     }
 
-    const onFormSubmit = async (values: UserFormValues) => {
+    const onFormSubmit: SubmitHandler<UserFormValues> = async (values) => {
         setLoading(true)
         
         const submitData = new FormData()
@@ -220,7 +220,7 @@ export default function UserForm({ initialData, isEdit }: UserFormProps) {
     }
 
     return (
-        <form onSubmit={handleSubmit(onFormSubmit)} className="max-w-7xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
+        <form onSubmit={handleSubmit(onFormSubmit as any)} className="max-w-7xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
             
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 
@@ -238,26 +238,20 @@ export default function UserForm({ initialData, isEdit }: UserFormProps) {
 
                         <div className="space-y-6">
                             <div className="group">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Full Display Name</label>
-                                <AdminInput placeholder="e.g. John Doe" {...register("name")} error={errors.name?.message} />
+                                <AdminInput label="Full Display Name" placeholder="e.g. John Doe" {...register("name")} error={errors.name?.message} />
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="group">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Email Address {isEdit && '(Locked)'}</label>
-                                    <AdminInput type="email" placeholder="johndoe@example.com" {...register("email")} error={errors.email?.message} disabled={isEdit} />
+                                    <AdminInput label={`Email Address ${isEdit ? '(Locked)' : ''}`} type="email" placeholder="johndoe@example.com" {...register("email")} error={errors.email?.message} disabled={isEdit} />
                                 </div>
                                 <div className="group">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Contact Phone {isEdit && '(Locked)'}</label>
-                                    <AdminInput placeholder="+1 234..." {...register("phone")} error={errors.phone?.message} disabled={isEdit} />
+                                    <AdminInput label={`Contact Phone ${isEdit ? '(Locked)' : ''}`} placeholder="+1 234..." {...register("phone")} error={errors.phone?.message} disabled={isEdit} />
                                 </div>
                             </div>
 
                             <div className="group">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">
-                                    {isEdit ? 'Update Password (Leave blank to keep current)' : 'Account Password'}
-                                </label>
-                                <AdminInput type="password" placeholder="••••••••" {...register("password")} error={errors.password?.message} />
+                                <AdminInput label={isEdit ? 'Update Password (Leave blank to keep current)' : 'Account Password'} type="password" placeholder="••••••••" {...register("password")} error={errors.password?.message} />
                             </div>
                         </div>
                     </div>
@@ -273,15 +267,13 @@ export default function UserForm({ initialData, isEdit }: UserFormProps) {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="group">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">RBAC Permission Group</label>
-                                <AdminInput as="select" {...register("roleId")} error={errors.roleId?.message} disabled={fetchingRoles}>
+                            <AdminInput label="RBAC Permission Group" as="select" {...register("roleId")} error={errors.roleId?.message} disabled={fetchingRoles}>
                                     <option value="">Select a role...</option>
                                     {roles.map(role => <option key={role.id} value={role.id}>{role.name}</option>)}
                                 </AdminInput>
                             </div>
                             <div className="group">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">System Classification</label>
-                                <AdminInput as="select" {...register("systemRole")} error={errors.systemRole?.message}>
+                            <AdminInput label="System Classification" as="select" {...register("systemRole")} error={errors.systemRole?.message}>
                                     <option value="CUSTOMER">Customer</option>
                                     <option value="VENDOR">Vendor</option>
                                     <option value="ADMIN">Admin</option>
@@ -398,8 +390,7 @@ export default function UserForm({ initialData, isEdit }: UserFormProps) {
 
                         <div className="space-y-6">
                             <div className="group">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Gender Identification</label>
-                                <AdminInput as="select" {...register("gender")}>
+                            <AdminInput label="Gender Identification" as="select" {...register("gender")}>
                                     <option value="">Not Specified</option>
                                     <option value="MALE">Male</option>
                                     <option value="FEMALE">Female</option>
@@ -434,8 +425,7 @@ export default function UserForm({ initialData, isEdit }: UserFormProps) {
 
                         <div className="space-y-6">
                             <div className="group">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Lifecycle Status</label>
-                                <AdminInput as="select" {...register("status")}>
+                            <AdminInput label="Lifecycle Status" as="select" {...register("status")}>
                                     <option value="ACTIVE">ACTIVE</option>
                                     <option value="INACTIVE">INACTIVE</option>
                                     <option value="SUSPENDED">SUSPENDED</option>

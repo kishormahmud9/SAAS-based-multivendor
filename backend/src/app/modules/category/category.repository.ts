@@ -59,6 +59,14 @@ const getPaginated = async (query: any) => {
     where.AND.push({ parentId: parentId === 'null' ? null : parentId });
   }
 
+  if (query.navStatus !== undefined) {
+    where.AND.push({ navStatus: query.navStatus === 'true' });
+  }
+
+  if (query.isHomepageView !== undefined) {
+    where.AND.push({ isHomepageView: query.isHomepageView === 'true' });
+  }
+
   const [data, total] = await Promise.all([
     (prisma as any).category.findMany({
       where,
@@ -119,6 +127,11 @@ const getMaxSortOrder = async () => {
 
 const getAll = async () => {
   const result = await (prisma as any).category.findMany({
+    include: {
+      _count: {
+        select: { products: true }
+      }
+    },
     orderBy: { sortOrder: 'asc' }
   });
   return result;

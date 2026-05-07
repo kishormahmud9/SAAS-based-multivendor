@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { X, ChevronDown, ChevronUp } from "lucide-react"
+import { useState, useEffect, useCallback } from "react"
+import { X, ChevronDown, ChevronUp, Check } from "lucide-react"
 
 interface Category {
     id: string
@@ -49,6 +49,16 @@ export default function FilterSidebar({
         setLocalPriceRange(priceRange)
     }, [priceRange])
 
+    // Debounce price changes
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            if (localPriceRange[0] !== priceRange[0] || localPriceRange[1] !== priceRange[1]) {
+                onPriceChange(localPriceRange)
+            }
+        }, 500)
+        return () => clearTimeout(handler)
+    }, [localPriceRange])
+
     const handleCategoryToggle = (categoryId: string) => {
         const newSelection = selectedCategories.includes(categoryId)
             ? selectedCategories.filter(id => id !== categoryId)
@@ -67,10 +77,6 @@ export default function FilterSidebar({
         const newRange: [number, number] = [...localPriceRange] as [number, number]
         newRange[index] = value
         setLocalPriceRange(newRange)
-    }
-
-    const applyPriceFilter = () => {
-        onPriceChange(localPriceRange)
     }
 
     const hasActiveFilters = selectedCategories.length > 0 || selectedBrands.length > 0 ||
@@ -106,23 +112,28 @@ export default function FilterSidebar({
                     )}
                 </button>
                 {isCategoryOpen && (
-                    <div className="space-y-2">
-                        {categories.map(category => (
-                            <label
-                                key={category.id}
-                                className="flex items-center gap-2 cursor-pointer group"
-                            >
-                                <input
-                                    type="checkbox"
-                                    checked={selectedCategories.includes(category.id)}
-                                    onChange={() => handleCategoryToggle(category.id)}
-                                    className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500 focus:ring-2"
-                                />
-                                <span className="text-sm text-gray-700 group-hover:text-gray-900">
-                                    {category.name}
-                                </span>
-                            </label>
-                        ))}
+                    <div className="space-y-1 mt-4">
+                        {categories.map(category => {
+                            const isSelected = selectedCategories.includes(category.id);
+                            return (
+                                <button
+                                    key={category.id}
+                                    onClick={() => handleCategoryToggle(category.id)}
+                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
+                                        isSelected 
+                                            ? 'bg-orange-50 text-orange-600 font-bold' 
+                                            : 'hover:bg-gray-50 text-gray-600 hover:text-gray-900 font-medium'
+                                    }`}
+                                >
+                                    <div className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${
+                                        isSelected ? 'bg-orange-600 border-none text-white' : 'border-2 border-gray-300'
+                                    }`}>
+                                        {isSelected && <Check size={14} strokeWidth={4} />}
+                                    </div>
+                                    <span className="text-sm">{category.name}</span>
+                                </button>
+                            )
+                        })}
                     </div>
                 )}
             </div>
@@ -141,23 +152,28 @@ export default function FilterSidebar({
                     )}
                 </button>
                 {isBrandOpen && (
-                    <div className="space-y-2">
-                        {brands.map(brand => (
-                            <label
-                                key={brand.id}
-                                className="flex items-center gap-2 cursor-pointer group"
-                            >
-                                <input
-                                    type="checkbox"
-                                    checked={selectedBrands.includes(brand.id)}
-                                    onChange={() => handleBrandToggle(brand.id)}
-                                    className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500 focus:ring-2"
-                                />
-                                <span className="text-sm text-gray-700 group-hover:text-gray-900">
-                                    {brand.name}
-                                </span>
-                            </label>
-                        ))}
+                    <div className="space-y-1 mt-4">
+                        {brands.map(brand => {
+                            const isSelected = selectedBrands.includes(brand.id);
+                            return (
+                                <button
+                                    key={brand.id}
+                                    onClick={() => handleBrandToggle(brand.id)}
+                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
+                                        isSelected 
+                                            ? 'bg-orange-50 text-orange-600 font-bold' 
+                                            : 'hover:bg-gray-50 text-gray-600 hover:text-gray-900 font-medium'
+                                    }`}
+                                >
+                                    <div className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${
+                                        isSelected ? 'bg-orange-600 border-none text-white' : 'border-2 border-gray-300'
+                                    }`}>
+                                        {isSelected && <Check size={14} strokeWidth={4} />}
+                                    </div>
+                                    <span className="text-sm">{brand.name}</span>
+                                </button>
+                            )
+                        })}
                     </div>
                 )}
             </div>
@@ -202,16 +218,22 @@ export default function FilterSidebar({
                             </div>
                         </div>
 
-                        {/* Range Slider */}
-                        <div className="relative pt-2">
+                        <div className="relative h-2 mt-6 mb-8">
+                            <div className="absolute w-full h-1 bg-gray-100 rounded-full top-0.5"></div>
+                            <div 
+                                className="absolute h-2 bg-orange-500 rounded-full"
+                                style={{ 
+                                    left: `${(localPriceRange[0] / maxPrice) * 100}%`, 
+                                    right: `${100 - (localPriceRange[1] / maxPrice) * 100}%` 
+                                }}
+                            ></div>
                             <input
                                 type="range"
                                 min={minPrice}
                                 max={maxPrice}
                                 value={localPriceRange[0]}
                                 onChange={(e) => handlePriceChange(0, Number(e.target.value))}
-                                className="absolute w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                                style={{ zIndex: localPriceRange[0] > localPriceRange[1] - 100 ? 5 : 3 }}
+                                className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-orange-500 [&::-webkit-slider-thumb]:shadow-md"
                             />
                             <input
                                 type="range"
@@ -219,17 +241,9 @@ export default function FilterSidebar({
                                 max={maxPrice}
                                 value={localPriceRange[1]}
                                 onChange={(e) => handlePriceChange(1, Number(e.target.value))}
-                                className="absolute w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                                style={{ zIndex: 4 }}
+                                className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-orange-500 [&::-webkit-slider-thumb]:shadow-md"
                             />
                         </div>
-
-                        <button
-                            onClick={applyPriceFilter}
-                            className="w-full py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium text-sm"
-                        >
-                            Apply Price Filter
-                        </button>
                     </div>
                 )}
             </div>

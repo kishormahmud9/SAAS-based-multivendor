@@ -8,14 +8,31 @@ const generateOrderNumber = () => {
 };
 
 const initiateCheckout = async (userId: string, payload: any) => {
-  const { items, shippingAddress, paymentMethod } = payload;
+  const { items, shippingAddress, paymentMethod, addressId } = payload;
 
-  // 1. Calculate totals
+  // 1. Get Shipping Address Info
+  let addressData = shippingAddress;
+  if (addressId) {
+    const address = await (prisma as any).address.findUnique({ where: { id: addressId } });
+    if (address) {
+      addressData = {
+        fullName: address.fullName,
+        phone: address.phone,
+        street: address.street,
+        city: address.city,
+        state: address.state,
+        zipCode: address.zipCode,
+        country: address.country,
+      };
+    }
+  }
+
+  // 2. Calculate totals
   const subtotal = items.reduce((acc: number, item: any) => acc + item.price * item.quantity, 0);
-  const shippingCost = 100; // Fixed for now
+  const shippingCost = subtotal > 1000 ? 0 : 60; // Free shipping over 1000, else 60
   const totalAmount = subtotal + shippingCost;
 
-  // 2. Create Order in DB (Pending)
+  // 3. Create Order in DB (Pending)
   const orderData = {
     orderNumber: generateOrderNumber(),
     userId,
@@ -23,9 +40,10 @@ const initiateCheckout = async (userId: string, payload: any) => {
     shippingCost,
     totalAmount,
     status: 'PENDING',
-    paymentStatus: 'PENDING',
+    paymentStatus: paymentMethod === 'COD' ? 'PENDING' : 'PENDING',
     paymentMethod,
-    shippingSnapshot: shippingAddress,
+    shippingSnapshot: addressData,
+    addressId: addressId || null,
   };
 
   const order = await orderEngine.placeOrder(orderData, items.map((item: any) => ({
@@ -37,8 +55,7 @@ const initiateCheckout = async (userId: string, payload: any) => {
     totalPrice: item.price * item.quantity,
   })));
 
-
-  // 3. Create initial Payment record
+  // 4. Create initial Payment record
   const payment = await paymentRepository.createPaymentRecord({
     orderId: order.id,
     amount: totalAmount,
@@ -46,7 +63,7 @@ const initiateCheckout = async (userId: string, payload: any) => {
     status: 'PENDING',
   });
 
-  // 4. Interface with Gateway
+  // 5. Interface with Gateway
   let gatewayUrl = '';
   if (paymentMethod === 'STRIPE') {
     // Stripe Checkout Session logic
@@ -54,6 +71,9 @@ const initiateCheckout = async (userId: string, payload: any) => {
   } else if (paymentMethod === 'SSLCOMMERZ') {
     // SSLCommerz logic
     gatewayUrl = `https://sandbox.sslcommerz.com/pay/${order.orderNumber}`;
+  } else if (paymentMethod === 'COD') {
+    // For COD, we don't need a gateway URL, order is already created
+    gatewayUrl = '';
   }
 
   return { order, payment, gatewayUrl };

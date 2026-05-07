@@ -2,7 +2,7 @@ import { productService } from "@/src/services/product.service";
 import FeaturedCarousel from "./FeaturedCarousel";
 
 export default async function ProductSection() {
-    let featuredProducts = [];
+    let featuredProducts: any[] = [];
     try {
         const res = await productService.getProducts('isFeatured=true&limit=12');
         featuredProducts = res.success ? res.data : [];

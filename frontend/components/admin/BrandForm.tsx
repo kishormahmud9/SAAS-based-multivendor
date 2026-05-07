@@ -56,7 +56,7 @@ export default function BrandForm({ initialData, isEdit, onSuccess, onCancel }: 
         clearErrors,
         formState: { errors } 
     } = useForm<BrandFormValues>({
-        resolver: zodResolver(brandSchema),
+        resolver: zodResolver(brandSchema) as any,
         defaultValues: {
             name: initialData?.name || "",
             slug: initialData?.slug || "",
@@ -158,7 +158,7 @@ export default function BrandForm({ initialData, isEdit, onSuccess, onCancel }: 
     }
 
     return (
-        <form onSubmit={handleSubmit(onFormSubmit)} className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <form onSubmit={handleSubmit(onFormSubmit as any)} className="animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 
                 {/* Left Side: Main Form Content (2/3 Width) */}
@@ -269,7 +269,7 @@ export default function BrandForm({ initialData, isEdit, onSuccess, onCancel }: 
                                     </button>
                                 </div>
                             ) : (
-                                <label name="logo" className={`w-full aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 group cursor-pointer hover:border-orange-500 hover:bg-orange-50/10 transition-all border-gray-200 dark:border-gray-800`}>
+                                <label className={`w-full aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 group cursor-pointer hover:border-orange-500 hover:bg-orange-50/10 transition-all border-gray-200 dark:border-gray-800`}>
                                      <div className="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-2xl flex items-center justify-center text-gray-300 group-hover:text-orange-500 group-hover:scale-110 transition-all">
                                          <Upload size={32} />
                                      </div>

@@ -21,6 +21,7 @@ import { toast } from "react-hot-toast"
 import { getImageUrl } from "@/src/lib/image-utils"
 import Image from "next/image"
 import ConfirmModal from "@/components/ui/ConfirmModal"
+import DynamicPagination from "@/components/admin/DynamicPagination"
 
 export default function AdminBrandsPage() {
     const [brands, setBrands] = useState<any[]>([])
@@ -30,6 +31,8 @@ export default function AdminBrandsPage() {
     const [selectedIds, setSelectedIds] = useState<string[]>([])
     const [page, setPage] = useState(1)
     const [total, setTotal] = useState(0)
+    const [limit, setLimit] = useState(10)
+    const totalPages = Math.ceil(total / limit)
 
     // Modal States
     const [brandToDelete, setBrandToDelete] = useState<string | null>(null)
@@ -38,14 +41,14 @@ export default function AdminBrandsPage() {
 
     useEffect(() => {
         fetchBrands()
-    }, [page, search, isActiveFilter])
+    }, [page, limit, search, isActiveFilter])
 
     const fetchBrands = async () => {
         setLoading(true)
         try {
             const params = new URLSearchParams({
                 page: page.toString(),
-                limit: "10",
+                limit: limit.toString(),
                 search,
                 ...(isActiveFilter !== "all" && { isActive: isActiveFilter })
             }).toString()
@@ -296,16 +299,18 @@ export default function AdminBrandsPage() {
             </div>
 
             {/* Pagination */}
-            {total > 10 && (
-                <div className="flex items-center justify-center gap-2">
-                    <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-2 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 disabled:opacity-50">
-                        <ChevronLeft size={20} />
-                    </button>
-                    <span className="text-sm font-black text-gray-500">Page {page}</span>
-                    <button onClick={() => setPage(p => p + 1)} disabled={brands.length < 10} className="p-2 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 disabled:opacity-50">
-                        <ChevronRight size={20} />
-                    </button>
-                </div>
+            {total > 0 && (
+                <DynamicPagination
+                    page={page}
+                    totalPages={totalPages}
+                    limit={limit}
+                    totalItems={total}
+                    onPageChange={setPage}
+                    onLimitChange={(l) => {
+                        setLimit(l)
+                        setPage(1)
+                    }}
+                />
             )}
 
             {/* Delete Confirmation Modals */}

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/request';
+import type { NextRequest } from 'next/server';
 
 // Role paths
 const ROLE_PATHS = {

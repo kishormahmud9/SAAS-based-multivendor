@@ -6,7 +6,7 @@ import { getImageUrl } from "@/src/lib/image-utils";
 export default async function CategorySection() {
     let categories = [];
     try {
-        const res = await productService.getCategories("limit=12");
+        const res = await productService.getCategories("isHomepageView=true&limit=12");
         // The backend now sorts by sortOrder asc, createdAt desc
         categories = res.success ? res.data : [];
     } catch (error) {
@@ -23,8 +23,8 @@ export default async function CategorySection() {
                         </h2>
                         <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">Explore our curated collections</p>
                     </div>
-                    <Link 
-                        href="/shop" 
+                    <Link
+                        href="/categories"
                         className="px-6 py-3 border border-gray-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-500 hover:border-orange-500 hover:text-orange-600 transition-all flex items-center gap-2 group"
                     >
                         View All <span className="group-hover:translate-x-1 transition-transform">&rarr;</span>

@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/src/services/auth.service';
+import { toast } from 'react-hot-toast';
 
 interface User {
     id: string;
@@ -21,6 +22,7 @@ interface AuthContextType {
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
     hasPermission: (permission: string) => boolean;
+    verifyOtp: (email: string, otp: string, purpose: 'EMAIL_VERIFY' | 'PASSWORD_RESET') => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,12 +36,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         checkAuth();
     }, []);
 
+    useEffect(() => {
+        if (user && !isLoading) {
+            handlePendingActions();
+        }
+    }, [user, isLoading]);
+
+    const handlePendingActions = async () => {
+        const pendingActionStr = localStorage.getItem("pendingAction");
+        if (!pendingActionStr) return;
+
+        try {
+            const pendingAction = JSON.parse(pendingActionStr);
+            if (pendingAction.type === "ADD_WISHLIST") {
+                const { productId, productName } = pendingAction.payload;
+                
+                const response = await fetch("/api/wishlist", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ productId }),
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    toast.success(`${productName} added to wishlist!`);
+                }
+            }
+        } catch (error) {
+            console.error("Error executing pending action:", error);
+        } finally {
+            localStorage.removeItem("pendingAction");
+        }
+    };
+
     const checkAuth = async () => {
         try {
             const result = await authService.getMe();
             // In the backend response, 'data' itself is the user object for /me
             if (result.success && result.data) {
-                setUser(result.data);
+                // If result.data has a user property, use it, otherwise use result.data directly
+                setUser(result.data.user || result.data);
             } else {
                 setUser(null);
             }
@@ -92,7 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const refreshUser = async () => {
         const result = await authService.getMe();
         if (result.success && result.data) {
-            setUser(result.data);
+            setUser(result.data.user || result.data);
         }
     };
 
@@ -112,6 +148,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
     };
 
+    const verifyOtp = async (email: string, otp: string, purpose: 'EMAIL_VERIFY' | 'PASSWORD_RESET') => {
+        const result = await authService.verifyOtp({ email, otp, purpose });
+
+        if (result.success && result.data?.user && purpose === 'EMAIL_VERIFY') {
+            const userData = result.data.user;
+            const accessToken = result.data.accessToken;
+
+            if (accessToken) {
+                localStorage.setItem('accessToken', accessToken);
+                document.cookie = `accessToken=${accessToken}; path=/; max-age=${7 * 24 * 60 * 60}`;
+            }
+
+            setUser(userData);
+        }
+
+        return result;
+    };
+
     const value: AuthContextType = {
         user,
         isAuthenticated: !!user,
@@ -121,6 +175,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         refreshUser,
         hasPermission,
+        verifyOtp,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

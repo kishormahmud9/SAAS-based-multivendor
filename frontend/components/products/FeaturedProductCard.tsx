@@ -57,9 +57,9 @@ export default function FeaturedProductCard({ id, name, price, salePrice, image,
                 />
                 
                 {/* Sale Badge - Floating style */}
-                {salePrice && (
+                {salePrice && price > 0 && (
                     <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm z-10 border border-white/20">
-                        <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Featured Sale</span>
+                        <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">{Math.round(((price - salePrice) / price) * 100)}% OFF</span>
                     </div>
                 )}
 

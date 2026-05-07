@@ -66,7 +66,13 @@ export default function LoginForm() {
 
             toast.success("Welcome back!");
 
-            router.push(redirect || getRedirectPath(user));
+            // Role-based redirection: Admins/SuperAdmins always go to dashboard
+            const userRole = user?.role?.toUpperCase();
+            if (userRole === "ADMIN" || userRole === "SUPER_ADMIN") {
+                router.push("/admin/dashboard");
+            } else {
+                router.push(redirect || getRedirectPath(user));
+            }
         } catch (err: any) {
             // Check if backend sent field-specific error
             const errorMessage = err.message || "Login failed. Please try again.";

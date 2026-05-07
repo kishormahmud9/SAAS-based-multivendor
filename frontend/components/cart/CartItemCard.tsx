@@ -84,9 +84,9 @@ export default function CartItemCard({ item, onUpdate, onRemove }: CartItemCardP
                             />
                         </div>
                     </Link>
-                    {item.product.salePrice && (
+                    {item.product.salePrice && item.product.price > 0 && (
                         <div className="absolute -top-1 -left-1 bg-orange-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md shadow-lg uppercase tracking-wider">
-                            Sale
+                            {Math.round(((item.product.price - item.product.salePrice) / item.product.price) * 100)}% OFF
                         </div>
                     )}
                 </div>

@@ -190,7 +190,7 @@ export const adminService = {
   },
 
   getAllCategories: async (): Promise<any> => {
-    return apiClient('/categories/get-all-categories', { method: 'GET' });
+    return apiClient('/categories/get-all', { method: 'GET' });
   },
 
   // ── Brands ─────────────────────────────────────────────────────────────────

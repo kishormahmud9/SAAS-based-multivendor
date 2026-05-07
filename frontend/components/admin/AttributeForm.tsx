@@ -31,10 +31,7 @@ const attributeSchema = z.object({
     slug: z.string().min(2, "Slug must be at least 2 characters"),
     description: z.string().max(500, "Description too long").optional().or(z.literal("")),
     type: z.enum(["SELECT", "COLOR", "BUTTON", "RADIO"]),
-    isActive: z.preprocess(
-        (val) => val === true || val === 'true',
-        z.boolean().default(true)
-    ),
+    isActive: z.boolean().default(true),
     values: z.array(attributeValueSchema).min(1, "At least one value is required"),
 })
 
@@ -61,7 +58,7 @@ export default function AttributeForm({ initialData, isEdit, onSuccess, onCancel
         control,
         formState: { errors } 
     } = useForm<AttributeFormValues>({
-        resolver: zodResolver(attributeSchema),
+        resolver: zodResolver(attributeSchema) as any,
         defaultValues: {
             name: initialData?.name || "",
             slug: initialData?.slug || "",
@@ -102,7 +99,7 @@ export default function AttributeForm({ initialData, isEdit, onSuccess, onCancel
                 onSuccess?.(res.data?.id)
             }
         } catch (error: any) {
-            if (error.errors) {
+            if (error.errors && error.errors.length > 0) {
                 handleBackendErrors<AttributeFormValues>(error.errors, setError)
             } else {
                 toast.error(error.message || "Something went wrong")
@@ -113,7 +110,7 @@ export default function AttributeForm({ initialData, isEdit, onSuccess, onCancel
     }
 
     return (
-        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <form onSubmit={handleSubmit(onFormSubmit as any)} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 
                 {/* Left Side: Basic Info */}

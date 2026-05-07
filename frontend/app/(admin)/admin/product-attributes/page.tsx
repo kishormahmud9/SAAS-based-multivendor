@@ -20,6 +20,7 @@ import {
 import { adminService } from "@/src/services/admin.service"
 import { toast } from "react-hot-toast"
 import ConfirmModal from "@/components/ui/ConfirmModal"
+import DynamicPagination from "@/components/admin/DynamicPagination"
 
 export default function AdminAttributesPage() {
     const [attributes, setAttributes] = useState<any[]>([])
@@ -27,6 +28,8 @@ export default function AdminAttributesPage() {
     const [search, setSearch] = useState("")
     const [page, setPage] = useState(1)
     const [total, setTotal] = useState(0)
+    const [limit, setLimit] = useState(10)
+    const totalPages = Math.ceil(total / limit)
     const [selectedIds, setSelectedIds] = useState<string[]>([])
 
     // Modals
@@ -35,14 +38,14 @@ export default function AdminAttributesPage() {
 
     useEffect(() => {
         fetchAttributes()
-    }, [page, search])
+    }, [page, limit, search])
 
     const fetchAttributes = async () => {
         setLoading(true)
         try {
             const params = new URLSearchParams({
                 page: page.toString(),
-                limit: "10",
+                limit: limit.toString(),
                 search,
             }).toString()
             const res = await adminService.getAttributes(params)
@@ -204,16 +207,18 @@ export default function AdminAttributesPage() {
             </div>
 
             {/* Pagination */}
-            {total > 10 && (
-                <div className="flex items-center justify-center gap-2">
-                    <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-2 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 disabled:opacity-50">
-                        <ChevronLeft size={20} />
-                    </button>
-                    <span className="text-sm font-black text-gray-500">Page {page}</span>
-                    <button onClick={() => setPage(p => p + 1)} disabled={attributes.length < 10} className="p-2 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 disabled:opacity-50">
-                        <ChevronRight size={20} />
-                    </button>
-                </div>
+            {total > 0 && (
+                <DynamicPagination
+                    page={page}
+                    totalPages={totalPages}
+                    limit={limit}
+                    totalItems={total}
+                    onPageChange={setPage}
+                    onLimitChange={(l) => {
+                        setLimit(l)
+                        setPage(1)
+                    }}
+                />
             )}
 
             <ConfirmModal

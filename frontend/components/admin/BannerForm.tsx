@@ -14,7 +14,8 @@ import {
     Layers, 
     Image as ImageIcon,
     X,
-    Hash
+    Hash,
+    CheckCircle
 } from "lucide-react"
 import { adminService } from "@/src/services/admin.service"
 import { toast } from "react-hot-toast"
@@ -54,7 +55,7 @@ export default function BannerForm({ initialData, isEdit }: BannerFormProps) {
         clearErrors,
         formState: { errors } 
     } = useForm<BannerFormValues>({
-        resolver: zodResolver(bannerSchema),
+        resolver: zodResolver(bannerSchema) as any,
         defaultValues: {
             title: initialData?.title || "",
             link: initialData?.link || "",
@@ -108,7 +109,7 @@ export default function BannerForm({ initialData, isEdit }: BannerFormProps) {
                 router.push("/admin/marketing/banners")
             }
         } catch (error: any) {
-            if (error.errors) {
+            if (error.errors && error.errors.length > 0) {
                 handleBackendErrors<BannerFormValues>(error.errors, setError)
             } else {
                 toast.error(error.message || "Something went wrong")
@@ -119,7 +120,7 @@ export default function BannerForm({ initialData, isEdit }: BannerFormProps) {
     }
 
     return (
-        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <form onSubmit={handleSubmit(onFormSubmit as any)} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
                 {/* Left Column - Main Info */}
@@ -208,7 +209,7 @@ export default function BannerForm({ initialData, isEdit }: BannerFormProps) {
                                     </button>
                                 </div>
                             ) : (
-                                <label className={`aspect-video rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-2 group cursor-pointer hover:border-orange-500 transition-all border-gray-200 dark:border-gray-800`}>
+                                <label className={`w-full aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 group cursor-pointer hover:border-orange-500 hover:bg-orange-50/10 transition-all border-gray-200 dark:border-gray-800`}>
                                      <Upload className="text-gray-400 group-hover:text-orange-500 transition-colors" size={32} />
                                      <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Upload Banner</span>
                                      <span className="text-[8px] text-gray-400">Max 5MB (JPG, PNG, WebP)</span>

@@ -59,6 +59,12 @@ router.post(
 );
 
 router.post(
+  '/resend-otp',
+  authRateLimiter,
+  authControllers.resendOtp,
+);
+
+router.post(
   '/verify-otp',
   authRateLimiter,
   validateRequest(authValidation.verifyOtp),

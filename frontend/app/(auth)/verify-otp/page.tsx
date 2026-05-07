@@ -4,23 +4,32 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, ArrowRight, Loader2, CheckCircle, Timer, RefreshCw } from "lucide-react";
 import Button from "@/components/ui/Button";
-import { verifyOTP, forgotPassword } from "@/lib/api/auth";
+import { useAuth } from "@/lib/contexts/AuthContext";
+import { getRedirectPath } from "@/lib/auth/authRedirect";
 import { toast } from "react-hot-toast";
 
 export default function VerifyOTPPage() {
+    const { verifyOtp } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
 
     const email = searchParams.get("email") || "";
-    const type = (searchParams.get("type") || "EMAIL_VERIFICATION") as "EMAIL_VERIFICATION" | "PASSWORD_RESET";
+    // URL carries 'type' param (EMAIL_VERIFICATION or PASSWORD_RESET), we map to backend's 'purpose'
+    const typeParam = searchParams.get("type") || "EMAIL_VERIFICATION";
     const redirect = searchParams.get("redirect");
+
+    // Map frontend URL param → backend purpose field
+    const purpose: "EMAIL_VERIFY" | "PASSWORD_RESET" =
+        typeParam === "PASSWORD_RESET" ? "PASSWORD_RESET" : "EMAIL_VERIFY";
+
+    const isEmailVerification = purpose === "EMAIL_VERIFY";
 
     const [otp, setOtp] = useState(["", "", "", "", "", ""]);
     const [loading, setLoading] = useState(false);
     const [resending, setResending] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
-    
+
     // Countdown timer (120 seconds = 2 minutes)
     const [timeLeft, setTimeLeft] = useState(120);
     const [canResend, setCanResend] = useState(false);
@@ -84,24 +93,38 @@ export default function VerifyOTPPage() {
 
     const handleResend = async () => {
         if (!canResend) return;
-        
+
         setResending(true);
         setError("");
-        
+
         try {
-            const result = await forgotPassword(email);
-            if (result.success) {
-                toast.success("New OTP sent to your email");
-                setTimeLeft(120);
-                setCanResend(false);
-                setOtp(["", "", "", "", "", ""]);
-                const firstInput = document.getElementById("otp-0");
-                if (firstInput) firstInput.focus();
+            if (isEmailVerification) {
+                // Use the dedicated resend endpoint for email verification
+                const result = await authService.resendVerificationOtp(email);
+                if (result.success) {
+                    toast.success("New verification code sent to your email");
+                } else {
+                    setError(result.message || "Failed to resend OTP");
+                    return;
+                }
             } else {
-                setError(result.error || "Failed to resend OTP");
+                // Password reset uses forgotPassword
+                const result = await authService.forgotPassword(email);
+                if (result.success) {
+                    toast.success("New OTP sent to your email");
+                } else {
+                    setError(result.message || "Failed to resend OTP");
+                    return;
+                }
             }
+
+            setTimeLeft(120);
+            setCanResend(false);
+            setOtp(["", "", "", "", "", ""]);
+            const firstInput = document.getElementById("otp-0");
+            if (firstInput) firstInput.focus();
         } catch (err: any) {
-            setError("Failed to resend OTP. Please try again.");
+            setError(err.message || "Failed to resend OTP. Please try again.");
         } finally {
             setResending(false);
         }
@@ -124,27 +147,42 @@ export default function VerifyOTPPage() {
         setLoading(true);
 
         try {
-            const result = await verifyOTP(email, otpCode, type, false);
+            // Use AuthContext's verifyOtp to handle session/state
+            const result = await verifyOtp(email, otpCode, purpose);
 
             if (!result.success) {
-                setError(result.error || "Verification failed");
+                setError(result.message || "Verification failed");
                 setLoading(false);
                 return;
             }
 
             setSuccess(true);
 
-            if (type === "PASSWORD_RESET") {
-                toast.success("OTP Verified Successfully!");
+            if (purpose === "PASSWORD_RESET") {
+                toast.success("OTP Verified! Redirecting to reset password...");
+                const resetToken = result.data?.resetToken || "";
                 setTimeout(() => {
-                    router.push(`/reset-password?email=${encodeURIComponent(email)}&otp=${otpCode}${redirect ? `&redirect=${encodeURIComponent(redirect)}` : ""}`);
+                    router.push(
+                        `/reset-password?email=${encodeURIComponent(email)}&token=${encodeURIComponent(resetToken)}${redirect ? `&redirect=${encodeURIComponent(redirect)}` : ""}`
+                    );
                 }, 1500);
             } else {
+                // EMAIL_VERIFY success
+                toast.success("Email verified successfully!");
+                
+                // Get user from result to check role
+                const user = result.data?.user;
+                const userRole = user?.role?.toUpperCase();
+
                 setTimeout(() => {
-                    router.push(redirect || "/admin/dashboard");
+                    // Admins/SuperAdmins always go to dashboard
+                    if (userRole === "ADMIN" || userRole === "SUPER_ADMIN") {
+                        router.push("/admin/dashboard");
+                    } else {
+                        router.push(redirect || getRedirectPath(user));
+                    }
                 }, 1500);
             }
-
         } catch (err: any) {
             setError(err.message || "Verification failed. Please try again.");
             setLoading(false);
@@ -168,12 +206,14 @@ export default function VerifyOTPPage() {
                         </div>
                         <h2 className="text-3xl font-bold text-white mb-4">Verified!</h2>
                         <p className="text-gray-200 mb-6">
-                            {type === "PASSWORD_RESET" 
-                                ? "Identity verified. You can now reset your password." 
-                                : "Your email has been successfully verified."}
+                            {purpose === "PASSWORD_RESET"
+                                ? "Identity verified. You can now reset your password."
+                                : "Your email has been successfully verified. Welcome to ReadyMart!"}
                         </p>
                         <p className="text-orange-400 animate-pulse text-sm">
-                            {type === "PASSWORD_RESET" ? "Redirecting to Reset Password..." : "Redirecting to Dashboard..."}
+                            {purpose === "PASSWORD_RESET"
+                                ? "Redirecting to Reset Password..."
+                                : "Redirecting..."}
                         </p>
                     </div>
                 ) : (
@@ -183,7 +223,7 @@ export default function VerifyOTPPage() {
                                 <Mail className="w-8 h-8 text-white" />
                             </div>
                             <h2 className="text-3xl font-bold text-white mb-2">
-                                {type === "PASSWORD_RESET" ? "Verify OTP" : "Verify Email"}
+                                {isEmailVerification ? "Verify Email" : "Verify OTP"}
                             </h2>
                             <p className="text-gray-200 mb-1">We've sent a 6-digit code to</p>
                             <p className="text-orange-400 font-semibold">{email}</p>
@@ -225,7 +265,7 @@ export default function VerifyOTPPage() {
                                 type="submit"
                                 fullWidth
                                 icon={loading ? <Loader2 className="animate-spin" size={20} /> : <ArrowRight size={20} />}
-                                disabled={loading || otp.some(d => !d) || timeLeft === 0 || resending}
+                                disabled={loading || otp.some((d) => !d) || timeLeft === 0 || resending}
                             >
                                 {loading ? "Verifying..." : "Verify Code"}
                             </Button>
@@ -247,11 +287,17 @@ export default function VerifyOTPPage() {
                         <div className="mt-8 text-center">
                             <button
                                 type="button"
-                                onClick={() => router.push(type === "PASSWORD_RESET" ? `/forgot-password${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ""}` : `/register${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ""}`)}
+                                onClick={() =>
+                                    router.push(
+                                        purpose === "PASSWORD_RESET"
+                                            ? `/forgot-password${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ""}`
+                                            : `/register${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ""}`
+                                    )
+                                }
                                 className="text-gray-400 hover:text-white text-sm transition"
                                 disabled={loading || resending}
                             >
-                                ← Back to {type === "PASSWORD_RESET" ? "Forgot Password" : "Registration"}
+                                ← Back to {purpose === "PASSWORD_RESET" ? "Forgot Password" : "Registration"}
                             </button>
                         </div>
                     </>

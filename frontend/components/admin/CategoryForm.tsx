@@ -33,6 +33,8 @@ const categorySchema = z.object({
     description: z.string().max(500, "Description too long").optional().or(z.literal("")),
     parentId: z.string().nullable().optional(),
     isActive: z.boolean().default(true),
+    navStatus: z.boolean().default(false),
+    isHomepageView: z.boolean().default(false),
     sortOrder: z.number().min(0, "Order cannot be negative"),
     metaTitle: z.string().max(70, "Meta title too long").optional().or(z.literal("")),
     metaDesc: z.string().max(160, "Meta description too long").optional().or(z.literal(""))
@@ -65,13 +67,15 @@ export default function CategoryForm({ initialData, isEdit, onSuccess, onCancel 
         clearErrors,
         formState: { errors } 
     } = useForm<CategoryFormValues>({
-        resolver: zodResolver(categorySchema),
+        resolver: zodResolver(categorySchema) as any,
         defaultValues: {
             name: initialData?.name || "",
             slug: initialData?.slug || "",
             description: initialData?.description || "",
             parentId: initialData?.parentId || null,
             isActive: initialData?.isActive ?? true,
+            navStatus: initialData?.navStatus ?? false,
+            isHomepageView: initialData?.isHomepageView ?? false,
             sortOrder: initialData?.sortOrder || 0,
             metaTitle: initialData?.metaTitle || "",
             metaDesc: initialData?.metaDesc || ""
@@ -197,7 +201,7 @@ export default function CategoryForm({ initialData, isEdit, onSuccess, onCancel 
             }
         } catch (error: any) {
             // Dynamic Mapping of Backend Errors to UI
-            if (error.errors) {
+            if (error.errors && error.errors.length > 0) {
                 handleBackendErrors<CategoryFormValues>(error.errors, setError)
             } else {
                 toast.error(error.message || "Something went wrong")
@@ -208,7 +212,7 @@ export default function CategoryForm({ initialData, isEdit, onSuccess, onCancel 
     }
 
     return (
-        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <form onSubmit={handleSubmit(onFormSubmit as any)} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
                 {/* Left Column - Main Info */}
@@ -288,6 +292,51 @@ export default function CategoryForm({ initialData, isEdit, onSuccess, onCancel 
                 {/* Right Column - Status & SEO */}
                 <div className="space-y-8">
                     
+                    {/* Display Settings */}
+                    <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 border border-gray-100 dark:border-gray-800 shadow-sm space-y-6">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl flex items-center justify-center text-emerald-600">
+                                <Layout size={20} />
+                            </div>
+                            <h3 className="text-xl font-black text-gray-900 dark:text-white">Display Settings</h3>
+                        </div>
+
+                        <div className="space-y-4">
+                            <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                <div>
+                                    <p className="text-sm font-black text-gray-900 dark:text-white">Active Status</p>
+                                    <p className="text-[10px] text-gray-500 font-medium mt-0.5">Visible across the store</p>
+                                </div>
+                                <div className="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" className="sr-only peer" {...register("isActive")} />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-500"></div>
+                                </div>
+                            </label>
+
+                            <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                <div>
+                                    <p className="text-sm font-black text-gray-900 dark:text-white">Show in Navbar</p>
+                                    <p className="text-[10px] text-gray-500 font-medium mt-0.5">Pin to main navigation (Max 7)</p>
+                                </div>
+                                <div className="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" className="sr-only peer" {...register("navStatus")} />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-500"></div>
+                                </div>
+                            </label>
+
+                            <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                <div>
+                                    <p className="text-sm font-black text-gray-900 dark:text-white">Show on Homepage</p>
+                                    <p className="text-[10px] text-gray-500 font-medium mt-0.5">Feature on home page (Max 12)</p>
+                                </div>
+                                <div className="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" className="sr-only peer" {...register("isHomepageView")} />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-500"></div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
                     {/* Media */}
                     <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 border border-gray-100 dark:border-gray-800 shadow-sm space-y-6">
                         <div className="flex items-center gap-3">

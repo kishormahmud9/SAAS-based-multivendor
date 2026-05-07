@@ -15,6 +15,22 @@ const createCategory = async (payload: any) => {
     throw new ApiError(httpStatus.CONFLICT, 'Category name is already available');
   }
 
+  // Validate navStatus limit (Max 7)
+  if (payload.navStatus === true || payload.navStatus === 'true') {
+    const navCount = await (prisma as any).category.count({ where: { navStatus: true } });
+    if (navCount >= 7) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Already 7 categories are selected for navbar. You need to remove another category to show this category.');
+    }
+  }
+
+  // Validate isHomepageView limit (Max 12)
+  if (payload.isHomepageView === true || payload.isHomepageView === 'true') {
+    const homeCount = await (prisma as any).category.count({ where: { isHomepageView: true } });
+    if (homeCount >= 12) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Already 12 categories are selected for homepage. You need to remove another category to show this category.');
+    }
+  }
+
   return await (prisma as any).category.create({ data: payload });
 };
 
@@ -45,6 +61,26 @@ const updateCategory = async (id: string, payload: any) => {
     });
     if (existing) {
       throw new ApiError(httpStatus.CONFLICT, 'Category name is already available');
+    }
+  }
+
+  // Validate navStatus limit (Max 7)
+  if (payload.navStatus === true || payload.navStatus === 'true') {
+    const navCount = await (prisma as any).category.count({
+      where: { navStatus: true, NOT: { id } }
+    });
+    if (navCount >= 7) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Already 7 categories are selected for navbar. You need to remove another category to show this category.');
+    }
+  }
+
+  // Validate isHomepageView limit (Max 12)
+  if (payload.isHomepageView === true || payload.isHomepageView === 'true') {
+    const homeCount = await (prisma as any).category.count({
+      where: { isHomepageView: true, NOT: { id } }
+    });
+    if (homeCount >= 12) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Already 12 categories are selected for homepage. You need to remove another category to show this category.');
     }
   }
 
