@@ -1,6 +1,7 @@
 import { paymentRepository } from './payment.repository';
 import { orderEngine } from '../order/order.service';
 import crypto from 'crypto';
+import { prisma } from '../../db_connection';
 
 
 const generateOrderNumber = () => {
