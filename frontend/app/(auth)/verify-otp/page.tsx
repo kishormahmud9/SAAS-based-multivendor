@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { getRedirectPath } from "@/lib/auth/authRedirect";
 import { toast } from "react-hot-toast";
+import { authService } from "@/src/services/auth.service";
 
 export default function VerifyOTPPage() {
     const { verifyOtp } = useAuth();
@@ -169,7 +170,7 @@ export default function VerifyOTPPage() {
             } else {
                 // EMAIL_VERIFY success
                 toast.success("Email verified successfully!");
-                
+
                 // Get user from result to check role
                 const user = result.data?.user;
                 const userRole = user?.role?.toUpperCase();
