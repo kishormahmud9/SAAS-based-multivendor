@@ -15,7 +15,10 @@ app.use(helmet({
 }));
 app.use(
   cors({
-    origin: ['http://localhost:3000'], // Add your frontend URLs here
+   origin: [
+      'http://localhost:3000',
+      'https://saas-based-multivendor-frontend.vercel.app',
+    ], // Add your frontend URLs here
     credentials: true,
   })
 );
