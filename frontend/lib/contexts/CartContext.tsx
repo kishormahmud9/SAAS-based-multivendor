@@ -150,6 +150,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
                     newItems = [...prev, {
                         id: `guest-${Date.now()}`,
                         productId,
+                        variantId: null,
                         quantity,
                         product: productData
                     }]
