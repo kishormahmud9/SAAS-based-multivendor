@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "D:\\Kishor\\Others\\AI Powerd E-com\\backend\\backend\\logs\\winston\\errors\\.ddb30e4ef0fe014ed09e1bfec2bcd8c2e6683d99-audit.json",
+    "files": [
+        {
+            "date": 1778701193629,
+            "name": "D:\\Kishor\\Others\\AI Powerd E-com\\backend\\backend\\logs\\winston\\errors\\error-2026-14-05-01.log",
+            "hash": "b2f22a8800f548727ef50ce8e89634c41eb518cf183074fea354c57683314a77"
+        }
+    ],
+    "hashType": "sha256"
+}
