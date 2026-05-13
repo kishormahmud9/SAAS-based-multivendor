@@ -8,6 +8,7 @@ import { cartService } from "@/src/services/cart.service"
 export interface CartItem {
     id: string
     productId: string
+    variantId: string | null
     quantity: number
     product: {
         id: string

@@ -146,7 +146,7 @@ export default function ShopPage() {
                 } else {
                     setProducts(prev => [...prev, ...response.data])
                 }
-                setTotalPages(response.meta?.totalPage || 1)
+                setTotalPages(response.pagination?.totalPages || 1)
             }
         } catch (error) {
             console.error("Error fetching products:", error)

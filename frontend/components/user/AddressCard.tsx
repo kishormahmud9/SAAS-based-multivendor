@@ -5,6 +5,8 @@ import { MapPin, Edit, Trash2, Check } from "lucide-react"
 interface Address {
     id: string
     type: string
+    fullName: string
+    phone: string
     street: string
     city: string
     state: string

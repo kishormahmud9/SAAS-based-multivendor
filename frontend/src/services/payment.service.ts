@@ -8,6 +8,13 @@ export const paymentService = {
     });
   },
 
+  initiateCheckout: async (checkoutData: any): Promise<any> => {
+    return apiClient('/payments/initiate-checkout', {
+      method: 'POST',
+      body: checkoutData,
+    });
+  },
+
   verifyPayment: async (transactionId: string): Promise<any> => {
     return apiClient(`/payments/verify/${transactionId}`, {
       method: 'GET',

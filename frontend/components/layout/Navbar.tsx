@@ -18,7 +18,8 @@ export default function Navbar() {
 
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-    const [navCategories, setNavCategories] = useState<{name: string, href: string}[]>([]);
+    type NavCategory = { name: string, href: string, special?: boolean };
+    const [navCategories, setNavCategories] = useState<NavCategory[]>([]);
 
     useEffect(() => {
         const fetchNavCategories = async () => {
@@ -39,7 +40,7 @@ export default function Navbar() {
         fetchNavCategories();
     }, []);
 
-    const categories = [
+    const categories: NavCategory[] = [
         { name: "All Categories", href: "/categories" },
         ...navCategories,
         { name: "Flash Sale 🔥", href: "/shop?category=sale", special: true },

@@ -37,7 +37,7 @@ export default function CheckoutPage() {
         setProcessing(true)
         try {
             // Using paymentService.initiateCheckout which handles order creation too
-            const res = await paymentService.createPaymentIntent({
+            const res = await paymentService.initiateCheckout({
                 items: cartItems.map(item => ({
                     productId: item.productId,
                     variantId: item.variantId,

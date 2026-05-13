@@ -10,6 +10,8 @@ import ConfirmModal from "@/components/ui/ConfirmModal"
 interface Address {
     id: string
     type: string
+    fullName: string
+    phone: string
     street: string
     city: string
     state: string
